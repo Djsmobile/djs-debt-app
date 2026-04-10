@@ -1,10 +1,910 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DJ's Debt Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DJ's Debt Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1e293b;
+      --panel-3: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --blue: #38bdf8;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --border: #243041;
+      --shadow: 0 10px 30px rgba(0,0,0,0.25);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56, 189, 248, 0.08), transparent 30%),
+        linear-gradient(180deg, #0b1220 0%, var(--bg) 100%);
+      color: var(--text);
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #111827 0%, #172033 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .summary-card .label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .summary-card .value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .summary-card .sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      margin: 0 0 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 12px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #04130a;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-dark);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #1e40af;
+    }
+
+    .btn-muted {
+      background: #334155;
+      color: white;
+    }
+
+    .btn-muted:hover {
+      background: #475569;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.28);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.18);
+    }
+
+    .focus-card {
+      margin-bottom: 16px;
+      border-left: 4px solid var(--yellow);
+    }
+
+    .focus-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--yellow);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .focus-body {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .focus-sub {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+
+    .debt-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .debt-item {
+      background: linear-gradient(180deg, rgba(30,41,59,0.9), rgba(17,24,39,0.95));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .debt-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .debt-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .debt-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #0b1220;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .badge-apr {
+      color: #7dd3fc;
+    }
+
+    .badge-focus {
+      color: #fde68a;
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .debt-balance {
+      text-align: right;
+      font-size: 22px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .debt-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .meta-box {
+      background: rgba(11,18,32,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .meta-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .meta-value {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .mini-progress {
+      margin-bottom: 12px;
+    }
+
+    .mini-progress .progress-bar {
+      height: 10px;
+    }
+
+    .debt-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 26px 18px;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.45);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 720px) {
+      .summary-grid,
+      .form-grid,
+      .button-row,
+      .toolbar,
+      .debt-actions,
+      .debt-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .debt-top {
+        flex-direction: column;
+      }
+
+      .debt-balance {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
 <body>
-<h1>Debt App Ready</h1>
+  <div class="app">
+    <div class="hero">
+      <h1>💳 DJ's Debt Dashboard</h1>
+      <p>
+        One clean place to track cards, see progress, and decide what to hit next
+        without making this feel heavier than it already is.
+      </p>
+    </div>
+
+    <div class="grid summary-grid">
+      <div class="card summary-card">
+        <div class="label">Total Debt</div>
+        <div class="value" id="totalDebt">$0.00</div>
+        <div class="sub" id="debtSub">Across 0 cards</div>
+      </div>
+
+      <div class="card summary-card">
+        <div class="label">Monthly Minimums</div>
+        <div class="value" id="totalMin">$0.00</div>
+        <div class="sub">Your current baseline payment load</div>
+      </div>
+
+      <div class="card summary-card">
+        <div class="label">Average APR</div>
+        <div class="value" id="avgApr">0.00%</div>
+        <div class="sub">Weighted by balance</div>
+      </div>
+
+      <div class="card summary-card">
+        <div class="label">Utilization</div>
+        <div class="value" id="utilization">0%</div>
+        <div class="sub" id="utilSub">Based on cards with limits entered</div>
+      </div>
+    </div>
+
+    <div class="card focus-card">
+      <div class="focus-title">Focus Next</div>
+      <div class="focus-body" id="focusCardTitle">Add your first card</div>
+      <div class="focus-sub" id="focusCardSub">
+        Once you enter your cards, this will point you toward the one that deserves the most attention.
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Overall progress</span>
+          <span id="progressText">$0 paid off</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="overallProgressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">Add or Update a Card</h2>
+      <p class="section-sub">
+        Fill this out and tap save. If you want a card tracked without payoff priority, leave it on Track Only.
+      </p>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label for="name">Card Name</label>
+          <input id="name" type="text" placeholder="Example: Capital One, Chase Freedom, Discover" />
+        </div>
+
+        <div class="field">
+          <label for="balance">Current Balance</label>
+          <input id="balance" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field">
+          <label for="limit">Credit Limit</label>
+          <input id="limit" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field">
+          <label for="apr">APR %</label>
+          <input id="apr" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field">
+          <label for="minPayment">Minimum Payment</label>
+          <input id="minPayment" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field">
+          <label for="dueDate">Due Date</label>
+          <input id="dueDate" type="text" placeholder="Example: 12th or Apr 25" />
+        </div>
+
+        <div class="field">
+          <label for="paidOff">Amount Already Paid Off</label>
+          <input id="paidOff" type="number" min="0" step="0.01" placeholder="0.00" />
+        </div>
+
+        <div class="field full">
+          <label for="mode">Payoff Mode</label>
+          <select id="mode">
+            <option value="avalanche">Avalanche — highest interest first</option>
+            <option value="snowball">Snowball — smallest balance first</option>
+            <option value="track">Track Only</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn-primary" onclick="saveCard()">Save Card</button>
+        <button class="btn-muted" onclick="clearForm()">Clear Form</button>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn-secondary" onclick="loadSampleData()">Load Sample Data</button>
+        <button class="btn-muted" onclick="exportData()">Export Backup</button>
+        <button class="btn-muted" onclick="document.getElementById('importFile').click()">Import Backup</button>
+      </div>
+
+      <input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(event)" />
+
+      <div class="footer-note">
+        Saved in your browser on this device. If you switch phones or browsers, import/export is your safety net.
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h2 class="section-title">Your Cards</h2>
+      <p class="section-sub">
+        Clean snapshot of what you owe, what you’ve already knocked down, and which one deserves attention first.
+      </p>
+
+      <div id="debtList" class="debt-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "djs_debt_dashboard_cards";
+    let debts = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let editingId = null;
+
+    function currency(value) {
+      const num = Number(value) || 0;
+      return num.toLocaleString("en-US", { style: "currency", currency: "USD" });
+    }
+
+    function percent(value) {
+      const num = Number(value) || 0;
+      return num.toFixed(2) + "%";
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(debts));
+    }
+
+    function generateId() {
+      return "debt_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+    }
+
+    function getFieldValue(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    function getFieldNumber(id) {
+      const raw = document.getElementById(id).value;
+      const num = parseFloat(raw);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function clearForm() {
+      editingId = null;
+      document.getElementById("name").value = "";
+      document.getElementById("balance").value = "";
+      document.getElementById("limit").value = "";
+      document.getElementById("apr").value = "";
+      document.getElementById("minPayment").value = "";
+      document.getElementById("dueDate").value = "";
+      document.getElementById("paidOff").value = "";
+      document.getElementById("mode").value = "avalanche";
+    }
+
+    function saveCard() {
+      const name = getFieldValue("name");
+      const balance = getFieldNumber("balance");
+      const limit = getFieldNumber("limit");
+      const apr = getFieldNumber("apr");
+      const minPayment = getFieldNumber("minPayment");
+      const dueDate = getFieldValue("dueDate");
+      const paidOff = getFieldNumber("paidOff");
+      const mode = getFieldValue("mode");
+
+      if (!name) {
+        alert("Please enter a card name.");
+        return;
+      }
+
+      const card = {
+        id: editingId || generateId(),
+        name,
+        balance,
+        limit,
+        apr,
+        minPayment,
+        dueDate,
+        paidOff,
+        mode
+      };
+
+      if (editingId) {
+        debts = debts.map(item => item.id === editingId ? card : item);
+      } else {
+        debts.unshift(card);
+      }
+
+      saveToStorage();
+      clearForm();
+      render();
+    }
+
+    function editCard(id) {
+      const card = debts.find(item => item.id === id);
+      if (!card) return;
+
+      editingId = card.id;
+      document.getElementById("name").value = card.name || "";
+      document.getElementById("balance").value = card.balance || "";
+      document.getElementById("limit").value = card.limit || "";
+      document.getElementById("apr").value = card.apr || "";
+      document.getElementById("minPayment").value = card.minPayment || "";
+      document.getElementById("dueDate").value = card.dueDate || "";
+      document.getElementById("paidOff").value = card.paidOff || "";
+      document.getElementById("mode").value = card.mode || "avalanche";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteCard(id) {
+      const card = debts.find(item => item.id === id);
+      if (!card) return;
+
+      const confirmed = confirm(`Delete ${card.name}?`);
+      if (!confirmed) return;
+
+      debts = debts.filter(item => item.id !== id);
+      if (editingId === id) clearForm();
+      saveToStorage();
+      render();
+    }
+
+    function getFocusCard() {
+      const active = debts.filter(card => card.mode !== "track" && card.balance > 0);
+      if (!active.length) return null;
+
+      const avalancheCards = active.filter(card => card.mode === "avalanche");
+      const snowballCards = active.filter(card => card.mode === "snowball");
+
+      let best = null;
+
+      if (avalancheCards.length) {
+        avalancheCards.sort((a, b) => {
+          if (b.apr !== a.apr) return b.apr - a.apr;
+          return b.balance - a.balance;
+        });
+        best = avalancheCards[0];
+      }
+
+      if (!best && snowballCards.length) {
+        snowballCards.sort((a, b) => {
+          if (a.balance !== b.balance) return a.balance - b.balance;
+          return b.apr - a.apr;
+        });
+        best = snowballCards[0];
+      }
+
+      return best;
+    }
+
+    function getUtilization(balanceTotal, limitTotal) {
+      if (!limitTotal) return 0;
+      return (balanceTotal / limitTotal) * 100;
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(debts, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "djs-debt-dashboard-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!Array.isArray(parsed)) throw new Error("Invalid format");
+          debts = parsed;
+          saveToStorage();
+          render();
+          alert("Backup imported successfully.");
+        } catch (err) {
+          alert("That file could not be imported.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function loadSampleData() {
+      const confirmed = confirm("Load sample data? This will replace your current list.");
+      if (!confirmed) return;
+
+      debts = [
+        {
+          id: generateId(),
+          name: "Chase Freedom",
+          balance: 4200,
+          limit: 6000,
+          apr: 27.49,
+          minPayment: 125,
+          dueDate: "12th",
+          paidOff: 800,
+          mode: "avalanche"
+        },
+        {
+          id: generateId(),
+          name: "Capital One",
+          balance: 1850,
+          limit: 3000,
+          apr: 24.99,
+          minPayment: 65,
+          dueDate: "18th",
+          paidOff: 450,
+          mode: "snowball"
+        },
+        {
+          id: generateId(),
+          name: "Discover",
+          balance: 950,
+          limit: 2500,
+          apr: 19.99,
+          minPayment: 40,
+          dueDate: "25th",
+          paidOff: 300,
+          mode: "track"
+        }
+      ];
+
+      saveToStorage();
+      clearForm();
+      render();
+    }
+
+    function render() {
+      const debtList = document.getElementById("debtList");
+
+      const totalDebt = debts.reduce((sum, card) => sum + (Number(card.balance) || 0), 0);
+      const totalMin = debts.reduce((sum, card) => sum + (Number(card.minPayment) || 0), 0);
+      const totalPaid = debts.reduce((sum, card) => sum + (Number(card.paidOff) || 0), 0);
+      const totalLimit = debts.reduce((sum, card) => sum + (Number(card.limit) || 0), 0);
+      const weightedAprBase = debts.reduce((sum, card) => sum + ((Number(card.balance) || 0) * (Number(card.apr) || 0)), 0);
+      const avgApr = totalDebt > 0 ? (weightedAprBase / totalDebt) : 0;
+      const utilization = getUtilization(totalDebt, totalLimit);
+      const originalTotal = totalDebt + totalPaid;
+      const progressPercent = originalTotal > 0 ? Math.min((totalPaid / originalTotal) * 100, 100) : 0;
+
+      document.getElementById("totalDebt").innerText = currency(totalDebt);
+      document.getElementById("totalMin").innerText = currency(totalMin);
+      document.getElementById("avgApr").innerText = percent(avgApr);
+      document.getElementById("utilization").innerText = totalLimit > 0 ? percent(utilization) : "—";
+      document.getElementById("utilSub").innerText =
+        totalLimit > 0 ? `${currency(totalDebt)} of ${currency(totalLimit)} in limits used` : "Add limits to see utilization";
+      document.getElementById("debtSub").innerText = `Across ${debts.length} card${debts.length === 1 ? "" : "s"}`;
+      document.getElementById("progressText").innerText =
+        `${currency(totalPaid)} paid off${originalTotal > 0 ? ` • ${progressPercent.toFixed(0)}% of tracked total` : ""}`;
+      document.getElementById("overallProgressFill").style.width = progressPercent + "%";
+
+      const focus = getFocusCard();
+      if (focus) {
+        document.getElementById("focusCardTitle").innerText = `${focus.name} should get your extra focus`;
+        document.getElementById("focusCardSub").innerText =
+          focus.mode === "avalanche"
+            ? `Avalanche mode: it has the most expensive interest pressure right now at ${percent(focus.apr)}.`
+            : `Snowball mode: it gives you the quickest balance win and momentum at ${currency(focus.balance)} remaining.`;
+      } else if (debts.length) {
+        document.getElementById("focusCardTitle").innerText = "Everything is set to Track Only";
+        document.getElementById("focusCardSub").innerText =
+          "That’s fine if you just want visibility. Change a card to Avalanche or Snowball when you want a priority suggestion.";
+      } else {
+        document.getElementById("focusCardTitle").innerText = "Add your first card";
+        document.getElementById("focusCardSub").innerText =
+          "Once you enter your cards, this will point you toward the one that deserves the most attention.";
+      }
+
+      if (!debts.length) {
+        debtList.innerHTML = `
+          <div class="empty">
+            No cards yet. Add your first one above and this dashboard will start doing the heavy lifting.
+          </div>
+        `;
+        return;
+      }
+
+      const sortedDebts = [...debts].sort((a, b) => {
+        const focusId = focus ? focus.id : null;
+        if (a.id === focusId) return -1;
+        if (b.id === focusId) return 1;
+        return (b.balance || 0) - (a.balance || 0);
+      });
+
+      debtList.innerHTML = sortedDebts.map(card => {
+        const balance = Number(card.balance) || 0;
+        const limit = Number(card.limit) || 0;
+        const apr = Number(card.apr) || 0;
+        const minPayment = Number(card.minPayment) || 0;
+        const paidOff = Number(card.paidOff) || 0;
+        const original = balance + paidOff;
+        const itemProgress = original > 0 ? Math.min((paidOff / original) * 100, 100) : 0;
+        const itemUtilization = limit > 0 ? (balance / limit) * 100 : 0;
+        const isFocus = focus && focus.id === card.id;
+
+        return `
+          <div class="debt-item">
+            <div class="debt-top">
+              <div>
+                <div class="debt-name">${escapeHtml(card.name)}</div>
+                <div class="debt-badges">
+                  <span class="badge badge-apr">${percent(apr)} APR</span>
+                  <span class="badge">${card.mode === "avalanche" ? "Avalanche" : card.mode === "snowball" ? "Snowball" : "Track Only"}</span>
+                  ${card.dueDate ? `<span class="badge">Due: ${escapeHtml(card.dueDate)}</span>` : ""}
+                  ${isFocus ? `<span class="badge badge-focus">Focus Card</span>` : ""}
+                </div>
+              </div>
+              <div class="debt-balance">${currency(balance)}</div>
+            </div>
+
+            <div class="debt-meta">
+              <div class="meta-box">
+                <div class="meta-label">Minimum Payment</div>
+                <div class="meta-value">${currency(minPayment)}</div>
+              </div>
+
+              <div class="meta-box">
+                <div class="meta-label">Paid Off So Far</div>
+                <div class="meta-value">${currency(paidOff)}</div>
+              </div>
+
+              <div class="meta-box">
+                <div class="meta-label">Limit</div>
+                <div class="meta-value">${limit > 0 ? currency(limit) : "—"}</div>
+              </div>
+
+              <div class="meta-box">
+                <div class="meta-label">Utilization</div>
+                <div class="meta-value">${limit > 0 ? percent(itemUtilization) : "—"}</div>
+              </div>
+            </div>
+
+            <div class="mini-progress">
+              <div class="progress-label">
+                <span>Card progress</span>
+                <span>${currency(paidOff)} knocked out</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:${itemProgress}%"></div>
+              </div>
+            </div>
+
+            <div class="debt-actions">
+              <button class="btn-muted" onclick="editCard('${card.id}')">Edit</button>
+              <button class="btn-danger" onclick="deleteCard('${card.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    render();
+  </script>
 </body>
 </html>
