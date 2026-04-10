@@ -8,10 +8,9 @@
   <style>
     :root{
       --bg:#0b1220;
-      --bg-2:#09101c;
       --panel:#131c31;
       --panel-2:#18233d;
-      --panel-3:#0d1527;
+      --soft:#233252;
       --text:#edf3ff;
       --muted:#a7b6d6;
       --accent:#67e8f9;
@@ -19,21 +18,15 @@
       --good:#34d399;
       --warn:#fbbf24;
       --bad:#f87171;
-      --purple:#a78bfa;
       --border:rgba(255,255,255,.09);
       --shadow:0 12px 30px rgba(0,0,0,.32);
       --radius:22px;
     }
 
     *{box-sizing:border-box}
-    html,body{
-      margin:0;padding:0;
-      background:linear-gradient(180deg,var(--bg-2) 0%, var(--bg) 100%);
-      color:var(--text);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif
-    }
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#09101c 0%,#0b1220 100%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif}
     body{min-height:100vh}
-    .wrap{max-width:1120px;margin:0 auto;padding:18px 14px 110px}
+    .wrap{max-width:1100px;margin:0 auto;padding:20px 14px 100px}
     .hero{
       background:linear-gradient(135deg,rgba(103,232,249,.16),rgba(96,165,250,.10));
       border:1px solid var(--border);
@@ -54,10 +47,9 @@
     .eyebrow{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:800}
     h1{margin:8px 0 8px;font-size:clamp(1.75rem,5vw,2.8rem);line-height:1.05}
     .sub{color:var(--muted);font-size:1rem;line-height:1.45;max-width:760px}
-
     .grid{display:grid;grid-template-columns:1fr;gap:14px}
-    @media (min-width:960px){
-      .grid{grid-template-columns:1.08fr .92fr}
+    @media (min-width:900px){
+      .grid{grid-template-columns:1.15fr .85fr}
     }
 
     .card{
@@ -74,10 +66,7 @@
       background:linear-gradient(135deg,var(--accent),var(--accent-2));
       color:#06111e;font-weight:800;padding:12px 14px;border-radius:14px;
       box-shadow:0 6px 18px rgba(96,165,250,.18);
-      transition:transform .16s ease, opacity .16s ease;
     }
-    .btn:hover{transform:translateY(-1px)}
-    .btn:active{transform:translateY(0)}
     .btn.secondary{
       background:#0f172a;color:var(--text);border:1px solid var(--border);box-shadow:none
     }
@@ -85,7 +74,6 @@
       background:transparent;color:var(--muted);border:1px dashed var(--border);box-shadow:none
     }
     .btn.small{padding:9px 12px;border-radius:12px;font-size:.92rem}
-
     .section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
     .section-title p{margin:0;color:var(--muted);font-size:.92rem}
 
@@ -101,11 +89,8 @@
       background:#0c1527;color:var(--text);outline:none;font-size:1rem
     }
     input:focus,select:focus{border-color:rgba(103,232,249,.5);box-shadow:0 0 0 3px rgba(103,232,249,.12)}
-
     .muted{color:var(--muted)}
     .tiny{font-size:.82rem}
-    .right{text-align:right}
-
     .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     @media (min-width:620px){.stats{grid-template-columns:repeat(4,1fr)}}
     .stat{
@@ -116,51 +101,9 @@
     }
     .stat .k{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
     .stat .v{font-size:1.2rem;font-weight:800;margin-top:6px}
-
-    .badge{
-      display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;font-weight:700;font-size:.8rem;border:1px solid var(--border)
-    }
-    .badge.good{background:rgba(52,211,153,.10);color:#c7f8e4}
-    .badge.warn{background:rgba(251,191,36,.10);color:#ffe29c}
-    .badge.bad{background:rgba(248,113,113,.12);color:#ffc7c7}
-    .badge.info{background:rgba(103,232,249,.10);color:#d5f9ff}
-    .badge.purple{background:rgba(167,139,250,.12);color:#e8ddff}
-
-    .recommendation{
-      border:1px solid rgba(103,232,249,.20);
-      background:linear-gradient(180deg,rgba(103,232,249,.08),rgba(96,165,250,.05));
-      border-radius:20px;padding:14px
-    }
-    .split{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width:700px){.split{grid-template-columns:1fr 1fr}}
-    .compare-card{
-      background:#0c1527;border:1px solid var(--border);border-radius:18px;padding:12px
-    }
-    .compare-card .title{font-weight:800}
-
-    .mini-grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-    @media (min-width:700px){
-      .mini-grid{grid-template-columns:1fr 1fr}
-    }
-    .mini-card{
-      background:#0c1527;border:1px solid var(--border);border-radius:18px;padding:12px
-    }
-
-    .hr{height:1px;background:var(--border);margin:12px 0}
-    .empty{
-      padding:18px;border:1px dashed var(--border);border-radius:18px;color:var(--muted);text-align:center;background:rgba(255,255,255,.02)
-    }
-    .footer-note{margin-top:14px;color:var(--muted);font-size:.84rem;line-height:1.45}
-
-    .timeline{display:grid;gap:8px;margin-top:10px}
-    .timeline-item{
-      display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:#0c1527
-    }
+    .good{color:var(--good)}
+    .warn{color:var(--warn)}
+    .bad{color:var(--bad)}
 
     .debt-list{display:grid;gap:10px}
     .debt{
@@ -168,11 +111,7 @@
       border-radius:18px;
       padding:12px;
       background:rgba(255,255,255,.03);
-      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
     }
-    .debt:hover{transform:translateY(-1px)}
-    .debt.urgent{border-color:rgba(248,113,113,.38); box-shadow:0 0 0 1px rgba(248,113,113,.12) inset}
-    .debt.warning{border-color:rgba(251,191,36,.28)}
     .debt-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .debt-name{font-weight:800;font-size:1.03rem}
     .pill{
@@ -182,8 +121,6 @@
     .pill.good{background:rgba(52,211,153,.12);color:#b8f7de}
     .pill.warn{background:rgba(251,191,36,.13);color:#ffe39a}
     .pill.bad{background:rgba(248,113,113,.12);color:#ffc3c3}
-    .pill.info{background:rgba(103,232,249,.12);color:#d7fbff}
-
     .meta{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
     @media (min-width:700px){.meta{grid-template-columns:repeat(4,1fr)}}
     .meta-box{
@@ -191,92 +128,58 @@
     }
     .meta-box .label{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
     .meta-box .value{font-size:1rem;font-weight:800;margin-top:5px}
-
     .progress-wrap{margin-top:10px}
     .progress-track{
       height:12px;background:#0b1322;border-radius:999px;overflow:hidden;border:1px solid var(--border)
     }
     .progress-bar{
-      height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width .35s ease
+      height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%
     }
-
-    .debt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center;justify-content:space-between}
-    .paid-toggle{
-      display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted);font-weight:700
+    .debt-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .timeline{
+      display:grid;gap:8px;margin-top:10px
     }
-    .paid-toggle input{
-      width:18px;height:18px;accent-color:#34d399;margin:0
+    .timeline-item{
+      display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:14px;background:#0c1527
     }
-
-    .top-focus{
-      display:none;
-      margin-top:12px;
-      border:1px solid rgba(167,139,250,.25);
-      background:linear-gradient(180deg,rgba(167,139,250,.10),rgba(96,165,250,.05));
-      border-radius:18px;
-      padding:12px;
+    .badge{
+      display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;font-weight:700;font-size:.8rem;border:1px solid var(--border)
     }
-    .top-focus.show{display:block}
-
-    .chart-wrap{
-      display:flex;justify-content:center;align-items:center;padding:6px 0 2px;
+    .badge.good{background:rgba(52,211,153,.10);color:#c7f8e4}
+    .badge.warn{background:rgba(251,191,36,.10);color:#ffe29c}
+    .badge.bad{background:rgba(248,113,113,.12);color:#ffc7c7}
+    .recommendation{
+      border:1px solid rgba(103,232,249,.20);
+      background:linear-gradient(180deg,rgba(103,232,249,.08),rgba(96,165,250,.05));
+      border-radius:20px;padding:14px
     }
-    .ring{
-      width:170px;height:170px;border-radius:50%;
-      background:conic-gradient(var(--accent) 0deg, var(--accent-2) 0deg, rgba(255,255,255,.08) 0deg);
-      display:grid;place-items:center;
-      position:relative;
-      box-shadow:inset 0 0 30px rgba(0,0,0,.22);
+    .recommendation h3{margin-bottom:8px}
+    .split{display:grid;grid-template-columns:1fr;gap:10px}
+    @media (min-width:700px){.split{grid-template-columns:1fr 1fr}}
+    .compare-card{
+      background:#0c1527;border:1px solid var(--border);border-radius:18px;padding:12px
     }
-    .ring:before{
-      content:""; position:absolute; width:122px;height:122px;border-radius:50%;
-      background:linear-gradient(180deg,var(--panel-3),#111b30);
-      border:1px solid var(--border);
+    .compare-card .title{font-weight:800}
+    .footer-note{margin-top:14px;color:var(--muted);font-size:.84rem;line-height:1.45}
+    .empty{
+      padding:18px;border:1px dashed var(--border);border-radius:18px;color:var(--muted);text-align:center;background:rgba(255,255,255,.02)
     }
-    .ring-inner{
-      position:relative; z-index:1; text-align:center;
-      padding:0 12px;
-    }
-    .ring-value{font-size:1.4rem;font-weight:900}
-    .ring-label{font-size:.8rem;color:var(--muted);margin-top:3px}
-    .ring-caption{text-align:center;color:var(--muted);font-size:.84rem;margin-top:8px}
-
+    .hr{height:1px;background:var(--border);margin:12px 0}
     .danger-zone{
       border:1px dashed rgba(248,113,113,.35);
       border-radius:18px;padding:12px;background:rgba(248,113,113,.05)
     }
-
-    .toast{
-      position:fixed;
-      left:50%;
-      bottom:20px;
-      transform:translateX(-50%) translateY(16px);
-      background:#0b1528;
-      color:var(--text);
-      border:1px solid var(--border);
-      padding:12px 14px;
-      border-radius:14px;
-      box-shadow:var(--shadow);
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .2s ease, transform .2s ease;
-      z-index:50;
-      font-weight:700;
-    }
-    .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(0);
-    }
+    .right{text-align:right}
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
       <div class="eyebrow">DJ's Debt Dashboard</div>
-      <h1>Simple payoff plan. Less stress. Better momentum.</h1>
+      <h1>Simple payoff plan. Less chaos. Real numbers.</h1>
       <div class="sub">
-        Track your balances, compare <strong>snowball</strong> vs <strong>avalanche</strong>,
-        see where extra money helps the most, and keep the next bill from sneaking up on you.
+        Track cards and loans, compare <strong>snowball</strong> vs <strong>avalanche</strong>,
+        estimate payoff time and interest, and see which bill needs attention first.
       </div>
       <div class="toolbar">
         <button class="btn" id="addSampleBtn">Load sample debts</button>
@@ -292,7 +195,7 @@
         <div class="section-title">
           <div>
             <h2>Add or update a debt</h2>
-            <p>Quick entry. Clean view. Mobile-friendly.</p>
+            <p>Keep it quick and mobile-friendly.</p>
           </div>
         </div>
 
@@ -359,7 +262,7 @@
         <div class="section-title">
           <div>
             <h2>Payoff settings</h2>
-            <p>These control the recommendation and timeline.</p>
+            <p>These settings drive the recommendation and timeline.</p>
           </div>
         </div>
 
@@ -367,12 +270,12 @@
           <div>
             <label for="monthlyBudget">Total monthly debt budget ($)</label>
             <input id="monthlyBudget" type="number" step="0.01" min="0" placeholder="Example: 600" />
-            <div class="tiny muted" style="margin-top:6px">Use your total monthly debt payment amount here.</div>
+            <div class="tiny muted" style="margin-top:6px">Use your full monthly amount for debt payments, including minimums.</div>
           </div>
           <div>
             <label for="extraPayment">Extra payment above minimums ($)</label>
             <input id="extraPayment" type="number" step="0.01" min="0" placeholder="Example: 150" />
-            <div class="tiny muted" style="margin-top:6px">If you leave monthly budget blank, this gets added on top of all minimums.</div>
+            <div class="tiny muted" style="margin-top:6px">The app adds this on top of the total minimums each month.</div>
           </div>
         </div>
 
@@ -381,8 +284,8 @@
         </div>
 
         <div class="footer-note">
-          Estimates assume rates and minimums stay about the same and interest compounds monthly.
-          It will not be exact, but it gives you a strong real-world direction.
+          The payoff estimate assumes rates and minimums stay roughly the same and compounds monthly.
+          It is an estimate, but it is useful for seeing direction and impact.
         </div>
       </section>
 
@@ -390,12 +293,12 @@
         <div class="section-title">
           <div>
             <h2>Overview</h2>
-            <p>Live totals and payoff picture.</p>
+            <p>Live totals and payoff snapshot.</p>
           </div>
-          <span class="badge info" id="urgencyBadge">No debts yet</span>
+          <span class="badge" id="urgencyBadge">No debts yet</span>
         </div>
 
-        <div class="stats">
+        <div class="stats" id="stats">
           <div class="stat">
             <div class="k">Total balance</div>
             <div class="v" id="totalBalance">$0</div>
@@ -414,40 +317,6 @@
           </div>
         </div>
 
-        <div class="top-focus" id="topFocus"></div>
-
-        <div class="mini-grid">
-          <div class="mini-card">
-            <h3 style="margin:0 0 10px">Paid this month</h3>
-            <div class="chart-wrap">
-              <div class="ring" id="paidRing">
-                <div class="ring-inner">
-                  <div class="ring-value" id="paidRingValue">0%</div>
-                  <div class="ring-label">minimums marked paid</div>
-                </div>
-              </div>
-            </div>
-            <div class="ring-caption" id="paidRingCaption">0 of 0 accounts checked off</div>
-          </div>
-
-          <div class="mini-card">
-            <h3 style="margin:0 0 10px">Monthly pressure</h3>
-            <div style="display:grid;gap:10px">
-              <div>
-                <div class="tiny muted" style="margin-bottom:6px">Monthly budget used</div>
-                <div class="progress-track"><div class="progress-bar" id="budgetBar" style="width:0%"></div></div>
-                <div class="tiny muted" id="budgetText" style="margin-top:6px">No budget set</div>
-              </div>
-              <div>
-                <span class="badge purple" id="nextDueBadge">Next due: —</span>
-              </div>
-              <div>
-                <span class="badge info" id="interestBadge">Interest estimate: —</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="hr"></div>
 
         <div class="recommendation" id="recommendationBox">
@@ -457,16 +326,16 @@
 
         <div class="hr"></div>
 
-        <div class="split">
+        <div class="split" id="strategyCompare">
           <div class="compare-card">
             <div class="title">Snowball</div>
-            <div class="muted tiny">Smallest balance first for fast wins and momentum.</div>
+            <div class="muted tiny">Smallest balance first for momentum.</div>
             <div style="margin-top:10px;font-weight:800;font-size:1.1rem" id="snowballPayoff">—</div>
             <div class="muted tiny" id="snowballInterest">Interest: —</div>
           </div>
           <div class="compare-card">
             <div class="title">Avalanche</div>
-            <div class="muted tiny">Highest APR first to save more on interest.</div>
+            <div class="muted tiny">Highest APR first to cut interest.</div>
             <div style="margin-top:10px;font-weight:800;font-size:1.1rem" id="avalanchePayoff">—</div>
             <div class="muted tiny" id="avalancheInterest">Interest: —</div>
           </div>
@@ -487,10 +356,9 @@
       <div class="section-title">
         <div>
           <h2>Your debts</h2>
-          <p>Due date highlighting, paid-this-month tracking, and quick edit/delete.</p>
+          <p>Due date highlighting, utilization view, and quick edit/delete.</p>
         </div>
       </div>
-
       <div class="debt-list" id="debtList">
         <div class="empty">No debts added yet.</div>
       </div>
@@ -505,10 +373,8 @@
     </section>
   </div>
 
-  <div class="toast" id="toast"></div>
-
   <script>
-    const STORAGE_KEY = "djs_debt_dashboard_v3";
+    const STORAGE_KEY = "djs_debt_dashboard_v2";
 
     const state = {
       debts: [],
@@ -550,39 +416,30 @@
       snowballInterest: document.getElementById("snowballInterest"),
       avalanchePayoff: document.getElementById("avalanchePayoff"),
       avalancheInterest: document.getElementById("avalancheInterest"),
-      payoffOrder: document.getElementById("payoffOrder"),
-      topFocus: document.getElementById("topFocus"),
-      paidRing: document.getElementById("paidRing"),
-      paidRingValue: document.getElementById("paidRingValue"),
-      paidRingCaption: document.getElementById("paidRingCaption"),
-      budgetBar: document.getElementById("budgetBar"),
-      budgetText: document.getElementById("budgetText"),
-      nextDueBadge: document.getElementById("nextDueBadge"),
-      interestBadge: document.getElementById("interestBadge"),
-      toast: document.getElementById("toast")
+      payoffOrder: document.getElementById("payoffOrder")
     };
 
     function money(n){
       return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:2}).format(Number(n || 0));
     }
+
     function pct(n){
       return `${Number(n || 0).toFixed(2)}%`;
     }
+
     function uid(){
       return Math.random().toString(36).slice(2,10);
     }
+
     function clampDueDay(day){
       const n = Number(day || 1);
       if (n < 1) return 1;
       if (n > 31) return 31;
       return Math.round(n);
     }
+
     function getNow(){
       return new Date();
-    }
-    function monthStamp(){
-      const d = getNow();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
     }
 
     function daysUntilDue(dueDay){
@@ -605,10 +462,10 @@
 
     function dueBadge(debt){
       const days = daysUntilDue(debt.dueDate);
-      if (debt.status === "late") return {label:"Late / behind", cls:"bad", days};
-      if (days <= 2) return {label:`Due in ${days} day${days===1?"":"s"}`, cls:"bad", days};
-      if (days <= 7) return {label:`Due in ${days} days`, cls:"warn", days};
-      return {label:`Due in ${days} days`, cls:"good", days};
+      if (debt.status === "late") return {label:"Late / behind", cls:"bad"};
+      if (days <= 2) return {label:`Due in ${days} day${days===1?"":"s"}`, cls:"bad"};
+      if (days <= 7) return {label:`Due in ${days} days`, cls:"warn"};
+      return {label:`Due in ${days} days`, cls:"good"};
     }
 
     function utilization(balance, limit){
@@ -642,16 +499,12 @@
       const debts = state.debts
         .filter(d => Number(d.balance) > 0)
         .map(d => ({
-          id:d.id,
-          name:d.name,
-          apr:Number(d.apr),
-          minimum:Number(d.minimum),
-          balance:Number(d.balance),
-          dueDate:Number(d.dueDate)
+          id:d.id, name:d.name, apr:Number(d.apr), minimum:Number(d.minimum),
+          balance:Number(d.balance), dueDate:Number(d.dueDate)
         }));
 
       if (!debts.length) {
-        return {months:0,totalInterest:0,order:[],payoffMoments:[],feasible:true,monthlyBudget,totalMinimums:0};
+        return {months:0,totalInterest:0,order:[],payoffMoments:[],feasible:true,monthlyBudget};
       }
 
       const totalMinimums = debts.reduce((s,d)=>s+d.minimum,0);
@@ -667,7 +520,7 @@
         };
       }
 
-      const order = getPayoffOrder(strategy).map(d => d.id);
+      const order = getPayoffOrder(strategy).map(d=>d.id);
       const balances = debts.map(d => ({...d}));
       const payoffMoments = [];
       let totalInterest = 0;
@@ -698,7 +551,12 @@
         }
 
         if (remainingBudget > 0.009) {
-          const ordered = balances.slice().sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id));
+          const ordered = balances.slice().sort((a,b) => {
+            const ia = order.indexOf(a.id);
+            const ib = order.indexOf(b.id);
+            return ia - ib;
+          });
+
           for (const d of ordered) {
             if (remainingBudget <= 0.009) break;
             if (d.balance <= 0.009) continue;
@@ -737,7 +595,6 @@
         return {
           title:"No debts added yet",
           text:"Start by adding each balance, APR, minimum payment, and due date.",
-          strategy:"none",
           order:[]
         };
       }
@@ -766,18 +623,9 @@
       return {
         title:"Recommended: Snowball",
         strategy:"snowball",
-        text:"Snowball is close enough financially and may be easier to stick with because it gives quicker wins by knocking out smaller balances first.",
+        text:`Snowball is close enough financially and may be easier to stick with because it gives quicker wins by knocking out smaller balances first.`,
         order:snowball.order
       };
-    }
-
-    function escapeHtml(str){
-      return String(str ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#39;");
     }
 
     function renderRecommendation(){
@@ -786,19 +634,20 @@
       const rec = recommendation(snowball, avalanche);
 
       els.snowballPayoff.textContent = snowball.feasible ? `Payoff: ${formatMonths(snowball.months)}` : "Payoff: not feasible yet";
-      els.snowballInterest.textContent = snowball.feasible ? `Interest: ${money(snowball.totalInterest)}` : "Raise payment above minimums";
+      els.snowballInterest.textContent = snowball.feasible ? `Interest: ${money(snowball.totalInterest)}` : `Raise payment above minimums`;
       els.avalanchePayoff.textContent = avalanche.feasible ? `Payoff: ${formatMonths(avalanche.months)}` : "Payoff: not feasible yet";
-      els.avalancheInterest.textContent = avalanche.feasible ? `Interest: ${money(avalanche.totalInterest)}` : "Raise payment above minimums";
+      els.avalancheInterest.textContent = avalanche.feasible ? `Interest: ${money(avalanche.totalInterest)}` : `Raise payment above minimums`;
 
       let icon = "⚡";
       if (rec.strategy === "snowball") icon = "🏁";
-      if (rec.strategy === "avalanche") icon = "💸";
       if (rec.strategy === "none") icon = "⚠️";
 
       els.recommendationBox.innerHTML = `
         <h3>${icon} ${rec.title}</h3>
         <div>${rec.text}</div>
-        <div class="footer-note">Monthly debt budget used: <strong>${money(budgetTotal())}</strong></div>
+        <div class="footer-note">
+          Monthly debt budget used: <strong>${money(budgetTotal())}</strong>
+        </div>
       `;
 
       const order = rec.order || [];
@@ -809,42 +658,11 @@
           .reduce((acc, x) => { acc[x.id] = x.month; return acc; }, {});
         els.payoffOrder.innerHTML = order.map((d, idx) => `
           <div class="timeline-item">
-            <div>
-              <strong>${idx+1}. ${escapeHtml(d.name)}</strong>
-              <div class="tiny muted">${rec.strategy === "avalanche" ? "Highest APR focus" : "Smallest balance focus"}</div>
-            </div>
-            <div class="right">
-              <strong>${money(d.balance)}</strong>
-              <div class="tiny muted">${moments[d.id] ? `Est. cleared by ${formatMonths(moments[d.id])}` : ""}</div>
-            </div>
+            <div><strong>${idx+1}. ${escapeHtml(d.name)}</strong><div class="tiny muted">${rec.strategy === "avalanche" ? "Highest APR focus" : "Smallest balance focus"}</div></div>
+            <div class="right"><strong>${money(d.balance)}</strong><div class="tiny muted">${moments[d.id] ? `Est. cleared by ${formatMonths(moments[d.id])}` : ""}</div></div>
           </div>
         `).join("");
       }
-
-      const chosen = rec.strategy === "avalanche" ? avalanche : snowball;
-      if (rec.strategy === "none" || !chosen.order.length) {
-        els.topFocus.className = "top-focus";
-        els.topFocus.innerHTML = "";
-      } else {
-        const target = chosen.order[0];
-        els.topFocus.className = "top-focus show";
-        els.topFocus.innerHTML = `
-          <div class="badge purple" style="margin-bottom:8px">Next debt to attack</div>
-          <div style="font-size:1.08rem;font-weight:900">${escapeHtml(target.name)}</div>
-          <div class="tiny muted" style="margin-top:6px">
-            ${rec.strategy === "avalanche" ? "Put your extra payment toward the highest APR first." : "Put your extra payment toward the smallest balance first."}
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-            <span class="pill info">Balance ${money(target.balance)}</span>
-            <span class="pill info">APR ${pct(target.apr)}</span>
-            <span class="pill info">Min ${money(target.minimum)}</span>
-          </div>
-        `;
-      }
-
-      const interestSource = rec.strategy === "avalanche" ? avalanche : snowball;
-      els.interestBadge.textContent = `Interest estimate: ${interestSource.feasible ? money(interestSource.totalInterest) : "raise payment"}`;
-      els.interestBadge.className = interestSource.feasible ? "badge info" : "badge bad";
     }
 
     function renderStats(){
@@ -865,7 +683,7 @@
       }).length;
 
       if (!state.debts.length) {
-        els.urgencyBadge.className = "badge info";
+        els.urgencyBadge.className = "badge";
         els.urgencyBadge.textContent = "No debts yet";
       } else if (urgentCount === 0) {
         els.urgencyBadge.className = "badge good";
@@ -877,43 +695,6 @@
         els.urgencyBadge.className = "badge bad";
         els.urgencyBadge.textContent = `${urgentCount} bills need attention`;
       }
-
-      const currentMonth = monthStamp();
-      const paidCount = state.debts.filter(d => d.paidMonth === currentMonth).length;
-      const totalCount = state.debts.length || 0;
-      const percent = totalCount ? Math.round((paidCount / totalCount) * 100) : 0;
-      const deg = Math.round((percent / 100) * 360);
-      els.paidRing.style.background = `conic-gradient(var(--accent) 0deg, var(--accent-2) ${deg}deg, rgba(255,255,255,.08) ${deg}deg)`;
-      els.paidRingValue.textContent = `${percent}%`;
-      els.paidRingCaption.textContent = `${paidCount} of ${totalCount} accounts checked off`;
-
-      const budget = budgetTotal();
-      const totalMin = minimumSum();
-      if (budget > 0) {
-        const usage = Math.min((totalMin / budget) * 100, 100);
-        els.budgetBar.style.width = `${usage}%`;
-        els.budgetText.textContent = `${money(totalMin)} minimums out of ${money(budget)} monthly budget`;
-      } else {
-        els.budgetBar.style.width = `0%`;
-        els.budgetText.textContent = "No budget set";
-      }
-
-      const nextDue = [...state.debts].sort((a,b) => {
-        const ad = dueBadge(a);
-        const bd = dueBadge(b);
-        if (a.status === "late" && b.status !== "late") return -1;
-        if (b.status === "late" && a.status !== "late") return 1;
-        return ad.days - bd.days;
-      })[0];
-
-      if (!nextDue) {
-        els.nextDueBadge.textContent = "Next due: —";
-        els.nextDueBadge.className = "badge info";
-      } else {
-        const badge = dueBadge(nextDue);
-        els.nextDueBadge.textContent = `Next due: ${nextDue.name} • ${badge.label}`;
-        els.nextDueBadge.className = badge.cls === "bad" ? "badge bad" : badge.cls === "warn" ? "badge warn" : "badge good";
-      }
     }
 
     function renderDebts(){
@@ -923,14 +704,12 @@
       }
 
       const sorted = [...state.debts].sort((a,b) => {
-        const ad = dueBadge(a);
-        const bd = dueBadge(b);
+        const ad = daysUntilDue(a.dueDate);
+        const bd = daysUntilDue(b.dueDate);
         if (a.status === "late" && b.status !== "late") return -1;
         if (b.status === "late" && a.status !== "late") return 1;
-        return ad.days - bd.days;
+        return ad - bd;
       });
-
-      const currentMonth = monthStamp();
 
       els.debtList.innerHTML = sorted.map(d => {
         const badge = dueBadge(d);
@@ -942,11 +721,9 @@
           : d.status === "watch"
             ? '<span class="pill warn">Need attention</span>'
             : '<span class="pill good">Current</span>';
-        const paid = d.paidMonth === currentMonth;
-        const debtClass = badge.cls === "bad" ? "debt urgent" : badge.cls === "warn" ? "debt warning" : "debt";
 
         return `
-          <div class="${debtClass}">
+          <div class="debt">
             <div class="debt-head">
               <div>
                 <div class="debt-name">${escapeHtml(d.name)}</div>
@@ -955,7 +732,6 @@
               <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
                 <span class="pill ${badge.cls}">${badge.label}</span>
                 ${watchBadge}
-                ${paid ? '<span class="pill good">Paid this month</span>' : ''}
               </div>
             </div>
 
@@ -984,25 +760,19 @@
             </div>
 
             <div class="debt-actions">
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn secondary small" type="button" onclick="editDebt('${d.id}')">Edit</button>
-                <button class="btn secondary small" type="button" onclick="deleteDebt('${d.id}')">Delete</button>
-              </div>
-              <label class="paid-toggle">
-                <input type="checkbox" ${paid ? "checked" : ""} onchange="togglePaidThisMonth('${d.id}', this.checked)" />
-                Paid this month
-              </label>
+              <button class="btn secondary small" type="button" onclick="editDebt('${d.id}')">Edit</button>
+              <button class="btn secondary small" type="button" onclick="deleteDebt('${d.id}')">Delete</button>
             </div>
           </div>
         `;
       }).join("");
     }
 
-    function persist(showMessage=false){
+    function persist(silent=false){
       state.settings.monthlyBudget = els.monthlyBudget.value;
       state.settings.extraPayment = els.extraPayment.value;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      if (showMessage) toast("Saved on this device");
+      if (!silent) flash("Saved on this device");
     }
 
     function load(){
@@ -1010,12 +780,7 @@
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return;
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.debts)) {
-          state.debts = parsed.debts.map(d => ({
-            ...d,
-            paidMonth: d.paidMonth || ""
-          }));
-        }
+        if (parsed && Array.isArray(parsed.debts)) state.debts = parsed.debts;
         if (parsed && parsed.settings) state.settings = parsed.settings;
       } catch (err) {
         console.error(err);
@@ -1030,76 +795,6 @@
       els.submitBtn.textContent = "Save debt";
       els.status.value = "current";
       els.type.value = "credit-card";
-    }
-
-    function toast(message){
-      els.toast.textContent = message;
-      els.toast.classList.add("show");
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => {
-        els.toast.classList.remove("show");
-      }, 1600);
-    }
-
-    function exportData(){
-      const blob = new Blob([JSON.stringify({
-        exportedAt: new Date().toISOString(),
-        app: "DJ's Debt Dashboard",
-        data: state
-      }, null, 2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "djs-debt-dashboard-backup.json";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function importData(file){
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          const incoming = parsed.data || parsed;
-          if (!incoming || !Array.isArray(incoming.debts)) throw new Error("Invalid file");
-
-          state.debts = incoming.debts.map(d => ({
-            id: d.id || uid(),
-            name: d.name || "Unnamed debt",
-            type: d.type || "other",
-            balance: Number(d.balance || 0),
-            apr: Number(d.apr || 0),
-            minimum: Number(d.minimum || 0),
-            dueDate: clampDueDay(d.dueDate || 1),
-            creditLimit: d.creditLimit ? Number(d.creditLimit) : "",
-            status: d.status || "current",
-            paidMonth: d.paidMonth || ""
-          }));
-          state.settings = incoming.settings || {monthlyBudget:"", extraPayment:""};
-          els.monthlyBudget.value = state.settings.monthlyBudget || "";
-          els.extraPayment.value = state.settings.extraPayment || "";
-          persist(false);
-          renderAll();
-          toast("Backup imported");
-        } catch (err) {
-          alert("That backup file could not be read.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function addSample(){
-      const nowMonth = monthStamp();
-      state.debts = [
-        {id:uid(),name:"Capital One",type:"credit-card",balance:1840.22,apr:29.99,minimum:65,dueDate:11,creditLimit:2500,status:"watch",paidMonth:""},
-        {id:uid(),name:"Discover",type:"credit-card",balance:6200.15,apr:21.24,minimum:160,dueDate:22,creditLimit:8000,status:"current",paidMonth:nowMonth},
-        {id:uid(),name:"Personal Loan",type:"loan",balance:4100.00,apr:11.90,minimum:125,dueDate:7,creditLimit:"",status:"current",paidMonth:""},
-        {id:uid(),name:"Store Card",type:"credit-card",balance:560.80,apr:31.99,minimum:35,dueDate:4,creditLimit:1200,status:"late",paidMonth:""}
-      ];
-      if (!els.extraPayment.value) els.extraPayment.value = "150";
-      persist(false);
-      renderAll();
-      toast("Sample debts loaded");
     }
 
     function editDebt(id){
@@ -1124,27 +819,91 @@
       if (!debt) return;
       if (!confirm(`Delete "${debt.name}"?`)) return;
       state.debts = state.debts.filter(d => d.id !== id);
-      persist(false);
+      persist(true);
       renderAll();
       resetForm();
-      toast("Debt deleted");
     }
     window.deleteDebt = deleteDebt;
 
-    function togglePaidThisMonth(id, checked){
-      const debt = state.debts.find(d => d.id === id);
-      if (!debt) return;
-      debt.paidMonth = checked ? monthStamp() : "";
-      persist(false);
-      renderAll();
-      toast(checked ? "Marked paid for this month" : "Removed paid check");
+    function flash(message){
+      els.urgencyBadge.className = "badge good";
+      els.urgencyBadge.textContent = message;
+      setTimeout(() => {
+        renderStats();
+      }, 1400);
     }
-    window.togglePaidThisMonth = togglePaidThisMonth;
+
+    function exportData(){
+      const blob = new Blob([JSON.stringify({
+        exportedAt: new Date().toISOString(),
+        app: "DJ's Debt Dashboard",
+        data: state
+      }, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "djs-debt-dashboard-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          const incoming = parsed.data || parsed;
+          if (!incoming || !Array.isArray(incoming.debts)) throw new Error("Invalid file");
+          state.debts = incoming.debts.map(d => ({
+            id: d.id || uid(),
+            name: d.name || "Unnamed debt",
+            type: d.type || "other",
+            balance: Number(d.balance || 0),
+            apr: Number(d.apr || 0),
+            minimum: Number(d.minimum || 0),
+            dueDate: clampDueDay(d.dueDate || 1),
+            creditLimit: d.creditLimit ? Number(d.creditLimit) : "",
+            status: d.status || "current"
+          }));
+          state.settings = incoming.settings || {monthlyBudget:"", extraPayment:""};
+          els.monthlyBudget.value = state.settings.monthlyBudget || "";
+          els.extraPayment.value = state.settings.extraPayment || "";
+          persist(true);
+          renderAll();
+          flash("Backup imported");
+        } catch (err) {
+          alert("That backup file could not be read.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function addSample(){
+      state.debts = [
+        {id:uid(),name:"Capital One",type:"credit-card",balance:1840.22,apr:29.99,minimum:65,dueDate:11,creditLimit:2500,status:"watch"},
+        {id:uid(),name:"Discover",type:"credit-card",balance:6200.15,apr:21.24,minimum:160,dueDate:22,creditLimit:8000,status:"current"},
+        {id:uid(),name:"Personal Loan",type:"loan",balance:4100.00,apr:11.9,minimum:125,dueDate:7,creditLimit:"",status:"current"},
+        {id:uid(),name:"Store Card",type:"credit-card",balance:560.80,apr:31.99,minimum:35,dueDate:4,creditLimit:1200,status:"late"}
+      ];
+      if (!els.extraPayment.value) els.extraPayment.value = "150";
+      persist(true);
+      renderAll();
+      flash("Sample debts loaded");
+    }
 
     function renderAll(){
       renderStats();
       renderDebts();
       renderRecommendation();
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#39;");
     }
 
     els.debtForm.addEventListener("submit", e => {
@@ -1158,8 +917,7 @@
         minimum: Number(els.minimum.value || 0),
         dueDate: clampDueDay(els.dueDate.value),
         creditLimit: els.creditLimit.value ? Number(els.creditLimit.value) : "",
-        status: els.status.value,
-        paidMonth: ""
+        status: els.status.value
       };
 
       if (!debt.name) return alert("Please enter a debt name.");
@@ -1167,22 +925,18 @@
       if (debt.balance < 0) return alert("Balance cannot be negative.");
 
       const idx = state.debts.findIndex(d => d.id === debt.id);
-      if (idx >= 0) {
-        debt.paidMonth = state.debts[idx].paidMonth || "";
-        state.debts[idx] = debt;
-      } else {
-        state.debts.push(debt);
-      }
+      if (idx >= 0) state.debts[idx] = debt;
+      else state.debts.push(debt);
 
-      persist(false);
+      persist(true);
       renderAll();
       resetForm();
-      toast(idx >= 0 ? "Debt updated" : "Debt added");
+      flash(idx >= 0 ? "Debt updated" : "Debt added");
     });
 
     els.resetBtn.addEventListener("click", resetForm);
     els.addSampleBtn.addEventListener("click", addSample);
-    els.saveBtn.addEventListener("click", () => persist(true));
+    els.saveBtn.addEventListener("click", () => persist(false));
     els.exportBtn.addEventListener("click", exportData);
     els.importFile.addEventListener("change", e => {
       const file = e.target.files && e.target.files[0];
@@ -1198,15 +952,15 @@
       els.extraPayment.value = "";
       renderAll();
       resetForm();
-      toast("Saved data cleared");
+      flash("Saved data cleared");
     });
     els.recalcBtn.addEventListener("click", () => {
-      persist(false);
+      persist(true);
       renderAll();
-      toast("Plan recalculated");
+      flash("Plan recalculated");
     });
-    els.monthlyBudget.addEventListener("input", () => { persist(false); renderAll(); });
-    els.extraPayment.addEventListener("input", () => { persist(false); renderAll(); });
+    els.monthlyBudget.addEventListener("input", () => { persist(true); renderAll(); });
+    els.extraPayment.addEventListener("input", () => { persist(true); renderAll(); });
 
     load();
     renderAll();
