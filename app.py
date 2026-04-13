@@ -47,6 +47,8 @@ def init_db():
         conn.execute("ALTER TABLE debts ADD COLUMN paid INTEGER DEFAULT 0")
         conn.commit()
 
+    # Backward compatibility for older versions using due_date text
+    cols = column_names(conn, "debts")
     if "due_date" in cols:
         rows = conn.execute("SELECT id, due_date, due_day FROM debts").fetchall()
         for row in rows:

@@ -5,347 +5,363 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Debt Dashboard</title>
   <style>
-    :root {
-      --bg: #07111f;
-      --bg2: #0b1628;
-      --panel: rgba(16,24,39,0.94);
-      --line: rgba(148,163,184,0.14);
-      --text: #e6eef8;
-      --muted: #94a3b8;
-      --accent: #3b82f6;
-      --accent2: #2563eb;
-      --good: #22c55e;
-      --good2: #16a34a;
-      --warn: #f59e0b;
-      --danger: #ef4444;
-      --danger2: #dc2626;
-      --shadow: 0 18px 44px rgba(0,0,0,0.35);
-      --radius-xl: 26px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
+    :root{
+      --bg:#07111f;
+      --bg2:#0b1628;
+      --panel:rgba(16,24,39,.94);
+      --panel-soft:rgba(255,255,255,.03);
+      --line:rgba(148,163,184,.14);
+      --text:#e6eef8;
+      --muted:#94a3b8;
+      --accent:#3b82f6;
+      --accent2:#2563eb;
+      --good:#22c55e;
+      --good2:#16a34a;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --danger2:#dc2626;
+      --shadow:0 18px 44px rgba(0,0,0,.35);
+      --radius-xl:26px;
+      --radius-lg:18px;
+      --radius-md:14px;
     }
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, "Segoe UI", Arial, sans-serif;
-      color: var(--text);
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,"Segoe UI",Arial,sans-serif;
+      color:var(--text);
       background:
-        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 26%),
-        radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 24%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+        radial-gradient(circle at top left, rgba(59,130,246,.16), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,.12), transparent 24%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
     }
-    .wrap {
-      max-width: 1360px;
-      margin: 0 auto;
-      padding: 24px;
+    .wrap{
+      max-width:1400px;
+      margin:0 auto;
+      padding:24px;
     }
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 22px;
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:22px;
     }
-    .brand h1 {
-      margin: 0;
-      font-size: 36px;
-      line-height: 1.05;
-      letter-spacing: -0.02em;
+    .brand h1{
+      margin:0;
+      font-size:38px;
+      line-height:1.04;
+      letter-spacing:-.03em;
     }
-    .brand p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 14px;
+    .brand p{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:14px;
     }
-    .logout {
-      text-decoration: none;
-      color: var(--text);
-      border: 1px solid var(--line);
-      background: rgba(2, 6, 23, 0.55);
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .summary-grid {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      margin-bottom: 18px;
-    }
-    .summary-card, .main-card, .side-card, .debt-card {
-      background: linear-gradient(180deg, rgba(16,24,39,0.96), rgba(12,19,33,0.98));
-      border: 1px solid var(--line);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(16px);
-    }
-    .summary-card { padding: 18px 18px 16px; }
-    .summary-label {
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 10px;
-    }
-    .summary-value {
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .summary-sub {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 13px;
+    .logout{
+      text-decoration:none;
+      color:var(--text);
+      border:1px solid var(--line);
+      background:rgba(2,6,23,.55);
+      padding:12px 16px;
+      border-radius:14px;
+      font-size:14px;
+      font-weight:700;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.65fr) minmax(350px, 0.95fr);
-      gap: 18px;
-      align-items: start;
+    .summary-grid{
+      display:grid;
+      gap:18px;
+      grid-template-columns:repeat(5, minmax(0,1fr));
+      margin-bottom:18px;
     }
-    .main-card, .side-card { padding: 20px; }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
+    .summary-card,.main-card,.side-card,.debt-card{
+      background:linear-gradient(180deg, rgba(16,24,39,.96), rgba(12,19,33,.98));
+      border:1px solid var(--line);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
     }
-    .section-title {
-      font-size: 21px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
+    .summary-card{padding:18px 18px 16px}
+    .summary-label{
+      font-size:12px;
+      font-weight:800;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-bottom:10px;
     }
-    .section-copy {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 6px;
+    .summary-value{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:-.02em;
     }
-
-    .debt-list, .side-stack { display: grid; gap: 16px; }
-
-    .btn {
-      border: none;
-      border-radius: 14px;
-      padding: 13px 16px;
-      font-size: 14px;
-      font-weight: 800;
-      color: white;
-      cursor: pointer;
-    }
-    .btn-add {
-      background: linear-gradient(135deg, var(--good), var(--good2));
-      box-shadow: 0 14px 28px rgba(34,197,94,0.20);
-      white-space: nowrap;
-    }
-    .btn-delete {
-      background: linear-gradient(135deg, var(--danger), var(--danger2));
-      padding: 10px 14px;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(239,68,68,0.18);
+    .summary-sub{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.35;
     }
 
-    .debt-card { padding: 18px; }
-    .paid-card {
-      opacity: 0.82;
-      border-color: rgba(34,197,94,0.18);
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1.65fr) minmax(360px,.95fr);
+      gap:18px;
+      align-items:start;
     }
-    .debt-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
+    .main-card,.side-card{padding:20px}
+    .section-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:18px;
     }
-    .title-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
+    .section-title{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:-.02em;
     }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(59,130,246,0.12);
-      border: 1px solid rgba(59,130,246,0.20);
-      color: #bfd7ff;
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .paid-chip {
-      background: rgba(34,197,94,0.12);
-      border-color: rgba(34,197,94,0.22);
-      color: #bbf7d0;
-    }
-    .alert-chip-warning {
-      background: rgba(245,158,11,0.12);
-      border-color: rgba(245,158,11,0.24);
-      color: #fde68a;
-    }
-    .alert-chip-danger {
-      background: rgba(239,68,68,0.12);
-      border-color: rgba(239,68,68,0.24);
-      color: #fecaca;
+    .section-copy{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+      line-height:1.45;
     }
 
-    .fields {
-      display: grid;
-      grid-template-columns: 1.25fr 1fr 1fr 1fr 0.9fr auto;
-      gap: 12px;
-      align-items: end;
+    .debt-list,.side-stack,.alert-group,.metric-group,.list-group{display:grid;gap:16px}
+
+    .btn{
+      border:none;
+      border-radius:14px;
+      padding:13px 16px;
+      font-size:14px;
+      font-weight:800;
+      color:white;
+      cursor:pointer;
     }
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+    .btn-add{
+      background:linear-gradient(135deg,var(--good),var(--good2));
+      box-shadow:0 14px 28px rgba(34,197,94,.20);
+      white-space:nowrap;
     }
-    .field input, .field select {
-      width: 100%;
-      border: 1px solid rgba(148,163,184,0.16);
-      background: rgba(2, 6, 23, 0.62);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 14px;
-      font-size: 15px;
-      outline: none;
-    }
-    .field input:focus, .field select:focus {
-      border-color: rgba(59,130,246,0.55);
-      box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+    .btn-delete{
+      background:linear-gradient(135deg,var(--danger),var(--danger2));
+      padding:10px 14px;
+      border-radius:12px;
+      box-shadow:0 10px 20px rgba(239,68,68,.18);
     }
 
-    .checkbox-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 50px;
-      border: 1px solid rgba(148,163,184,0.16);
-      background: rgba(2, 6, 23, 0.62);
-      border-radius: 14px;
-      padding: 0 12px;
-      gap: 10px;
-      color: var(--text);
-      font-weight: 700;
+    .debt-card{padding:18px}
+    .paid-card{
+      opacity:.84;
+      border-color:rgba(34,197,94,.2);
     }
-    .checkbox-wrap input {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--good);
-      margin: 0;
+    .debt-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
     }
-
-    .side-card .field + .field { margin-top: 14px; }
-    .quick-buttons {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 12px;
+    .title-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .quick-btn {
-      border: 1px solid rgba(59,130,246,0.18);
-      background: rgba(59,130,246,0.09);
-      color: #dbeafe;
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(59,130,246,.12);
+      border:1px solid rgba(59,130,246,.2);
+      color:#bfd7ff;
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.06em;
     }
-
-    .metric-row, .list-item, .alert-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(148,163,184,0.08);
+    .paid-chip{
+      background:rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.22);
+      color:#bbf7d0;
     }
-    .metric-group, .list-group, .alert-group {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
+    .alert-chip-warning{
+      background:rgba(245,158,11,.12);
+      border-color:rgba(245,158,11,.24);
+      color:#fde68a;
     }
-    .list-left, .alert-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-    .rank {
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 900;
-      color: #dbeafe;
-      background: rgba(59,130,246,0.16);
-      border: 1px solid rgba(59,130,246,0.22);
-      flex: 0 0 auto;
-    }
-    .list-name {
-      font-weight: 800;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .list-meta {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-    .empty {
-      padding: 18px;
-      text-align: center;
-      color: var(--muted);
-      border: 1px dashed rgba(148,163,184,0.18);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.02);
+    .alert-chip-danger{
+      background:rgba(239,68,68,.12);
+      border-color:rgba(239,68,68,.24);
+      color:#fecaca;
     }
 
-    .alert-warning {
-      border-color: rgba(245,158,11,0.24);
-      background: rgba(245,158,11,0.08);
+    .fields{
+      display:grid;
+      grid-template-columns:1.35fr 1fr 1fr 1fr .9fr auto;
+      gap:12px;
+      align-items:end;
     }
-    .alert-danger {
-      border-color: rgba(239,68,68,0.24);
-      background: rgba(239,68,68,0.08);
+    .field label{
+      display:block;
+      margin-bottom:8px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .field input,.field select{
+      width:100%;
+      border:1px solid rgba(148,163,184,.16);
+      background:rgba(2,6,23,.62);
+      color:var(--text);
+      border-radius:14px;
+      padding:14px;
+      font-size:15px;
+      outline:none;
+    }
+    .field input:focus,.field select:focus{
+      border-color:rgba(59,130,246,.55);
+      box-shadow:0 0 0 4px rgba(59,130,246,.14);
+    }
+    .checkbox-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      border:1px solid rgba(148,163,184,.16);
+      background:rgba(2,6,23,.62);
+      border-radius:14px;
+      padding:0 12px;
+      gap:10px;
+      color:var(--text);
+      font-weight:700;
+    }
+    .checkbox-wrap input{
+      width:18px;
+      height:18px;
+      accent-color:var(--good);
+      margin:0;
     }
 
-    @media (max-width: 1180px) {
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .layout { grid-template-columns: 1fr; }
+    .quick-buttons{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      margin-top:12px;
     }
-    @media (max-width: 920px) {
-      .fields { grid-template-columns: 1fr 1fr; }
+    .quick-btn{
+      border:1px solid rgba(59,130,246,.18);
+      background:rgba(59,130,246,.09);
+      color:#dbeafe;
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:14px;
+      font-weight:800;
+      cursor:pointer;
     }
-    @media (max-width: 760px) {
-      .wrap { padding: 16px; }
-      .topbar { flex-direction: column; align-items: stretch; }
-      .brand h1 { font-size: 30px; }
-      .summary-grid { grid-template-columns: 1fr; }
-      .section-head { flex-direction: column; align-items: stretch; }
-      .debt-top { flex-direction: column; align-items: stretch; }
-      .fields { grid-template-columns: 1fr; }
+
+    .metric-row,.list-item,.alert-banner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:var(--panel-soft);
+      border:1px solid rgba(148,163,184,.08);
+    }
+    .list-left,.alert-left{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    .rank{
+      width:30px;
+      height:30px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      font-weight:900;
+      color:#dbeafe;
+      background:rgba(59,130,246,.16);
+      border:1px solid rgba(59,130,246,.22);
+      flex:0 0 auto;
+    }
+    .list-name{
+      font-weight:800;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .list-meta{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:3px;
+      line-height:1.35;
+    }
+    .alert-warning{
+      border-color:rgba(245,158,11,.24);
+      background:rgba(245,158,11,.08);
+    }
+    .alert-danger{
+      border-color:rgba(239,68,68,.24);
+      background:rgba(239,68,68,.08);
+    }
+    .alert-good{
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.08);
+    }
+    .empty{
+      padding:18px;
+      text-align:center;
+      color:var(--muted);
+      border:1px dashed rgba(148,163,184,.18);
+      border-radius:18px;
+      background:rgba(255,255,255,.02);
+    }
+
+    .save-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(148,163,184,.12);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    @media (max-width:1260px){
+      .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .layout{grid-template-columns:1fr}
+    }
+    @media (max-width:920px){
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .fields{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:760px){
+      .wrap{padding:16px}
+      .topbar{flex-direction:column;align-items:stretch}
+      .brand h1{font-size:30px}
+      .summary-grid{grid-template-columns:1fr}
+      .section-head{flex-direction:column;align-items:stretch}
+      .debt-top{flex-direction:column;align-items:stretch}
+      .fields{grid-template-columns:1fr}
+      .quick-buttons{grid-template-columns:repeat(2,1fr)}
     }
   </style>
 </head>
@@ -354,9 +370,12 @@
     <div class="topbar">
       <div class="brand">
         <h1>Debt Dashboard</h1>
-        <p>Day-of-month due alerts, payoff order, and synced saving.</p>
+        <p>Ultimate polished version with due-day alerts, payoff strategy, and a cleaner real-app feel.</p>
       </div>
-      <a class="logout" href="/logout">Logout</a>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <div id="saveStatus" class="save-pill">Saved</div>
+        <a class="logout" href="/logout">Logout</a>
+      </div>
     </div>
 
     <div class="summary-grid">
@@ -368,17 +387,22 @@
       <div class="summary-card">
         <div class="summary-label">Monthly Minimums</div>
         <div class="summary-value" id="totalMonthly">$0</div>
-        <div class="summary-sub">Combined minimums for unpaid debts</div>
+        <div class="summary-sub">Combined minimum payments for active debts</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">Extra Payment</div>
         <div class="summary-value" id="extraSummary">$0</div>
-        <div class="summary-sub">Extra cash you throw at the plan</div>
+        <div class="summary-sub">Saved on this device for quick payoff planning</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">Estimated Payoff</div>
         <div class="summary-value" id="payoffEstimate">—</div>
-        <div class="summary-sub">Simple estimate using active balance and monthly power</div>
+        <div class="summary-sub">Simple payoff estimate based on monthly power</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Due This Week</div>
+        <div class="summary-value" id="dueThisWeek">$0</div>
+        <div class="summary-sub">Upcoming active payments due within 7 days</div>
       </div>
     </div>
 
@@ -387,7 +411,7 @@
         <div class="section-head">
           <div>
             <div class="section-title">Your Debts</div>
-            <div class="section-copy">Fixed the typing bug. You can now type normally without it kicking you out after one character.</div>
+            <div class="section-copy">This version fixes the one-character typing issue, keeps due days simple, and adds the upgrades I’d actually recommend for everyday use.</div>
           </div>
           <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Debt</button>
         </div>
@@ -398,28 +422,29 @@
       <div class="side-stack">
         <div class="side-card">
           <div class="section-title">Alerts</div>
-          <div class="section-copy">See what is due soon or already late this month.</div>
+          <div class="section-copy">See what’s urgent, due soon, or fully under control.</div>
           <div id="alerts" class="alert-group"></div>
         </div>
 
         <div class="side-card">
           <div class="section-title">Payoff Settings</div>
-          <div class="section-copy" style="margin-bottom: 16px;">Use quick extra-payment buttons and compare strategy order instantly.</div>
+          <div class="section-copy" style="margin-bottom:16px;">Use quick extra-payment buttons and compare payoff order instantly.</div>
 
           <div class="field">
             <label for="extraPayment">Extra Monthly Payment</label>
-            <input id="extraPayment" type="number" min="0" step="0.01" value="0" oninput="calculateAll()">
+            <input id="extraPayment" type="number" min="0" step="0.01" value="0" oninput="handleExtraInput()">
           </div>
 
           <div class="quick-buttons">
             <button class="quick-btn" type="button" onclick="setExtra(50)">+50</button>
             <button class="quick-btn" type="button" onclick="setExtra(100)">+100</button>
             <button class="quick-btn" type="button" onclick="setExtra(200)">+200</button>
+            <button class="quick-btn" type="button" onclick="setExtra(500)">+500</button>
           </div>
 
           <div class="field">
             <label for="strategy">Payoff Method</label>
-            <select id="strategy" onchange="calculateAll()">
+            <select id="strategy" onchange="handleStrategyChange()">
               <option value="snowball">Snowball — smallest balance first</option>
               <option value="avalanche">Avalanche — highest interest first</option>
             </select>
@@ -438,13 +463,17 @@
               <span>Paid Debts</span>
               <strong id="paidCount">0</strong>
             </div>
+            <div class="metric-row">
+              <span>Average Interest</span>
+              <strong id="avgInterest">0%</strong>
+            </div>
           </div>
         </div>
 
         <div class="side-card">
           <div class="section-title">Upcoming Due Days</div>
-          <div class="section-copy">Unpaid debts sorted by next due day.</div>
-          <div id="dueDates" class="list-group"></div>
+          <div class="section-copy">Active debts sorted by next due day this month.</div>
+          <div id="dueDays" class="list-group"></div>
         </div>
 
         <div class="side-card">
@@ -459,6 +488,12 @@
   <script>
     let debts = [];
     let saveTimer = null;
+    let saveStatusTimer = null;
+
+    function setSaveStatus(text) {
+      const el = document.getElementById("saveStatus");
+      if (el) el.textContent = text;
+    }
 
     function money(value) {
       const num = Number(value) || 0;
@@ -471,6 +506,13 @@
     function sanitizeNumber(value) {
       const num = parseFloat(value);
       return isNaN(num) ? 0 : num;
+    }
+
+    function clampDueDay(value) {
+      if (value === "" || value === null || value === undefined) return null;
+      const num = parseInt(value, 10);
+      if (isNaN(num)) return null;
+      return Math.max(1, Math.min(31, num));
     }
 
     function escapeHtml(text) {
@@ -501,16 +543,14 @@
       const today = getTodayDay();
       const daysAway = dueDay - today;
 
-      if (daysAway < 0) {
-        return { label: Math.abs(daysAway) + " day(s) late", level: "danger", daysAway };
-      }
-      if (daysAway === 0) {
-        return { label: "Due today", level: "danger", daysAway };
-      }
-      if (daysAway <= 3) {
-        return { label: "Due in " + daysAway + " day(s)", level: "warning", daysAway };
-      }
+      if (daysAway < 0) return { label: Math.abs(daysAway) + " day(s) late", level: "danger", daysAway };
+      if (daysAway === 0) return { label: "Due today", level: "danger", daysAway };
+      if (daysAway <= 3) return { label: "Due in " + daysAway + " day(s)", level: "warning", daysAway };
       return { label: "Due on day " + dueDay, level: "normal", daysAway };
+    }
+
+    function getExtra() {
+      return clampDueDay(null), sanitizeNumber(localStorage.getItem("debt_extra_payment") || document.getElementById("extraPayment")?.value || 0);
     }
 
     function activeDebts() {
@@ -532,7 +572,6 @@
       } else {
         copy.sort((a, b) => b.rate - a.rate);
       }
-
       return copy;
     }
 
@@ -635,7 +674,7 @@
     }
 
     function renderDueDays(items) {
-      const wrap = document.getElementById("dueDates");
+      const wrap = document.getElementById("dueDays");
       if (!items.length) {
         wrap.innerHTML = '<div class="empty">Add due days to unpaid debts and they will show here.</div>';
         return;
@@ -663,13 +702,14 @@
       const active = activeDebts();
       const dueSoon = active.filter(d => d.due_day && dueStatus(d.due_day).level === "warning");
       const overdue = active.filter(d => d.due_day && dueStatus(d.due_day).level === "danger");
+      const paidCount = debts.filter(d => d.paid).length;
 
       const alerts = [];
       if (overdue.length) {
         alerts.push({
           cls: "alert-danger",
-          title: overdue.length + " debt(s) urgent",
-          text: money(overdue.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0)) + " in payments due now or late"
+          title: overdue.length + " urgent debt(s)",
+          text: money(overdue.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0)) + " due today or already late"
         });
       }
       if (dueSoon.length) {
@@ -679,10 +719,12 @@
           text: money(dueSoon.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0)) + " due within 3 days"
         });
       }
-
-      if (!alerts.length) {
-        wrap.innerHTML = '<div class="empty">No urgent alerts right now.</div>';
-        return;
+      if (!overdue.length && !dueSoon.length) {
+        alerts.push({
+          cls: "alert-good",
+          title: "No urgent due-day alerts",
+          text: paidCount ? paidCount + " debt(s) already marked paid" : "Everything looks calm right now"
+        });
       }
 
       wrap.innerHTML = alerts.map(alert => `
@@ -701,20 +743,28 @@
       const active = activeDebts();
       const totalDebt = active.reduce((sum, d) => sum + sanitizeNumber(d.balance), 0);
       const totalMonthly = active.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0);
-      const extra = sanitizeNumber(document.getElementById("extraPayment").value);
+      const extra = getExtra();
       const monthlyPower = totalMonthly + extra;
       const simpleMonths = monthlyPower > 0 ? totalDebt / monthlyPower : 0;
       const strategy = document.getElementById("strategy").value;
       const sortedDebts = getSortedDebts();
       const dueDays = getSortedDueDays();
       const paidCount = debts.filter(d => d.paid).length;
+      const avgInterest = active.length
+        ? active.reduce((sum, d) => sum + sanitizeNumber(d.rate), 0) / active.length
+        : 0;
+      const dueThisWeek = active
+        .filter(d => d.due_day && dueStatus(d.due_day).daysAway !== null && dueStatus(d.due_day).daysAway >= 0 && dueStatus(d.due_day).daysAway <= 7)
+        .reduce((sum, d) => sum + sanitizeNumber(d.payment), 0);
 
       document.getElementById("totalDebt").textContent = money(totalDebt);
       document.getElementById("totalMonthly").textContent = money(totalMonthly);
       document.getElementById("extraSummary").textContent = money(extra);
       document.getElementById("payoffEstimate").textContent = monthsToWords(simpleMonths);
+      document.getElementById("dueThisWeek").textContent = money(dueThisWeek);
       document.getElementById("monthlyPower").textContent = money(monthlyPower);
       document.getElementById("paidCount").textContent = String(paidCount);
+      document.getElementById("avgInterest").textContent = avgInterest.toFixed(1) + "%";
       document.getElementById("strategyFocus").textContent =
         strategy === "snowball" ? "Smallest balances first" : "Highest interest first";
 
@@ -725,14 +775,21 @@
 
     function queueSave() {
       clearTimeout(saveTimer);
+      setSaveStatus("Saving...");
       saveTimer = setTimeout(saveDebts, 250);
+    }
+
+    function markSaved() {
+      clearTimeout(saveStatusTimer);
+      setSaveStatus("Saved");
+      saveStatusTimer = setTimeout(() => setSaveStatus("Auto-save on"), 1600);
     }
 
     function updateDebt(index, key, value) {
       if (key === "name") {
         debts[index][key] = value;
       } else if (key === "due_day") {
-        debts[index][key] = value === "" ? null : Math.max(1, Math.min(31, parseInt(value || "0", 10) || 0));
+        debts[index][key] = value === "" ? null : clampDueDay(value);
       } else {
         debts[index][key] = sanitizeNumber(value);
       }
@@ -750,6 +807,7 @@
 
     function addDebt() {
       debts.push({
+        id: null,
         name: "",
         balance: 0,
         rate: 0,
@@ -771,6 +829,19 @@
 
     function setExtra(amount) {
       document.getElementById("extraPayment").value = amount;
+      localStorage.setItem("debt_extra_payment", String(amount));
+      calculateAll();
+    }
+
+    function handleExtraInput() {
+      const value = document.getElementById("extraPayment").value || "0";
+      localStorage.setItem("debt_extra_payment", value);
+      calculateAll();
+    }
+
+    function handleStrategyChange() {
+      const strategy = document.getElementById("strategy").value;
+      localStorage.setItem("debt_strategy", strategy);
       calculateAll();
     }
 
@@ -779,10 +850,24 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(debts)
-      }).catch(err => console.error("Save failed:", err));
+      })
+      .then(() => markSaved())
+      .catch(err => {
+        console.error("Save failed:", err);
+        setSaveStatus("Save failed");
+      });
+    }
+
+    function hydrateLocalSettings() {
+      const savedExtra = localStorage.getItem("debt_extra_payment");
+      const savedStrategy = localStorage.getItem("debt_strategy");
+      if (savedExtra !== null) document.getElementById("extraPayment").value = savedExtra;
+      if (savedStrategy) document.getElementById("strategy").value = savedStrategy;
     }
 
     function loadDebts() {
+      hydrateLocalSettings();
+
       fetch("/get_debts")
         .then(response => response.json())
         .then(data => {
@@ -797,11 +882,13 @@
           }));
           renderDebts();
           calculateAll();
+          setSaveStatus("Auto-save on");
         })
         .catch(err => {
           console.error("Load failed:", err);
           renderDebts();
           calculateAll();
+          setSaveStatus("Load issue");
         });
     }
 
