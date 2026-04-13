@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify, session, redirect
 import sqlite3, os
 

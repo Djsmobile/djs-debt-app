@@ -1,32 +1,33 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debt Dashboard</title>
 <style>
-body{background:#0b1628;color:white;font-family:sans-serif;padding:20px;}
-.card{background:#111;padding:15px;border-radius:12px;margin-bottom:15px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;}
-input{width:100%;padding:8px;margin-top:5px;background:#000;color:white;border:1px solid #333;}
-button{padding:10px;margin-top:10px;}
-.good{color:#22c55e}
-.warn{color:#f59e0b}
-.bad{color:#ef4444}
+body{background:#0a0a0a;color:#e5e5e5;font-family:monospace;padding:20px;}
+.card{background:#111;border:1px solid #222;padding:15px;margin-bottom:15px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
+input{width:100%;background:black;color:#0f0;border:1px solid #333;padding:8px;}
+button{padding:8px;background:#0f0;color:black;border:none;margin-top:5px;}
+.delete{background:red;color:white;}
+.good{color:#0f0}
+.warn{color:#ff0}
+.bad{color:#f00}
+.row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
 </style>
 </head>
 <body>
 
-<h2>Debt Dashboard Pro</h2>
+<h2>DEBT COMMAND CENTER</h2>
 
 <div class="grid">
-<div class="card">Total Debt: <span id="total"></span></div>
-<div class="card">Utilization: <span id="util"></span></div>
+<div class="card">TOTAL: <span id="total"></span></div>
+<div class="card">UTIL: <span id="util"></span></div>
 </div>
 
 <div id="debts"></div>
 
-<button onclick="addDebt()">Add Debt</button>
+<button onclick="addDebt()">+ ADD</button>
 
 <script>
 let debts=[];
@@ -46,7 +47,7 @@ function calc(){
    lim+=Number(d.credit_limit);
   }
  });
- let util=lim? (bal/lim*100):0;
+ let util=lim?(bal/lim*100):0;
 
  document.getElementById("total").innerText="$"+total.toFixed(0);
  document.getElementById("util").innerHTML="<span class='"+utilClass(util)+"'>"+util.toFixed(0)+"%</span>";
@@ -55,20 +56,22 @@ function calc(){
 function render(){
  document.getElementById("debts").innerHTML=debts.map((d,i)=>`
  <div class="card">
- ${d.name||"Debt"} (${d.paid?"PAID":""})<br>
- <input value="${d.name}" placeholder="Name" oninput="upd(${i},'name',this.value)">
- <input type="number" value="${d.balance}" placeholder="Balance" oninput="upd(${i},'balance',this.value)">
- <input type="number" value="${d.credit_limit}" placeholder="Limit" oninput="upd(${i},'credit_limit',this.value)">
- <input type="number" value="${d.payment}" placeholder="Payment" oninput="upd(${i},'payment',this.value)">
- <input type="number" value="${d.due_day||''}" placeholder="Due Day" oninput="upd(${i},'due_day',this.value)">
- <input type="checkbox" ${d.paid?'checked':''} onchange="upd(${i},'paid',this.checked)"> Paid
- <button onclick="del(${i})">Delete</button>
+ <div class="row">
+ <input value="${d.name}" placeholder="NAME" oninput="upd(${i},'name',this.value)">
+ <input type="number" value="${d.balance}" placeholder="BAL" oninput="upd(${i},'balance',this.value)">
+ <input type="number" value="${d.credit_limit}" placeholder="LIMIT" oninput="upd(${i},'credit_limit',this.value)">
+ <input type="number" value="${d.rate}" placeholder="APR" oninput="upd(${i},'rate',this.value)">
+ <input type="number" value="${d.payment}" placeholder="PAY" oninput="upd(${i},'payment',this.value)">
+ <input type="number" value="${d.due_day||''}" placeholder="DUE" oninput="upd(${i},'due_day',this.value)">
+ <input type="checkbox" ${d.paid?'checked':''} onchange="upd(${i},'paid',this.checked)">
+ </div>
+ <button class="delete" onclick="del(${i})">DELETE</button>
  </div>`).join("");
  calc();
 }
 
 function upd(i,k,v){
- debts[i][k]= (k=="paid")?v:Number(v)||v;
+ debts[i][k]=(k=="paid")?v:Number(v)||v;
  save(); render();
 }
 
