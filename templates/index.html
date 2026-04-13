@@ -9,7 +9,6 @@
       --bg: #07111f;
       --bg2: #0b1628;
       --panel: rgba(16,24,39,0.94);
-      --panel-soft: rgba(255,255,255,0.03);
       --line: rgba(148,163,184,0.14);
       --text: #e6eef8;
       --muted: #94a3b8;
@@ -27,7 +26,6 @@
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-height: 100vh;
@@ -38,13 +36,11 @@
         radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 24%),
         linear-gradient(180deg, var(--bg), var(--bg2));
     }
-
     .wrap {
-      max-width: 1340px;
+      max-width: 1360px;
       margin: 0 auto;
       padding: 24px;
     }
-
     .topbar {
       display: flex;
       align-items: center;
@@ -52,20 +48,17 @@
       gap: 16px;
       margin-bottom: 22px;
     }
-
     .brand h1 {
       margin: 0;
       font-size: 36px;
       line-height: 1.05;
       letter-spacing: -0.02em;
     }
-
     .brand p {
       margin: 8px 0 0;
       color: var(--muted);
       font-size: 14px;
     }
-
     .logout {
       text-decoration: none;
       color: var(--text);
@@ -83,22 +76,14 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       margin-bottom: 18px;
     }
-
-    .summary-card,
-    .main-card,
-    .side-card,
-    .debt-card {
+    .summary-card, .main-card, .side-card, .debt-card {
       background: linear-gradient(180deg, rgba(16,24,39,0.96), rgba(12,19,33,0.98));
       border: 1px solid var(--line);
       border-radius: var(--radius-xl);
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
     }
-
-    .summary-card {
-      padding: 18px 18px 16px;
-    }
-
+    .summary-card { padding: 18px 18px 16px; }
     .summary-label {
       font-size: 12px;
       font-weight: 800;
@@ -107,13 +92,11 @@
       letter-spacing: 0.08em;
       margin-bottom: 10px;
     }
-
     .summary-value {
       font-size: 28px;
       font-weight: 900;
       letter-spacing: -0.02em;
     }
-
     .summary-sub {
       margin-top: 8px;
       color: var(--muted);
@@ -122,15 +105,11 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.65fr) minmax(330px, 0.95fr);
+      grid-template-columns: minmax(0, 1.65fr) minmax(350px, 0.95fr);
       gap: 18px;
       align-items: start;
     }
-
-    .main-card,
-    .side-card {
-      padding: 20px;
-    }
+    .main-card, .side-card { padding: 20px; }
 
     .section-head {
       display: flex;
@@ -139,23 +118,18 @@
       gap: 14px;
       margin-bottom: 18px;
     }
-
     .section-title {
       font-size: 21px;
       font-weight: 900;
       letter-spacing: -0.02em;
     }
-
     .section-copy {
       color: var(--muted);
       font-size: 13px;
       margin-top: 6px;
     }
 
-    .debt-list, .side-stack {
-      display: grid;
-      gap: 16px;
-    }
+    .debt-list, .side-stack { display: grid; gap: 16px; }
 
     .btn {
       border: none;
@@ -166,13 +140,11 @@
       color: white;
       cursor: pointer;
     }
-
     .btn-add {
       background: linear-gradient(135deg, var(--good), var(--good2));
       box-shadow: 0 14px 28px rgba(34,197,94,0.20);
       white-space: nowrap;
     }
-
     .btn-delete {
       background: linear-gradient(135deg, var(--danger), var(--danger2));
       padding: 10px 14px;
@@ -180,10 +152,11 @@
       box-shadow: 0 10px 20px rgba(239,68,68,0.18);
     }
 
-    .debt-card {
-      padding: 18px;
+    .debt-card { padding: 18px; }
+    .paid-card {
+      opacity: 0.82;
+      border-color: rgba(34,197,94,0.18);
     }
-
     .debt-top {
       display: flex;
       align-items: center;
@@ -191,14 +164,12 @@
       gap: 12px;
       margin-bottom: 14px;
     }
-
     .title-row {
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }
-
     .chip {
       display: inline-flex;
       align-items: center;
@@ -212,26 +183,28 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
-
     .paid-chip {
       background: rgba(34,197,94,0.12);
       border-color: rgba(34,197,94,0.22);
       color: #bbf7d0;
     }
-
-    .due-chip {
+    .alert-chip-warning {
       background: rgba(245,158,11,0.12);
       border-color: rgba(245,158,11,0.24);
       color: #fde68a;
     }
+    .alert-chip-danger {
+      background: rgba(239,68,68,0.12);
+      border-color: rgba(239,68,68,0.24);
+      color: #fecaca;
+    }
 
     .fields {
       display: grid;
-      grid-template-columns: 1.25fr 1fr 1fr 1fr 1fr auto;
+      grid-template-columns: 1.25fr 1fr 1fr 1fr 0.9fr auto;
       gap: 12px;
       align-items: end;
     }
-
     .field label {
       display: block;
       margin-bottom: 8px;
@@ -241,9 +214,7 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
-
-    .field input,
-    .field select {
+    .field input, .field select {
       width: 100%;
       border: 1px solid rgba(148,163,184,0.16);
       background: rgba(2, 6, 23, 0.62);
@@ -253,9 +224,7 @@
       font-size: 15px;
       outline: none;
     }
-
-    .field input:focus,
-    .field select:focus {
+    .field input:focus, .field select:focus {
       border-color: rgba(59,130,246,0.55);
       box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
     }
@@ -273,7 +242,6 @@
       color: var(--text);
       font-weight: 700;
     }
-
     .checkbox-wrap input {
       width: 18px;
       height: 18px;
@@ -281,17 +249,13 @@
       margin: 0;
     }
 
-    .side-card .field + .field {
-      margin-top: 14px;
-    }
-
+    .side-card .field + .field { margin-top: 14px; }
     .quick-buttons {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       margin-top: 12px;
     }
-
     .quick-btn {
       border: 1px solid rgba(59,130,246,0.18);
       background: rgba(59,130,246,0.09);
@@ -303,8 +267,7 @@
       cursor: pointer;
     }
 
-    .metric-row,
-    .list-item {
+    .metric-row, .list-item, .alert-banner {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -314,21 +277,17 @@
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(148,163,184,0.08);
     }
-
-    .metric-group,
-    .list-group {
+    .metric-group, .list-group, .alert-group {
       display: grid;
       gap: 10px;
       margin-top: 14px;
     }
-
-    .list-left {
+    .list-left, .alert-left {
       display: flex;
       align-items: center;
       gap: 12px;
       min-width: 0;
     }
-
     .rank {
       width: 30px;
       height: 30px;
@@ -343,20 +302,17 @@
       border: 1px solid rgba(59,130,246,0.22);
       flex: 0 0 auto;
     }
-
     .list-name {
       font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     .list-meta {
       font-size: 12px;
       color: var(--muted);
       margin-top: 3px;
     }
-
     .empty {
       padding: 18px;
       text-align: center;
@@ -366,38 +322,30 @@
       background: rgba(255,255,255,0.02);
     }
 
-    .paid-card {
-      opacity: 0.82;
-      border-color: rgba(34,197,94,0.18);
+    .alert-warning {
+      border-color: rgba(245,158,11,0.24);
+      background: rgba(245,158,11,0.08);
+    }
+    .alert-danger {
+      border-color: rgba(239,68,68,0.24);
+      background: rgba(239,68,68,0.08);
     }
 
     @media (max-width: 1180px) {
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .layout { grid-template-columns: 1fr; }
     }
-
-    @media (max-width: 900px) {
+    @media (max-width: 920px) {
       .fields { grid-template-columns: 1fr 1fr; }
     }
-
     @media (max-width: 760px) {
       .wrap { padding: 16px; }
-      .topbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      .topbar { flex-direction: column; align-items: stretch; }
       .brand h1 { font-size: 30px; }
       .summary-grid { grid-template-columns: 1fr; }
-      .section-head {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .debt-top {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      .section-head { flex-direction: column; align-items: stretch; }
+      .debt-top { flex-direction: column; align-items: stretch; }
       .fields { grid-template-columns: 1fr; }
-      .quick-buttons { grid-template-columns: 1fr 1fr 1fr; }
     }
   </style>
 </head>
@@ -406,7 +354,7 @@
     <div class="topbar">
       <div class="brand">
         <h1>Debt Dashboard</h1>
-        <p>Next-level layout with due dates, paid checkboxes, payoff order, and synced saving.</p>
+        <p>Day-of-month due alerts, payoff order, and synced saving.</p>
       </div>
       <a class="logout" href="/logout">Logout</a>
     </div>
@@ -417,19 +365,16 @@
         <div class="summary-value" id="totalDebt">$0</div>
         <div class="summary-sub">Only unpaid balances count here</div>
       </div>
-
       <div class="summary-card">
         <div class="summary-label">Monthly Minimums</div>
         <div class="summary-value" id="totalMonthly">$0</div>
         <div class="summary-sub">Combined minimums for unpaid debts</div>
       </div>
-
       <div class="summary-card">
         <div class="summary-label">Extra Payment</div>
         <div class="summary-value" id="extraSummary">$0</div>
         <div class="summary-sub">Extra cash you throw at the plan</div>
       </div>
-
       <div class="summary-card">
         <div class="summary-label">Estimated Payoff</div>
         <div class="summary-value" id="payoffEstimate">—</div>
@@ -442,7 +387,7 @@
         <div class="section-head">
           <div>
             <div class="section-title">Your Debts</div>
-            <div class="section-copy">Track name, balance, APR, payment, due date, and whether it is already paid.</div>
+            <div class="section-copy">Fixed the typing bug. You can now type normally without it kicking you out after one character.</div>
           </div>
           <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Debt</button>
         </div>
@@ -451,6 +396,12 @@
       </div>
 
       <div class="side-stack">
+        <div class="side-card">
+          <div class="section-title">Alerts</div>
+          <div class="section-copy">See what is due soon or already late this month.</div>
+          <div id="alerts" class="alert-group"></div>
+        </div>
+
         <div class="side-card">
           <div class="section-title">Payoff Settings</div>
           <div class="section-copy" style="margin-bottom: 16px;">Use quick extra-payment buttons and compare strategy order instantly.</div>
@@ -491,8 +442,8 @@
         </div>
 
         <div class="side-card">
-          <div class="section-title">Upcoming Due Dates</div>
-          <div class="section-copy">Unpaid debts with due dates are sorted soonest first.</div>
+          <div class="section-title">Upcoming Due Days</div>
+          <div class="section-copy">Unpaid debts sorted by next due day.</div>
           <div id="dueDates" class="list-group"></div>
         </div>
 
@@ -507,6 +458,7 @@
 
   <script>
     let debts = [];
+    let saveTimer = null;
 
     function money(value) {
       const num = Number(value) || 0;
@@ -540,22 +492,25 @@
       return years + (years === 1 ? " year " : " years ") + rem + (rem === 1 ? " month" : " months");
     }
 
-    function daysUntil(dateString) {
-      if (!dateString) return null;
-      const today = new Date();
-      const due = new Date(dateString + "T00:00:00");
-      today.setHours(0, 0, 0, 0);
-      const diffMs = due - today;
-      return Math.round(diffMs / 86400000);
+    function getTodayDay() {
+      return new Date().getDate();
     }
 
-    function dueLabel(dateString) {
-      const days = daysUntil(dateString);
-      if (days === null) return "No due date";
-      if (days < 0) return Math.abs(days) + " day(s) late";
-      if (days === 0) return "Due today";
-      if (days === 1) return "Due tomorrow";
-      return "Due in " + days + " days";
+    function dueStatus(dueDay) {
+      if (!dueDay) return { label: "No due day", level: "none", daysAway: null };
+      const today = getTodayDay();
+      const daysAway = dueDay - today;
+
+      if (daysAway < 0) {
+        return { label: Math.abs(daysAway) + " day(s) late", level: "danger", daysAway };
+      }
+      if (daysAway === 0) {
+        return { label: "Due today", level: "danger", daysAway };
+      }
+      if (daysAway <= 3) {
+        return { label: "Due in " + daysAway + " day(s)", level: "warning", daysAway };
+      }
+      return { label: "Due on day " + dueDay, level: "normal", daysAway };
     }
 
     function activeDebts() {
@@ -569,7 +524,7 @@
         balance: sanitizeNumber(d.balance),
         rate: sanitizeNumber(d.rate),
         payment: sanitizeNumber(d.payment),
-        due_date: d.due_date || ""
+        due_day: d.due_day || null
       }));
 
       if (strategy === "snowball") {
@@ -581,10 +536,14 @@
       return copy;
     }
 
-    function getSortedDueDates() {
+    function getSortedDueDays() {
       return activeDebts()
-        .filter(d => d.due_date)
-        .sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+        .filter(d => d.due_day)
+        .sort((a, b) => {
+          const aAway = (Number(a.due_day) || 0) - getTodayDay();
+          const bAway = (Number(b.due_day) || 0) - getTodayDay();
+          return aAway - bAway;
+        });
     }
 
     function renderDebts() {
@@ -597,7 +556,12 @@
 
       container.innerHTML = debts.map((d, i) => {
         const paidClass = d.paid ? "paid-card" : "";
-        const dueText = d.due_date ? dueLabel(d.due_date) : "No due date";
+        const status = dueStatus(d.due_day);
+        let dueChip = "";
+        if (!d.paid && d.due_day) {
+          const chipClass = status.level === "danger" ? "alert-chip-danger" : (status.level === "warning" ? "alert-chip-warning" : "");
+          dueChip = `<div class="chip ${chipClass}">Day ${d.due_day} • ${escapeHtml(status.label)}</div>`;
+        }
 
         return `
           <div class="debt-card ${paidClass}">
@@ -605,7 +569,7 @@
               <div class="title-row">
                 <div class="chip">Debt ${i + 1}</div>
                 ${d.paid ? '<div class="chip paid-chip">Paid</div>' : ''}
-                ${d.due_date && !d.paid ? `<div class="chip due-chip">${escapeHtml(dueText)}</div>` : ''}
+                ${dueChip}
               </div>
               <button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete</button>
             </div>
@@ -632,14 +596,14 @@
               </div>
 
               <div class="field">
-                <label>Due Date</label>
-                <input type="date" value="${escapeHtml(d.due_date || "")}" oninput="updateDebt(${i}, 'due_date', this.value)">
+                <label>Due Day</label>
+                <input type="number" min="1" max="31" step="1" value="${d.due_day ?? ''}" placeholder="1-31" oninput="updateDebt(${i}, 'due_day', this.value)">
               </div>
 
               <div class="field">
                 <label>Paid?</label>
                 <div class="checkbox-wrap">
-                  <input type="checkbox" ${d.paid ? "checked" : ""} onchange="updateDebt(${i}, 'paid', this.checked)">
+                  <input type="checkbox" ${d.paid ? "checked" : ""} onchange="togglePaid(${i}, this.checked)">
                   <span>${d.paid ? "Yes" : "No"}</span>
                 </div>
               </div>
@@ -651,7 +615,6 @@
 
     function renderPayoffOrder(sortedDebts) {
       const wrap = document.getElementById("payoffOrder");
-
       if (!sortedDebts.length) {
         wrap.innerHTML = '<div class="empty">No active debts in the payoff queue.</div>';
         return;
@@ -671,24 +634,65 @@
       `).join("");
     }
 
-    function renderDueDates(items) {
+    function renderDueDays(items) {
       const wrap = document.getElementById("dueDates");
-
       if (!items.length) {
-        wrap.innerHTML = '<div class="empty">Add due dates to unpaid debts and they will show here.</div>';
+        wrap.innerHTML = '<div class="empty">Add due days to unpaid debts and they will show here.</div>';
         return;
       }
 
-      wrap.innerHTML = items.map((debt) => `
-        <div class="list-item">
-          <div class="list-left">
-            <div class="rank">${new Date(debt.due_date + "T00:00:00").getDate()}</div>
+      wrap.innerHTML = items.map((debt) => {
+        const status = dueStatus(debt.due_day);
+        return `
+          <div class="list-item">
+            <div class="list-left">
+              <div class="rank">${debt.due_day}</div>
+              <div>
+                <div class="list-name">${escapeHtml(debt.name || "Unnamed Debt")}</div>
+                <div class="list-meta">${escapeHtml(status.label)} • ${money(debt.payment)} payment</div>
+              </div>
+            </div>
+            <strong>${money(debt.balance)}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAlerts() {
+      const wrap = document.getElementById("alerts");
+      const active = activeDebts();
+      const dueSoon = active.filter(d => d.due_day && dueStatus(d.due_day).level === "warning");
+      const overdue = active.filter(d => d.due_day && dueStatus(d.due_day).level === "danger");
+
+      const alerts = [];
+      if (overdue.length) {
+        alerts.push({
+          cls: "alert-danger",
+          title: overdue.length + " debt(s) urgent",
+          text: money(overdue.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0)) + " in payments due now or late"
+        });
+      }
+      if (dueSoon.length) {
+        alerts.push({
+          cls: "alert-warning",
+          title: dueSoon.length + " debt(s) due soon",
+          text: money(dueSoon.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0)) + " due within 3 days"
+        });
+      }
+
+      if (!alerts.length) {
+        wrap.innerHTML = '<div class="empty">No urgent alerts right now.</div>';
+        return;
+      }
+
+      wrap.innerHTML = alerts.map(alert => `
+        <div class="alert-banner ${alert.cls}">
+          <div class="alert-left">
             <div>
-              <div class="list-name">${escapeHtml(debt.name || "Unnamed Debt")}</div>
-              <div class="list-meta">${escapeHtml(debt.due_date)} • ${escapeHtml(dueLabel(debt.due_date))}</div>
+              <div class="list-name">${escapeHtml(alert.title)}</div>
+              <div class="list-meta">${escapeHtml(alert.text)}</div>
             </div>
           </div>
-          <strong>${money(debt.payment)}</strong>
         </div>
       `).join("");
     }
@@ -702,7 +706,7 @@
       const simpleMonths = monthlyPower > 0 ? totalDebt / monthlyPower : 0;
       const strategy = document.getElementById("strategy").value;
       const sortedDebts = getSortedDebts();
-      const dueDates = getSortedDueDates();
+      const dueDays = getSortedDueDays();
       const paidCount = debts.filter(d => d.paid).length;
 
       document.getElementById("totalDebt").textContent = money(totalDebt);
@@ -714,22 +718,34 @@
       document.getElementById("strategyFocus").textContent =
         strategy === "snowball" ? "Smallest balances first" : "Highest interest first";
 
+      renderAlerts();
       renderPayoffOrder(sortedDebts);
-      renderDueDates(dueDates);
+      renderDueDays(dueDays);
+    }
+
+    function queueSave() {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(saveDebts, 250);
     }
 
     function updateDebt(index, key, value) {
-      if (key === "name" || key === "due_date") {
+      if (key === "name") {
         debts[index][key] = value;
-      } else if (key === "paid") {
-        debts[index][key] = Boolean(value);
+      } else if (key === "due_day") {
+        debts[index][key] = value === "" ? null : Math.max(1, Math.min(31, parseInt(value || "0", 10) || 0));
       } else {
         debts[index][key] = sanitizeNumber(value);
       }
 
+      calculateAll();
+      queueSave();
+    }
+
+    function togglePaid(index, checked) {
+      debts[index].paid = Boolean(checked);
       renderDebts();
       calculateAll();
-      saveDebts();
+      queueSave();
     }
 
     function addDebt() {
@@ -738,19 +754,19 @@
         balance: 0,
         rate: 0,
         payment: 0,
-        due_date: "",
+        due_day: null,
         paid: false
       });
       renderDebts();
       calculateAll();
-      saveDebts();
+      queueSave();
     }
 
     function removeDebt(index) {
       debts.splice(index, 1);
       renderDebts();
       calculateAll();
-      saveDebts();
+      queueSave();
     }
 
     function setExtra(amount) {
@@ -776,7 +792,7 @@
             balance: sanitizeNumber(d.balance),
             rate: sanitizeNumber(d.rate),
             payment: sanitizeNumber(d.payment),
-            due_date: d.due_date || "",
+            due_day: d.due_day || null,
             paid: Boolean(d.paid)
           }));
           renderDebts();

@@ -15,15 +15,13 @@ def get_conn():
     return conn
 
 
-def ensure_column(conn, table_name, column_name, column_sql):
-    columns = [row["name"] for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()]
-    if column_name not in columns:
-        conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_sql}")
-        conn.commit()
+def column_names(conn, table_name):
+    return [row["name"] for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()]
 
 
 def init_db():
     conn = get_conn()
+
     conn.execute(
         '''
         CREATE TABLE IF NOT EXISTS debts (
@@ -31,14 +29,35 @@ def init_db():
             name TEXT,
             balance REAL DEFAULT 0,
             rate REAL DEFAULT 0,
-            payment REAL DEFAULT 0
+            payment REAL DEFAULT 0,
+            due_day INTEGER,
+            paid INTEGER DEFAULT 0
         )
         '''
     )
     conn.commit()
 
-    ensure_column(conn, "debts", "due_date", "TEXT")
-    ensure_column(conn, "debts", "paid", "INTEGER DEFAULT 0")
+    cols = column_names(conn, "debts")
+
+    if "due_day" not in cols:
+        conn.execute("ALTER TABLE debts ADD COLUMN due_day INTEGER")
+        conn.commit()
+
+    if "paid" not in cols:
+        conn.execute("ALTER TABLE debts ADD COLUMN paid INTEGER DEFAULT 0")
+        conn.commit()
+
+    if "due_date" in cols:
+        rows = conn.execute("SELECT id, due_date, due_day FROM debts").fetchall()
+        for row in rows:
+            if row["due_day"] is None and row["due_date"]:
+                try:
+                    day = int(str(row["due_date"]).split("-")[-1])
+                    if 1 <= day <= 31:
+                        conn.execute("UPDATE debts SET due_day = ? WHERE id = ?", (day, row["id"]))
+                except Exception:
+                    pass
+        conn.commit()
 
     conn.close()
 
@@ -75,7 +94,7 @@ def get_debts():
 
     conn = get_conn()
     rows = conn.execute(
-        "SELECT id, name, balance, rate, payment, due_date, paid FROM debts ORDER BY id ASC"
+        "SELECT id, name, balance, rate, payment, due_day, paid FROM debts ORDER BY id ASC"
     ).fetchall()
     conn.close()
 
@@ -86,7 +105,7 @@ def get_debts():
             "balance": float(row["balance"] or 0),
             "rate": float(row["rate"] or 0),
             "payment": float(row["payment"] or 0),
-            "due_date": row["due_date"] or "",
+            "due_day": int(row["due_day"]) if row["due_day"] is not None else None,
             "paid": bool(row["paid"] or 0),
         }
         for row in rows
@@ -108,15 +127,25 @@ def save_debts():
         balance = float(d.get("balance", 0) or 0)
         rate = float(d.get("rate", 0) or 0)
         payment = float(d.get("payment", 0) or 0)
-        due_date = str(d.get("due_date", "") or "").strip()
+
+        due_day_raw = d.get("due_day")
+        due_day = None
+        if due_day_raw not in (None, "", "null"):
+            try:
+                day = int(due_day_raw)
+                if 1 <= day <= 31:
+                    due_day = day
+            except Exception:
+                due_day = None
+
         paid = 1 if d.get("paid") else 0
 
         conn.execute(
             '''
-            INSERT INTO debts (name, balance, rate, payment, due_date, paid)
+            INSERT INTO debts (name, balance, rate, payment, due_day, paid)
             VALUES (?, ?, ?, ?, ?, ?)
             ''',
-            (name, balance, rate, payment, due_date, paid),
+            (name, balance, rate, payment, due_day, paid),
         )
 
     conn.commit()
