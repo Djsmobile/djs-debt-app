@@ -10,7 +10,15 @@ DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS debts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, balance REAL, rate REAL, payment REAL)")
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS debts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            balance REAL,
+            rate REAL,
+            payment REAL
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -24,7 +32,12 @@ def login():
         if request.form.get("password") == PASSWORD:
             session["logged_in"] = True
             return redirect("/dashboard")
-    return '<form method="POST" style="margin-top:100px;text-align:center;"><h2>Login</h2><input type="password" name="password"/><button type="submit">Enter</button></form>'
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 @app.route("/dashboard")
 def dashboard():
@@ -48,11 +61,13 @@ def save_debts():
     c = conn.cursor()
     c.execute("DELETE FROM debts")
     for d in data:
-        c.execute("INSERT INTO debts (name,balance,rate,payment) VALUES (?,?,?,?)",
-                  (d["name"], d["balance"], d["rate"], d["payment"]))
+        c.execute(
+            "INSERT INTO debts (name,balance,rate,payment) VALUES (?,?,?,?)",
+            (d["name"], d["balance"], d["rate"], d["payment"])
+        )
     conn.commit()
     conn.close()
-    return jsonify({"status":"ok"})
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     app.run()
