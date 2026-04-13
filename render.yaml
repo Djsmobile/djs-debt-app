@@ -1,6 +1,4 @@
 services:
   - type: web
-    name: debt-dashboard
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn app:app"
+    startCommand: gunicorn app:app
