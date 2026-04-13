@@ -3,43 +3,124 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debt Dashboard</title>
+
 <style>
-body{background:#0b0b0b;color:#fff;font-family:Arial;padding:15px;}
-.card{background:#1a1a1a;padding:15px;border-radius:10px;margin-bottom:10px;}
-input{width:100%;padding:8px;margin-top:5px;background:#111;border:1px solid #333;color:#fff;}
-button{padding:10px;margin-top:10px;width:100%;background:#00c853;border:none;color:#fff;}
-.delete{background:#d50000;}
+body{
+    background:#0b0f14;
+    color:#e6edf3;
+    font-family:Segoe UI, sans-serif;
+    padding:20px;
+}
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+.card{
+    background:#161b22;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+input{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    background:#0d1117;
+    border:1px solid #30363d;
+    color:#fff;
+    border-radius:6px;
+}
+button{
+    padding:10px;
+    margin-top:10px;
+    width:100%;
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+}
+.add{
+    background:#238636;
+}
+.delete{
+    background:#da3633;
+}
+.totals{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+.total-box{
+    flex:1;
+    background:#161b22;
+    padding:10px;
+    border-radius:10px;
+    text-align:center;
+}
 </style>
 </head>
 <body>
 
-<h2>Debt Dashboard PRO</h2>
+<div class="header">
+<h2>Debt Dashboard</h2>
+<a href="/logout">Logout</a>
+</div>
+
+<div class="totals">
+<div class="total-box">Total Debt<br>$<span id="totalDebt">0</span></div>
+<div class="total-box">Monthly<br>$<span id="totalPay">0</span></div>
+</div>
 
 <div id="debts"></div>
 
-<button onclick="addDebt()">Add Debt</button>
+<button class="add" onclick="addDebt()">+ Add Debt</button>
 
 <script>
 let debts=[];
 
 function render(){
 let html="";
+let totalDebt=0;
+let totalPay=0;
+
 debts.forEach((d,i)=>{
+totalDebt+=Number(d.balance)||0;
+totalPay+=Number(d.payment)||0;
+
 html+=`
 <div class="card">
-<input value="${d.name}" onchange="update(${i},'name',this.value)">
-<input value="${d.balance}" onchange="update(${i},'balance',this.value)">
-<input value="${d.rate}" onchange="update(${i},'rate',this.value)">
-<input value="${d.payment}" onchange="update(${i},'payment',this.value)">
+<input value="${d.name}" placeholder="Debt Name" onchange="update(${i},'name',this.value)">
+<input value="${d.balance}" placeholder="Balance" onchange="update(${i},'balance',this.value)">
+<input value="${d.rate}" placeholder="Interest %" onchange="update(${i},'rate',this.value)">
+<input value="${d.payment}" placeholder="Monthly Payment" onchange="update(${i},'payment',this.value)">
 <button class="delete" onclick="removeDebt(${i})">Delete</button>
 </div>`;
 });
+
 document.getElementById("debts").innerHTML=html;
+document.getElementById("totalDebt").innerText=totalDebt.toFixed(0);
+document.getElementById("totalPay").innerText=totalPay.toFixed(0);
 }
 
-function update(i,k,v){debts[i][k]=parseFloat(v)||v;save();}
-function addDebt(){debts.push({name:"",balance:0,rate:0,payment:0});render();save();}
-function removeDebt(i){debts.splice(i,1);render();save();}
+function update(i,k,v){
+debts[i][k]=parseFloat(v)||v;
+save();
+render();
+}
+
+function addDebt(){
+debts.push({name:"",balance:0,rate:0,payment:0});
+render();
+save();
+}
+
+function removeDebt(i){
+debts.splice(i,1);
+render();
+save();
+}
 
 function save(){
 fetch("/save_debts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)});
