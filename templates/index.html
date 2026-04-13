@@ -1,140 +1,658 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Dashboard</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #0b1628;
+      --panel: rgba(14, 23, 39, 0.88);
+      --panel-2: rgba(17, 24, 39, 0.92);
+      --line: rgba(148, 163, 184, 0.14);
+      --text: #e6eef8;
+      --muted: #92a3ba;
+      --accent: #3b82f6;
+      --accent-2: #2563eb;
+      --good: #22c55e;
+      --good-2: #16a34a;
+      --danger: #ef4444;
+      --danger-2: #dc2626;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
 
-<style>
-body{
-    background:#0b0f14;
-    color:#e6edf3;
-    font-family:Segoe UI, sans-serif;
-    padding:20px;
-}
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:20px;
-}
-.card{
-    background:#161b22;
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.4);
-}
-input{
-    width:100%;
-    padding:10px;
-    margin-top:8px;
-    background:#0d1117;
-    border:1px solid #30363d;
-    color:#fff;
-    border-radius:6px;
-}
-button{
-    padding:10px;
-    margin-top:10px;
-    width:100%;
-    border:none;
-    border-radius:8px;
-    font-weight:bold;
-}
-.add{
-    background:#238636;
-}
-.delete{
-    background:#da3633;
-}
-.totals{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
-.total-box{
-    flex:1;
-    background:#161b22;
-    padding:10px;
-    border-radius:10px;
-    text-align:center;
-}
-</style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 26%),
+        radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 24%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .logout {
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid var(--line);
+      background: rgba(2, 6, 23, 0.55);
+      padding: 12px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .logout:hover {
+      transform: translateY(-1px);
+      border-color: rgba(59,130,246,0.4);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 18px;
+    }
+
+    .summary-card,
+    .main-card,
+    .side-card,
+    .debt-card {
+      background: linear-gradient(180deg, rgba(16,24,39,0.94), rgba(12,19,33,0.96));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .summary-card {
+      padding: 18px 18px 16px;
+    }
+
+    .summary-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .summary-sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .main-card,
+    .side-card {
+      padding: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-copy {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-add {
+      background: linear-gradient(135deg, var(--good), var(--good-2));
+      box-shadow: 0 14px 28px rgba(34,197,94,0.20);
+      white-space: nowrap;
+    }
+
+    .debt-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .debt-card {
+      padding: 18px;
+    }
+
+    .debt-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.20);
+      color: #bfd7ff;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .btn-delete {
+      background: linear-gradient(135deg, var(--danger), var(--danger-2));
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(239,68,68,0.16);
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: rgba(2, 6, 23, 0.62);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(59,130,246,0.55);
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.14);
+      transform: translateY(-1px);
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .side-card .field + .field {
+      margin-top: 14px;
+    }
+
+    .side-metric {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .metric-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(148,163,184,0.08);
+      font-size: 14px;
+    }
+
+    .metric-row strong {
+      font-size: 15px;
+    }
+
+    .payoff-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .payoff-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(148,163,184,0.08);
+    }
+
+    .payoff-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .rank {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #dbeafe;
+      background: rgba(59,130,246,0.16);
+      border: 1px solid rgba(59,130,246,0.22);
+      flex: 0 0 auto;
+    }
+
+    .payoff-name {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .payoff-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed rgba(148,163,184,0.18);
+      border-radius: 18px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    @media (max-width: 1080px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-layout { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 16px; }
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .brand h1 { font-size: 28px; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .section-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .fields {
+        grid-template-columns: 1fr;
+      }
+      .debt-top {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-delete {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Debt Dashboard</h1>
+        <p>Clean app-style layout with synced saving across devices.</p>
+      </div>
+      <a class="logout" href="/logout">Logout</a>
+    </div>
 
-<div class="header">
-<h2>Debt Dashboard</h2>
-<a href="/logout">Logout</a>
-</div>
+    <div class="grid summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">Total Debt</div>
+        <div class="summary-value" id="totalDebt">$0</div>
+        <div class="summary-sub">Combined remaining balances</div>
+      </div>
 
-<div class="totals">
-<div class="total-box">Total Debt<br>$<span id="totalDebt">0</span></div>
-<div class="total-box">Monthly<br>$<span id="totalPay">0</span></div>
-</div>
+      <div class="summary-card">
+        <div class="summary-label">Monthly Minimums</div>
+        <div class="summary-value" id="totalMonthly">$0</div>
+        <div class="summary-sub">Current required monthly payments</div>
+      </div>
 
-<div id="debts"></div>
+      <div class="summary-card">
+        <div class="summary-label">Extra Payment</div>
+        <div class="summary-value" id="extraSummary">$0</div>
+        <div class="summary-sub">Additional monthly money you throw at debt</div>
+      </div>
 
-<button class="add" onclick="addDebt()">+ Add Debt</button>
+      <div class="summary-card">
+        <div class="summary-label">Estimated Payoff</div>
+        <div class="summary-value" id="payoffEstimate">—</div>
+        <div class="summary-sub">Simple estimate based on monthly payment total</div>
+      </div>
+    </div>
 
-<script>
-let debts=[];
+    <div class="dashboard-layout">
+      <div class="main-card">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Your Debts</div>
+            <div class="section-copy">Clean card layout, smaller delete buttons, and better structure.</div>
+          </div>
+          <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Debt</button>
+        </div>
 
-function render(){
-let html="";
-let totalDebt=0;
-let totalPay=0;
+        <div id="debts" class="debt-list"></div>
+      </div>
 
-debts.forEach((d,i)=>{
-totalDebt+=Number(d.balance)||0;
-totalPay+=Number(d.payment)||0;
+      <div class="side-stack">
+        <div class="side-card">
+          <div class="section-title">Payoff Settings</div>
+          <div class="section-copy" style="margin-bottom:16px;">Choose your strategy and extra monthly payment.</div>
 
-html+=`
-<div class="card">
-<input value="${d.name}" placeholder="Debt Name" onchange="update(${i},'name',this.value)">
-<input value="${d.balance}" placeholder="Balance" onchange="update(${i},'balance',this.value)">
-<input value="${d.rate}" placeholder="Interest %" onchange="update(${i},'rate',this.value)">
-<input value="${d.payment}" placeholder="Monthly Payment" onchange="update(${i},'payment',this.value)">
-<button class="delete" onclick="removeDebt(${i})">Delete</button>
-</div>`;
-});
+          <div class="field">
+            <label for="extraPayment">Extra Monthly Payment</label>
+            <input id="extraPayment" type="number" min="0" step="0.01" value="0" oninput="calculateAll()">
+          </div>
 
-document.getElementById("debts").innerHTML=html;
-document.getElementById("totalDebt").innerText=totalDebt.toFixed(0);
-document.getElementById("totalPay").innerText=totalPay.toFixed(0);
-}
+          <div class="field">
+            <label for="strategy">Payoff Method</label>
+            <select id="strategy" onchange="calculateAll()">
+              <option value="snowball">Snowball — smallest balance first</option>
+              <option value="avalanche">Avalanche — highest interest first</option>
+            </select>
+          </div>
 
-function update(i,k,v){
-debts[i][k]=parseFloat(v)||v;
-save();
-render();
-}
+          <div class="side-metric">
+            <div class="metric-row">
+              <span>Strategy Focus</span>
+              <strong id="strategyFocus">Smallest balances first</strong>
+            </div>
+            <div class="metric-row">
+              <span>Total Monthly Power</span>
+              <strong id="monthlyPower">$0</strong>
+            </div>
+          </div>
+        </div>
 
-function addDebt(){
-debts.push({name:"",balance:0,rate:0,payment:0});
-render();
-save();
-}
+        <div class="side-card">
+          <div class="section-title">Projected Payoff Order</div>
+          <div class="section-copy">This ranks your debts using the strategy you choose.</div>
+          <div id="payoffOrder" class="payoff-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-function removeDebt(i){
-debts.splice(i,1);
-render();
-save();
-}
+  <script>
+    let debts = [];
 
-function save(){
-fetch("/save_debts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)});
-}
+    function money(value) {
+      const num = Number(value) || 0;
+      return "$" + num.toLocaleString(undefined, {
+        minimumFractionDigits: num % 1 === 0 ? 0 : 2,
+        maximumFractionDigits: 2
+      });
+    }
 
-function load(){
-fetch("/get_debts").then(r=>r.json()).then(data=>{
-debts=data.map(d=>({name:d[1],balance:d[2],rate:d[3],payment:d[4]}));
-render();
-});
-}
+    function monthsToWords(months) {
+      if (!isFinite(months) || months <= 0) return "—";
+      const rounded = Math.ceil(months);
+      if (rounded < 12) return rounded + (rounded === 1 ? " month" : " months");
+      const years = Math.floor(rounded / 12);
+      const rem = rounded % 12;
+      if (rem === 0) return years + (years === 1 ? " year" : " years");
+      return years + (years === 1 ? " year " : " years ") + rem + (rem === 1 ? " month" : " months");
+    }
 
-load();
-</script>
+    function sanitizeNumber(value) {
+      const num = parseFloat(value);
+      return isNaN(num) ? 0 : num;
+    }
 
+    function renderDebts() {
+      const container = document.getElementById("debts");
+
+      if (!debts.length) {
+        container.innerHTML = '<div class="empty">No debts yet. Add one to start tracking your payoff plan.</div>';
+        return;
+      }
+
+      container.innerHTML = debts.map((d, i) => `
+        <div class="debt-card">
+          <div class="debt-top">
+            <div class="chip">Debt ${i + 1}</div>
+            <button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete</button>
+          </div>
+
+          <div class="fields">
+            <div class="field">
+              <label>Debt Name</label>
+              <input type="text" value="${escapeHtml(d.name || "")}" placeholder="Credit Card, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)">
+            </div>
+
+            <div class="field">
+              <label>Balance</label>
+              <input type="number" min="0" step="0.01" value="${sanitizeNumber(d.balance)}" placeholder="0" oninput="updateDebt(${i}, 'balance', this.value)">
+            </div>
+
+            <div class="field">
+              <label>Interest %</label>
+              <input type="number" min="0" step="0.01" value="${sanitizeNumber(d.rate)}" placeholder="0" oninput="updateDebt(${i}, 'rate', this.value)">
+            </div>
+
+            <div class="field">
+              <label>Monthly Payment</label>
+              <input type="number" min="0" step="0.01" value="${sanitizeNumber(d.payment)}" placeholder="0" oninput="updateDebt(${i}, 'payment', this.value)">
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function addDebt() {
+      debts.push({ name: "", balance: 0, rate: 0, payment: 0 });
+      renderDebts();
+      calculateAll();
+      saveDebts();
+    }
+
+    function removeDebt(index) {
+      debts.splice(index, 1);
+      renderDebts();
+      calculateAll();
+      saveDebts();
+    }
+
+    function updateDebt(index, key, value) {
+      if (key === "name") {
+        debts[index][key] = value;
+      } else {
+        debts[index][key] = sanitizeNumber(value);
+      }
+      calculateAll();
+      saveDebts();
+    }
+
+    function getSortedDebts() {
+      const strategy = document.getElementById("strategy").value;
+      const copy = debts.map(d => ({
+        name: d.name || "Unnamed Debt",
+        balance: sanitizeNumber(d.balance),
+        rate: sanitizeNumber(d.rate),
+        payment: sanitizeNumber(d.payment)
+      }));
+
+      if (strategy === "snowball") {
+        copy.sort((a, b) => a.balance - b.balance);
+      } else {
+        copy.sort((a, b) => b.rate - a.rate);
+      }
+
+      return copy;
+    }
+
+    function renderPayoffOrder(sortedDebts) {
+      const wrap = document.getElementById("payoffOrder");
+
+      if (!sortedDebts.length) {
+        wrap.innerHTML = '<div class="empty">Payoff order will show here after you add debts.</div>';
+        return;
+      }
+
+      wrap.innerHTML = sortedDebts.map((debt, index) => `
+        <div class="payoff-item">
+          <div class="payoff-left">
+            <div class="rank">${index + 1}</div>
+            <div>
+              <div class="payoff-name">${escapeHtml(debt.name)}</div>
+              <div class="payoff-meta">${money(debt.balance)} balance • ${debt.rate}% APR</div>
+            </div>
+          </div>
+          <strong>${money(debt.payment)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function calculateAll() {
+      const totalDebt = debts.reduce((sum, d) => sum + sanitizeNumber(d.balance), 0);
+      const totalMonthly = debts.reduce((sum, d) => sum + sanitizeNumber(d.payment), 0);
+      const extra = sanitizeNumber(document.getElementById("extraPayment").value);
+      const monthlyPower = totalMonthly + extra;
+      const simpleMonths = monthlyPower > 0 ? totalDebt / monthlyPower : 0;
+      const strategy = document.getElementById("strategy").value;
+      const sortedDebts = getSortedDebts();
+
+      document.getElementById("totalDebt").textContent = money(totalDebt);
+      document.getElementById("totalMonthly").textContent = money(totalMonthly);
+      document.getElementById("extraSummary").textContent = money(extra);
+      document.getElementById("payoffEstimate").textContent = monthsToWords(simpleMonths);
+      document.getElementById("monthlyPower").textContent = money(monthlyPower);
+      document.getElementById("strategyFocus").textContent =
+        strategy === "snowball" ? "Smallest balances first" : "Highest interest first";
+
+      renderPayoffOrder(sortedDebts);
+    }
+
+    function saveDebts() {
+      fetch("/save_debts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(debts)
+      }).catch(err => console.error("Save failed:", err));
+    }
+
+    function loadDebts() {
+      fetch("/get_debts")
+        .then(response => response.json())
+        .then(data => {
+          debts = data.map(d => ({
+            name: d[1] || "",
+            balance: sanitizeNumber(d[2]),
+            rate: sanitizeNumber(d[3]),
+            payment: sanitizeNumber(d[4])
+          }));
+          renderDebts();
+          calculateAll();
+        })
+        .catch(err => {
+          console.error("Load failed:", err);
+          renderDebts();
+          calculateAll();
+        });
+    }
+
+    loadDebts();
+  </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
-import sqlite3, os
+import sqlite3
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -9,7 +10,14 @@ DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("CREATE TABLE IF NOT EXISTS debts (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, balance REAL, rate REAL, payment REAL)")
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS debts ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "name TEXT, "
+        "balance REAL, "
+        "rate REAL, "
+        "payment REAL)"
+    )
     conn.commit()
     conn.close()
 
@@ -47,15 +55,18 @@ def get_debts():
 
 @app.route("/save_debts", methods=["POST"])
 def save_debts():
-    data = request.json
+    data = request.json or []
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("DELETE FROM debts")
     for d in data:
-        c.execute("INSERT INTO debts (name,balance,rate,payment) VALUES (?,?,?,?)",(d["name"], d["balance"], d["rate"], d["payment"]))
+        c.execute(
+            "INSERT INTO debts (name, balance, rate, payment) VALUES (?, ?, ?, ?)",
+            (d.get("name", ""), d.get("balance", 0), d.get("rate", 0), d.get("payment", 0))
+        )
     conn.commit()
     conn.close()
-    return jsonify({"status":"ok"})
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
     app.run()
