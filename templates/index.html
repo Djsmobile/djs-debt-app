@@ -4,61 +4,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debt Dashboard</title>
 <style>
-body { font-family: Arial; background:#111; color:#fff; padding:20px;}
-.card { background:#222; padding:15px; margin-bottom:10px; border-radius:8px;}
-input { width:100%; padding:8px; margin:5px 0; }
-button { padding:10px; width:100%; }
+body{background:#0b0b0b;color:#fff;font-family:Arial;padding:15px;}
+.card{background:#1a1a1a;padding:15px;border-radius:10px;margin-bottom:10px;}
+input{width:100%;padding:8px;margin-top:5px;background:#111;border:1px solid #333;color:#fff;}
+button{padding:10px;margin-top:10px;width:100%;background:#00c853;border:none;color:#fff;}
+.delete{background:#d50000;}
 </style>
 </head>
 <body>
 
-<h2>Debt Dashboard</h2>
+<h2>Debt Dashboard PRO</h2>
 
 <div id="debts"></div>
 
 <button onclick="addDebt()">Add Debt</button>
 
 <script>
-let debts = [];
+let debts=[];
 
-function render() {
-    let container = document.getElementById("debts");
-    container.innerHTML = "";
-    debts.forEach((d,i)=>{
-        container.innerHTML += `
-        <div class="card">
-            <input value="${d.name}" onchange="update(${i},'name',this.value)">
-            <input value="${d.balance}" onchange="update(${i},'balance',this.value)">
-            <input value="${d.rate}" onchange="update(${i},'rate',this.value)">
-            <input value="${d.payment}" onchange="update(${i},'payment',this.value)">
-        </div>`;
-    });
+function render(){
+let html="";
+debts.forEach((d,i)=>{
+html+=`
+<div class="card">
+<input value="${d.name}" onchange="update(${i},'name',this.value)">
+<input value="${d.balance}" onchange="update(${i},'balance',this.value)">
+<input value="${d.rate}" onchange="update(${i},'rate',this.value)">
+<input value="${d.payment}" onchange="update(${i},'payment',this.value)">
+<button class="delete" onclick="removeDebt(${i})">Delete</button>
+</div>`;
+});
+document.getElementById("debts").innerHTML=html;
 }
 
-function update(i,key,val){
-    debts[i][key]=val;
-    save();
-}
-
-function addDebt(){
-    debts.push({name:"",balance:0,rate:0,payment:0});
-    render();
-    save();
-}
+function update(i,k,v){debts[i][k]=parseFloat(v)||v;save();}
+function addDebt(){debts.push({name:"",balance:0,rate:0,payment:0});render();save();}
+function removeDebt(i){debts.splice(i,1);render();save();}
 
 function save(){
-    fetch("/save_debts",{method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify(debts)});
+fetch("/save_debts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)});
 }
 
 function load(){
-    fetch("/get_debts").then(r=>r.json()).then(data=>{
-        debts = data.map(d=>({
-            name:d[1], balance:d[2], rate:d[3], payment:d[4]
-        }));
-        render();
-    });
+fetch("/get_debts").then(r=>r.json()).then(data=>{
+debts=data.map(d=>({name:d[1],balance:d[2],rate:d[3],payment:d[4]}));
+render();
+});
 }
 
 load();
