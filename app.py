@@ -1,43 +1,80 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
-import sqlite3, os
+import os
+import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
+app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 
 DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
-PASSWORD = "DJs2025!"
+PASSWORD = os.environ.get("APP_PASSWORD", "DJs2025!")
 
-def get_conn():
+
+def ensure_db_dir() -> None:
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
+
+
+def get_conn() -> sqlite3.Connection:
+    ensure_db_dir()
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-def init_db():
+
+def init_db() -> None:
     conn = get_conn()
-    conn.execute('''
+    conn.execute(
+        '''
         CREATE TABLE IF NOT EXISTS debts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            balance REAL,
-            rate REAL,
-            payment REAL,
+            name TEXT NOT NULL DEFAULT '',
+            balance REAL NOT NULL DEFAULT 0,
+            rate REAL NOT NULL DEFAULT 0,
+            payment REAL NOT NULL DEFAULT 0,
             due_day INTEGER,
-            paid INTEGER,
-            credit_limit REAL
+            paid INTEGER NOT NULL DEFAULT 0,
+            credit_limit REAL NOT NULL DEFAULT 0
         )
-    ''')
+        '''
+    )
     conn.commit()
     conn.close()
 
+
 init_db()
 
-@app.route("/", methods=["GET","POST"])
+
+def to_float(value, default=0.0) -> float:
+    try:
+        if value in (None, ""):
+            return float(default)
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def to_due_day(value):
+    try:
+        if value in (None, ""):
+            return None
+        day = int(value)
+        if 1 <= day <= 31:
+            return day
+    except (TypeError, ValueError):
+        pass
+    return None
+
+
+@app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form.get("password") == PASSWORD:
             session["logged_in"] = True
             return redirect("/dashboard")
+        return render_template("login.html", error="Incorrect password")
     return render_template("login.html")
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -45,31 +82,70 @@ def dashboard():
         return redirect("/")
     return render_template("index.html")
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
+
 @app.route("/get_debts")
 def get_debts():
+    if not session.get("logged_in"):
+        return jsonify({"error": "unauthorized"}), 401
+
     conn = get_conn()
-    rows = conn.execute("SELECT * FROM debts").fetchall()
+    rows = conn.execute("SELECT * FROM debts ORDER BY paid ASC, due_day ASC, id ASC").fetchall()
     conn.close()
     return jsonify([dict(r) for r in rows])
 
+
 @app.route("/save_debts", methods=["POST"])
 def save_debts():
-    data = request.json
+    if not session.get("logged_in"):
+        return jsonify({"error": "unauthorized"}), 401
+
+    data = request.get_json(silent=True)
+    if not isinstance(data, list):
+        return jsonify({"status": "error", "message": "Invalid payload"}), 400
+
     conn = get_conn()
     conn.execute("DELETE FROM debts")
-    for d in data:
+
+    for raw in data:
+        if not isinstance(raw, dict):
+            continue
+
+        debt = {
+            "name": str(raw.get("name", "")).strip(),
+            "balance": max(0.0, to_float(raw.get("balance"), 0.0)),
+            "rate": max(0.0, to_float(raw.get("rate"), 0.0)),
+            "payment": max(0.0, to_float(raw.get("payment"), 0.0)),
+            "due_day": to_due_day(raw.get("due_day")),
+            "paid": 1 if bool(raw.get("paid", False)) else 0,
+            "credit_limit": max(0.0, to_float(raw.get("credit_limit"), 0.0)),
+        }
+
         conn.execute(
-            "INSERT INTO debts (name,balance,rate,payment,due_day,paid,credit_limit) VALUES (?,?,?,?,?,?,?)",
-            (d["name"], d["balance"], d["rate"], d["payment"], d["due_day"], int(d["paid"]), d["credit_limit"])
+            """
+            INSERT INTO debts (name, balance, rate, payment, due_day, paid, credit_limit)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                debt["name"],
+                debt["balance"],
+                debt["rate"],
+                debt["payment"],
+                debt["due_day"],
+                debt["paid"],
+                debt["credit_limit"],
+            ),
         )
+
     conn.commit()
     conn.close()
-    return jsonify({"status":"ok"})
+    return jsonify({"status": "ok"})
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)

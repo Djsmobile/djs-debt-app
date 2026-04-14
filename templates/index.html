@@ -1,100 +1,518 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Dashboard</title>
+<title>Debt Dashboard Pro</title>
 <style>
-body{background:#0a0a0a;color:#e5e5e5;font-family:monospace;padding:20px;}
-.card{background:#111;border:1px solid #222;padding:15px;margin-bottom:15px;}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;}
-input{width:100%;background:black;color:#0f0;border:1px solid #333;padding:8px;}
-button{padding:8px;background:#0f0;color:black;border:none;margin-top:5px;}
-.delete{background:red;color:white;}
-.good{color:#0f0}
-.warn{color:#ff0}
-.bad{color:#f00}
-.row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+:root{
+  --bg:#090b10;
+  --panel:#121721;
+  --panel-2:#171d29;
+  --border:#2a3446;
+  --text:#eef3fb;
+  --muted:#97a3b8;
+  --green:#3ddc97;
+  --yellow:#ffcc66;
+  --red:#ff6b6b;
+  --blue:#6aa9ff;
+  --shadow:0 18px 45px rgba(0,0,0,.35);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:radial-gradient(circle at top, #111827 0%, #090b10 45%);
+  color:var(--text);
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  min-height:100vh;
+}
+.container{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin-bottom:18px;position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(10px);padding:10px 0;
+}
+.brand h1{margin:0;font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:.02em}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+button{
+  border:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;
+  transition:.18s ease;box-shadow:var(--shadow)
+}
+button:hover{transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,var(--green),#68f0b7);color:#07140e}
+.btn-secondary{background:#1c2433;color:var(--text);border:1px solid var(--border)}
+.btn-danger{background:#32161a;color:#ffd7d7;border:1px solid #5b232d;box-shadow:none}
+.summary-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;
+}
+.summary-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
+  border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
+}
+.summary-label{color:var(--muted);font-size:.86rem;text-transform:uppercase;letter-spacing:.08em}
+.summary-value{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;margin-top:10px}
+.summary-sub{margin-top:6px;color:var(--muted);font-size:.9rem}
+.alert-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
+  border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px;box-shadow:var(--shadow)
+}
+.alert-title{font-weight:800;font-size:1rem;margin-bottom:12px}
+.alert-list{display:flex;flex-direction:column;gap:10px}
+.alert-item{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:14px
+}
+.alert-left{display:flex;flex-direction:column;gap:4px}
+.alert-name{font-weight:700}
+.alert-meta{color:var(--muted);font-size:.9rem}
+.badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:112px;padding:8px 12px;border-radius:999px;font-size:.82rem;font-weight:800;letter-spacing:.04em
+}
+.badge.red{background:rgba(255,107,107,.14);color:#ff9f9f;border:1px solid rgba(255,107,107,.35)}
+.badge.yellow{background:rgba(255,204,102,.12);color:#ffd98a;border:1px solid rgba(255,204,102,.3)}
+.badge.green{background:rgba(61,220,151,.12);color:#87f0c1;border:1px solid rgba(61,220,151,.32)}
+.list{display:flex;flex-direction:column;gap:14px}
+.debt-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
+  border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
+}
+.debt-card.paid{opacity:.62}
+.debt-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.debt-title-wrap{display:flex;flex-direction:column;gap:6px;flex:1}
+.debt-title{font-size:1.1rem;font-weight:800}
+.debt-sub{color:var(--muted);font-size:.92rem}
+.form-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.field label{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
+input{
+  width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--border);
+  background:#0d131d;color:var(--text);outline:none;font-size:1rem
+}
+input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(106,169,255,.15)}
+.checkbox-row{
+  display:flex;align-items:center;gap:10px;height:100%;padding:12px 13px;border-radius:12px;
+  border:1px solid var(--border);background:#0d131d
+}
+.checkbox-row input{width:auto;transform:scale(1.15)}
+.card-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
+.inline-stats{display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  padding:8px 11px;border-radius:999px;background:#0f1520;border:1px solid var(--border);font-size:.85rem;color:var(--muted)
+}
+.pill strong{color:var(--text)}
+.empty{
+  text-align:center;padding:28px 18px;background:var(--panel);border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted)
+}
+.save-state{color:var(--muted);font-size:.9rem}
+.util-good{color:#87f0c1}.util-warn{color:#ffd98a}.util-bad{color:#ff9f9f}
+@media (max-width: 980px){
+  .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 640px){
+  .container{padding:14px 12px 34px}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .actions{width:100%}
+  .actions button{flex:1}
+  .summary-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .debt-card-header,.card-footer,.alert-item{flex-direction:column;align-items:flex-start}
+  .badge{min-width:0}
+}
 </style>
 </head>
 <body>
+<div class="container">
+  <div class="topbar">
+    <div class="brand">
+      <h1>Debt Dashboard Pro</h1>
+      <p>Clean payoff tracking with due-day alerts, utilization, and smooth saving.</p>
+    </div>
+    <div class="actions">
+      <button class="btn-primary" id="addBtn" type="button">+ Add Debt</button>
+      <button class="btn-secondary" id="saveBtn" type="button">Save Now</button>
+      <button class="btn-secondary" id="logoutBtn" type="button">Logout</button>
+    </div>
+  </div>
 
-<h2>DEBT COMMAND CENTER</h2>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Total Debt</div>
+      <div class="summary-value" id="totalDebt">$0</div>
+      <div class="summary-sub" id="totalAccounts">0 active accounts</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Credit Utilization</div>
+      <div class="summary-value" id="totalUtilization">0%</div>
+      <div class="summary-sub" id="utilizationDetail">$0 used of $0</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Monthly Payments</div>
+      <div class="summary-value" id="monthlyPayments">$0</div>
+      <div class="summary-sub">Minimum payments entered</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Accounts Paid</div>
+      <div class="summary-value" id="paidAccounts">0</div>
+      <div class="summary-sub" id="nextDueSummary">No due dates yet</div>
+    </div>
+  </div>
 
-<div class="grid">
-<div class="card">TOTAL: <span id="total"></span></div>
-<div class="card">UTIL: <span id="util"></span></div>
+  <div class="alert-card">
+    <div class="alert-title">Alerts</div>
+    <div class="alert-list" id="alertsList"></div>
+  </div>
+
+  <div class="list" id="debtsList"></div>
+  <div class="save-state" id="saveState">Loaded.</div>
 </div>
 
-<div id="debts"></div>
-
-<button onclick="addDebt()">+ ADD</button>
-
 <script>
-let debts=[];
+let debts = [];
+let saveTimer = null;
+let isSaving = false;
 
-function utilClass(p){
- if(p<10)return "good";
- if(p<=30)return "warn";
- return "bad";
+function money(value) {
+  const amount = Number(value) || 0;
+  return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 }
 
-function calc(){
- let total=0,bal=0,lim=0;
- debts.forEach(d=>{
-  if(!d.paid) total+=Number(d.balance);
-  if(d.credit_limit>0){
-   bal+=Number(d.balance);
-   lim+=Number(d.credit_limit);
+function moneyPrecise(value) {
+  const amount = Number(value) || 0;
+  return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function num(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function getDaysUntilDue(dueDay) {
+  if (!dueDay || dueDay < 1 || dueDay > 31) return null;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const todayDay = today.getDate();
+
+  let targetMonth = month;
+  let targetYear = year;
+
+  if (dueDay < todayDay) {
+    targetMonth += 1;
+    if (targetMonth > 11) {
+      targetMonth = 0;
+      targetYear += 1;
+    }
   }
- });
- let util=lim?(bal/lim*100):0;
 
- document.getElementById("total").innerText="$"+total.toFixed(0);
- document.getElementById("util").innerHTML="<span class='"+utilClass(util)+"'>"+util.toFixed(0)+"%</span>";
+  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+  const safeDay = Math.min(dueDay, lastDay);
+  const dueDate = new Date(targetYear, targetMonth, safeDay);
+  dueDate.setHours(0, 0, 0, 0);
+
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diffMs = dueDate - start;
+  return Math.round(diffMs / 86400000);
 }
 
-function render(){
- document.getElementById("debts").innerHTML=debts.map((d,i)=>`
- <div class="card">
- <div class="row">
- <input value="${d.name}" placeholder="NAME" oninput="upd(${i},'name',this.value)">
- <input type="number" value="${d.balance}" placeholder="BAL" oninput="upd(${i},'balance',this.value)">
- <input type="number" value="${d.credit_limit}" placeholder="LIMIT" oninput="upd(${i},'credit_limit',this.value)">
- <input type="number" value="${d.rate}" placeholder="APR" oninput="upd(${i},'rate',this.value)">
- <input type="number" value="${d.payment}" placeholder="PAY" oninput="upd(${i},'payment',this.value)">
- <input type="number" value="${d.due_day||''}" placeholder="DUE" oninput="upd(${i},'due_day',this.value)">
- <input type="checkbox" ${d.paid?'checked':''} onchange="upd(${i},'paid',this.checked)">
- </div>
- <button class="delete" onclick="del(${i})">DELETE</button>
- </div>`).join("");
- calc();
+function alertInfo(debt) {
+  const days = getDaysUntilDue(num(debt.due_day));
+  if (debt.paid) {
+    return { label: 'PAID', badgeClass: 'green', rank: 3, meta: 'Marked paid' };
+  }
+  if (days === null) {
+    return { label: 'NO DUE DATE', badgeClass: 'yellow', rank: 2, meta: 'Set a due day to track alerts' };
+  }
+  if (days <= 3) {
+    return { label: 'DUE SOON', badgeClass: 'red', rank: 0, meta: days === 0 ? 'Due today' : `Due in ${days} day${days === 1 ? '' : 's'}` };
+  }
+  if (days <= 7) {
+    return { label: 'COMING UP', badgeClass: 'yellow', rank: 1, meta: `Due in ${days} days` };
+  }
+  return { label: 'SAFE', badgeClass: 'green', rank: 2, meta: `Due in ${days} days` };
 }
 
-function upd(i,k,v){
- debts[i][k]=(k=="paid")?v:Number(v)||v;
- save(); render();
+function utilizationClass(percent) {
+  if (percent <= 9) return 'util-good';
+  if (percent <= 30) return 'util-warn';
+  return 'util-bad';
 }
 
-function addDebt(){
- debts.push({name:"",balance:0,rate:0,payment:0,due_day:null,paid:false,credit_limit:0});
- render(); save();
+function summarize() {
+  const active = debts.filter(d => !d.paid);
+  const paid = debts.filter(d => d.paid);
+
+  const totalDebt = active.reduce((sum, d) => sum + num(d.balance), 0);
+  const monthly = active.reduce((sum, d) => sum + num(d.payment), 0);
+
+  const totalBalanceForUtil = debts.reduce((sum, d) => sum + (num(d.credit_limit) > 0 ? num(d.balance) : 0), 0);
+  const totalLimit = debts.reduce((sum, d) => sum + num(d.credit_limit), 0);
+  const util = totalLimit > 0 ? (totalBalanceForUtil / totalLimit) * 100 : 0;
+
+  const nextDue = active
+    .map(d => ({ name: d.name || 'Unnamed debt', days: getDaysUntilDue(num(d.due_day)) }))
+    .filter(x => x.days !== null)
+    .sort((a, b) => a.days - b.days)[0];
+
+  document.getElementById('totalDebt').textContent = money(totalDebt);
+  document.getElementById('totalAccounts').textContent = `${active.length} active account${active.length === 1 ? '' : 's'}`;
+  const utilEl = document.getElementById('totalUtilization');
+  utilEl.textContent = `${util.toFixed(0)}%`;
+  utilEl.className = `summary-value ${utilizationClass(util)}`;
+  document.getElementById('utilizationDetail').textContent = `${money(totalBalanceForUtil)} used of ${money(totalLimit)}`;
+  document.getElementById('monthlyPayments').textContent = money(monthly);
+  document.getElementById('paidAccounts').textContent = String(paid.length);
+  document.getElementById('nextDueSummary').textContent = nextDue ? `${nextDue.name} due in ${nextDue.days} day${nextDue.days === 1 ? '' : 's'}` : 'No due dates yet';
 }
 
-function del(i){
- debts.splice(i,1);
- render(); save();
+function renderAlerts() {
+  const alerts = [...debts]
+    .sort((a, b) => alertInfo(a).rank - alertInfo(b).rank)
+    .map((debt) => {
+      const info = alertInfo(debt);
+      return `
+        <div class="alert-item">
+          <div class="alert-left">
+            <div class="alert-name">${escapeHtml(debt.name || 'Unnamed debt')}</div>
+            <div class="alert-meta">${info.meta} • Balance ${money(num(debt.balance))}</div>
+          </div>
+          <span class="badge ${info.badgeClass}">${info.label}</span>
+        </div>
+      `;
+    })
+    .join('');
+
+  document.getElementById('alertsList').innerHTML = alerts || '<div class="empty">Add your first debt to start tracking alerts.</div>';
 }
 
-function save(){
- fetch("/save_debts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)});
+function debtCardHtml(debt, index) {
+  const util = num(debt.credit_limit) > 0 ? (num(debt.balance) / num(debt.credit_limit)) * 100 : 0;
+  const utilText = num(debt.credit_limit) > 0 ? `${util.toFixed(0)}% util` : 'No limit set';
+  const status = alertInfo(debt);
+
+  return `
+    <div class="debt-card ${debt.paid ? 'paid' : ''}" data-index="${index}">
+      <div class="debt-card-header">
+        <div class="debt-title-wrap">
+          <div class="debt-title">${escapeHtml(debt.name || 'New debt')}</div>
+          <div class="debt-sub">${status.meta}</div>
+        </div>
+        <span class="badge ${status.badgeClass}">${status.label}</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label>Debt Name</label>
+          <input type="text" data-field="name" value="${escapeAttr(debt.name || '')}" placeholder="Chase Freedom">
+        </div>
+        <div class="field">
+          <label>Balance</label>
+          <input type="number" step="0.01" min="0" data-field="balance" value="${escapeAttr(num(debt.balance))}" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Credit Limit</label>
+          <input type="number" step="0.01" min="0" data-field="credit_limit" value="${escapeAttr(num(debt.credit_limit))}" placeholder="0">
+        </div>
+        <div class="field">
+          <label>APR %</label>
+          <input type="number" step="0.01" min="0" data-field="rate" value="${escapeAttr(num(debt.rate))}" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Monthly Payment</label>
+          <input type="number" step="0.01" min="0" data-field="payment" value="${escapeAttr(num(debt.payment))}" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Due Day</label>
+          <input type="number" step="1" min="1" max="31" data-field="due_day" value="${escapeAttr(debt.due_day ?? '')}" placeholder="1-31">
+        </div>
+        <div class="field" style="grid-column:span 2;">
+          <label>Paid This Month</label>
+          <div class="checkbox-row">
+            <input type="checkbox" data-field="paid" ${debt.paid ? 'checked' : ''}>
+            <span>${debt.paid ? 'Marked paid and moved lower' : 'Still needs payment'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="inline-stats">
+          <div class="pill"><strong>Balance:</strong> ${moneyPrecise(debt.balance)}</div>
+          <div class="pill"><strong>Payment:</strong> ${moneyPrecise(debt.payment)}</div>
+          <div class="pill"><strong>APR:</strong> ${num(debt.rate).toFixed(2)}%</div>
+          <div class="pill"><strong>Utilization:</strong> <span class="${utilizationClass(util)}">${utilText}</span></div>
+        </div>
+        <button class="btn-danger delete-btn" type="button" data-delete="${index}">Delete</button>
+      </div>
+    </div>
+  `;
 }
 
-function load(){
- fetch("/get_debts").then(r=>r.json()).then(d=>{debts=d; render();});
+function sortDebts() {
+  debts.sort((a, b) => {
+    if (Boolean(a.paid) !== Boolean(b.paid)) return a.paid ? 1 : -1;
+
+    const aDays = getDaysUntilDue(num(a.due_day));
+    const bDays = getDaysUntilDue(num(b.due_day));
+
+    if (aDays === null && bDays === null) return 0;
+    if (aDays === null) return 1;
+    if (bDays === null) return -1;
+    return aDays - bDays;
+  });
 }
 
-load();
+function render() {
+  sortDebts();
+  const list = document.getElementById('debtsList');
+
+  if (!debts.length) {
+    list.innerHTML = '<div class="empty">No debts yet. Hit <strong>+ Add Debt</strong> to start building the dashboard.</div>';
+  } else {
+    list.innerHTML = debts.map((debt, index) => debtCardHtml(debt, index)).join('');
+  }
+
+  summarize();
+  renderAlerts();
+  bindInputs();
+}
+
+function bindInputs() {
+  document.querySelectorAll('[data-field]').forEach((input) => {
+    input.addEventListener('input', handleInput);
+    input.addEventListener('change', handleInput);
+  });
+
+  document.querySelectorAll('[data-delete]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const index = Number(button.getAttribute('data-delete'));
+      debts.splice(index, 1);
+      markDirty('Deleted. Saving...');
+      render();
+      queueSave();
+    });
+  });
+}
+
+function handleInput(event) {
+  const card = event.target.closest('.debt-card');
+  if (!card) return;
+
+  const index = Number(card.getAttribute('data-index'));
+  const field = event.target.getAttribute('data-field');
+
+  if (field === 'paid') {
+    debts[index][field] = event.target.checked;
+    render();
+    markDirty('Updated. Saving...');
+    queueSave();
+    return;
+  }
+
+  let value = event.target.value;
+  if (["balance", "credit_limit", "rate", "payment"].includes(field)) {
+    debts[index][field] = value === '' ? 0 : num(value);
+  } else if (field === 'due_day') {
+    debts[index][field] = value === '' ? null : Math.max(1, Math.min(31, parseInt(value || '0', 10) || 1));
+  } else {
+    debts[index][field] = value;
+  }
+
+  const title = card.querySelector('.debt-title');
+  if (field === 'name' && title) {
+    title.textContent = value || 'New debt';
+  }
+
+  summarize();
+  renderAlerts();
+  markDirty('Typing... changes queued');
+  queueSave();
+}
+
+function queueSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveDebts, 500);
+}
+
+function markDirty(message) {
+  document.getElementById('saveState').textContent = message;
+}
+
+async function saveDebts() {
+  if (isSaving) return;
+  isSaving = true;
+  markDirty('Saving...');
+
+  try {
+    const response = await fetch('/save_debts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(debts)
+    });
+
+    if (!response.ok) throw new Error('Save failed');
+    markDirty('All changes saved.');
+  } catch (error) {
+    console.error(error);
+    markDirty('Save failed. Tap Save Now.');
+  } finally {
+    isSaving = false;
+  }
+}
+
+async function loadDebts() {
+  try {
+    const response = await fetch('/get_debts');
+    if (!response.ok) throw new Error('Load failed');
+    debts = await response.json();
+    debts = debts.map(d => ({
+      ...d,
+      paid: Boolean(d.paid)
+    }));
+    render();
+    markDirty('Loaded.');
+  } catch (error) {
+    console.error(error);
+    debts = [];
+    render();
+    markDirty('Could not load debts.');
+  }
+}
+
+function addDebt() {
+  debts.unshift({
+    name: '',
+    balance: 0,
+    rate: 0,
+    payment: 0,
+    due_day: null,
+    paid: false,
+    credit_limit: 0
+  });
+  render();
+  markDirty('New debt added. Saving...');
+  queueSave();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
+}
+
+document.getElementById('addBtn').addEventListener('click', addDebt);
+document.getElementById('saveBtn').addEventListener('click', saveDebts);
+document.getElementById('logoutBtn').addEventListener('click', () => window.location.href = '/logout');
+
+loadDebts();
 </script>
-
 </body>
 </html>
