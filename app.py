@@ -1,74 +1,59 @@
 from flask import Flask, render_template, request, jsonify, session, redirect
-import os
-import sqlite3
-from pathlib import Path
+import sqlite3, os
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
+app.secret_key = "secret"
 
-PASSWORD = os.environ.get("APP_PASSWORD", "DJs2025!")
+DB = "debts.db"
 
-DB_PATH = os.environ.get("DB_PATH", "debts.db")
+def conn():
+    c = sqlite3.connect(DB)
+    c.row_factory = sqlite3.Row
+    return c
 
-def get_conn():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def init():
+    c = conn()
+    c.execute('''CREATE TABLE IF NOT EXISTS debts (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        balance REAL,
+        rate REAL,
+        payment REAL,
+        due_day INTEGER,
+        paid INTEGER,
+        credit_limit REAL
+    )''')
+    c.commit()
 
-def init_db():
-    conn = get_conn()
-    conn.execute('''
-        CREATE TABLE IF NOT EXISTS debts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            balance REAL,
-            rate REAL,
-            payment REAL,
-            due_day INTEGER,
-            paid INTEGER,
-            credit_limit REAL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+init()
 
-init_db()
-
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET","POST"])
 def login():
-    if request.method == "POST":
-        if request.form.get("password") == PASSWORD:
-            session["logged_in"] = True
-            return redirect("/dashboard")
-        return render_template("login.html", error="Incorrect password")
+    if request.method=="POST":
+        session["ok"]=True
+        return redirect("/dashboard")
     return render_template("login.html")
 
 @app.route("/dashboard")
-def dashboard():
-    if not session.get("logged_in"):
-        return redirect("/")
+def dash():
+    if not session.get("ok"): return redirect("/")
     return render_template("index.html")
 
-@app.route("/get_debts")
-def get_debts():
-    conn = get_conn()
-    rows = conn.execute("SELECT * FROM debts").fetchall()
-    return jsonify([dict(r) for r in rows])
+@app.route("/get")
+def get():
+    c=conn()
+    d=[dict(r) for r in c.execute("SELECT * FROM debts")]
+    return jsonify(d)
 
-@app.route("/save_debts", methods=["POST"])
-def save_debts():
-    data = request.get_json()
-    conn = get_conn()
-    conn.execute("DELETE FROM debts")
-
+@app.route("/save", methods=["POST"])
+def save():
+    data=request.json
+    c=conn()
+    c.execute("DELETE FROM debts")
     for d in data:
-        conn.execute(
-            "INSERT INTO debts (name, balance, rate, payment, due_day, paid, credit_limit) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (d["name"], d["balance"], d["rate"], d["payment"], d["due_day"], d["paid"], d["credit_limit"])
-        )
+        c.execute("INSERT INTO debts (name,balance,rate,payment,due_day,paid,credit_limit) VALUES (?,?,?,?,?,?,?)",
+        (d["name"],d["balance"],d["rate"],d["payment"],d["due_day"],d["paid"],d["credit_limit"]))
+    c.commit()
+    return {"ok":True}
 
-    conn.commit()
-    return {"status": "ok"}
-
-if __name__ == "__main__":
-    app.run()
+app.run()
