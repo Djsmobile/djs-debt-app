@@ -1,518 +1,912 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Dashboard Pro</title>
-<style>
-:root{
-  --bg:#090b10;
-  --panel:#121721;
-  --panel-2:#171d29;
-  --border:#2a3446;
-  --text:#eef3fb;
-  --muted:#97a3b8;
-  --green:#3ddc97;
-  --yellow:#ffcc66;
-  --red:#ff6b6b;
-  --blue:#6aa9ff;
-  --shadow:0 18px 45px rgba(0,0,0,.35);
-  --radius:18px;
-}
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{
-  background:radial-gradient(circle at top, #111827 0%, #090b10 45%);
-  color:var(--text);
-  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  min-height:100vh;
-}
-.container{max-width:1180px;margin:0 auto;padding:18px 16px 40px}
-.topbar{
-  display:flex;justify-content:space-between;align-items:center;gap:12px;
-  margin-bottom:18px;position:sticky;top:0;z-index:20;
-  backdrop-filter:blur(10px);padding:10px 0;
-}
-.brand h1{margin:0;font-size:clamp(1.5rem,3vw,2.2rem);letter-spacing:.02em}
-.brand p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
-.actions{display:flex;gap:10px;flex-wrap:wrap}
-button{
-  border:none;border-radius:14px;padding:12px 16px;font-weight:700;cursor:pointer;
-  transition:.18s ease;box-shadow:var(--shadow)
-}
-button:hover{transform:translateY(-1px)}
-.btn-primary{background:linear-gradient(135deg,var(--green),#68f0b7);color:#07140e}
-.btn-secondary{background:#1c2433;color:var(--text);border:1px solid var(--border)}
-.btn-danger{background:#32161a;color:#ffd7d7;border:1px solid #5b232d;box-shadow:none}
-.summary-grid{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px;
-}
-.summary-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
-  border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
-}
-.summary-label{color:var(--muted);font-size:.86rem;text-transform:uppercase;letter-spacing:.08em}
-.summary-value{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;margin-top:10px}
-.summary-sub{margin-top:6px;color:var(--muted);font-size:.9rem}
-.alert-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
-  border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:18px;box-shadow:var(--shadow)
-}
-.alert-title{font-weight:800;font-size:1rem;margin-bottom:12px}
-.alert-list{display:flex;flex-direction:column;gap:10px}
-.alert-item{
-  display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;
-  background:var(--panel-2);border:1px solid var(--border);border-radius:14px
-}
-.alert-left{display:flex;flex-direction:column;gap:4px}
-.alert-name{font-weight:700}
-.alert-meta{color:var(--muted);font-size:.9rem}
-.badge{
-  display:inline-flex;align-items:center;justify-content:center;
-  min-width:112px;padding:8px 12px;border-radius:999px;font-size:.82rem;font-weight:800;letter-spacing:.04em
-}
-.badge.red{background:rgba(255,107,107,.14);color:#ff9f9f;border:1px solid rgba(255,107,107,.35)}
-.badge.yellow{background:rgba(255,204,102,.12);color:#ffd98a;border:1px solid rgba(255,204,102,.3)}
-.badge.green{background:rgba(61,220,151,.12);color:#87f0c1;border:1px solid rgba(61,220,151,.32)}
-.list{display:flex;flex-direction:column;gap:14px}
-.debt-card{
-  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01)),var(--panel);
-  border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)
-}
-.debt-card.paid{opacity:.62}
-.debt-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
-.debt-title-wrap{display:flex;flex-direction:column;gap:6px;flex:1}
-.debt-title{font-size:1.1rem;font-weight:800}
-.debt-sub{color:var(--muted);font-size:.92rem}
-.form-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
-.field label{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:7px}
-input{
-  width:100%;padding:12px 13px;border-radius:12px;border:1px solid var(--border);
-  background:#0d131d;color:var(--text);outline:none;font-size:1rem
-}
-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(106,169,255,.15)}
-.checkbox-row{
-  display:flex;align-items:center;gap:10px;height:100%;padding:12px 13px;border-radius:12px;
-  border:1px solid var(--border);background:#0d131d
-}
-.checkbox-row input{width:auto;transform:scale(1.15)}
-.card-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap}
-.inline-stats{display:flex;gap:10px;flex-wrap:wrap}
-.pill{
-  padding:8px 11px;border-radius:999px;background:#0f1520;border:1px solid var(--border);font-size:.85rem;color:var(--muted)
-}
-.pill strong{color:var(--text)}
-.empty{
-  text-align:center;padding:28px 18px;background:var(--panel);border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted)
-}
-.save-state{color:var(--muted);font-size:.9rem}
-.util-good{color:#87f0c1}.util-warn{color:#ffd98a}.util-bad{color:#ff9f9f}
-@media (max-width: 980px){
-  .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width: 640px){
-  .container{padding:14px 12px 34px}
-  .topbar{align-items:flex-start;flex-direction:column}
-  .actions{width:100%}
-  .actions button{flex:1}
-  .summary-grid{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
-  .debt-card-header,.card-footer,.alert-item{flex-direction:column;align-items:flex-start}
-  .badge{min-width:0}
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debt Dashboard Pro</title>
+  <style>
+    :root {
+      --bg: #09101d;
+      --bg-2: #0e1628;
+      --card: #121c31;
+      --card-2: #18243d;
+      --line: rgba(148, 163, 184, 0.16);
+      --text: #edf2ff;
+      --muted: #9fb0cc;
+      --accent: #5eead4;
+      --accent-2: #60a5fa;
+      --good: #34d399;
+      --warn: #fbbf24;
+      --bad: #fb7185;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: dark; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.12), transparent 28%),
+        radial-gradient(circle at top right, rgba(94, 234, 212, 0.10), transparent 24%),
+        linear-gradient(180deg, var(--bg) 0%, #050914 100%);
+      color: var(--text);
+      font-family: Inter, Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    .wrap {
+      width: min(1220px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 18px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.02;
+    }
+
+    .title-block p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn,
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover,
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      color: #08101f;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    }
+
+    .btn-secondary {
+      color: var(--text);
+      background: rgba(24, 36, 61, 0.92);
+      border: 1px solid var(--line);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .statusbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(18, 28, 49, 0.92);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--warn);
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+    }
+
+    .status-ok .status-dot { background: var(--good); box-shadow: 0 0 14px rgba(52, 211, 153, 0.45); }
+    .status-bad .status-dot { background: var(--bad); box-shadow: 0 0 14px rgba(251, 113, 133, 0.45); }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(12, 1fr);
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(18, 28, 49, 0.98), rgba(12, 19, 34, 0.98));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      grid-column: span 3;
+      padding: 18px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .metric-value {
+      margin-top: 10px;
+      font-size: clamp(24px, 3.4vw, 34px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .main {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: minmax(0, 1.75fr) minmax(320px, 0.95fr);
+      align-items: start;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 18px 18px 0;
+      flex-wrap: wrap;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .panel-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .table-wrap {
+      padding: 16px 18px 18px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      min-width: 860px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 0 10px 6px;
+    }
+
+    td {
+      background: rgba(24, 36, 61, 0.88);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      vertical-align: middle;
+    }
+
+    tr td:first-child {
+      border-left: 1px solid var(--line);
+      border-top-left-radius: 14px;
+      border-bottom-left-radius: 14px;
+    }
+
+    tr td:last-child {
+      border-right: 1px solid var(--line);
+      border-top-right-radius: 14px;
+      border-bottom-right-radius: 14px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(8, 13, 24, 0.68);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: rgba(96, 165, 250, 0.75);
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.12);
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .util-box {
+      min-width: 90px;
+    }
+
+    .util-value {
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .util-bar {
+      margin-top: 8px;
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.14);
+      overflow: hidden;
+    }
+
+    .util-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--good), var(--warn), var(--bad));
+      width: 0%;
+    }
+
+    .row-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag-good { background: rgba(52, 211, 153, 0.12); color: #8df0c6; border: 1px solid rgba(52, 211, 153, 0.22); }
+    .tag-warn { background: rgba(251, 191, 36, 0.10); color: #ffd67a; border: 1px solid rgba(251, 191, 36, 0.20); }
+    .tag-bad { background: rgba(251, 113, 133, 0.12); color: #ffb5c1; border: 1px solid rgba(251, 113, 133, 0.20); }
+    .tag-muted { background: rgba(148, 163, 184, 0.10); color: #dbe4ff; border: 1px solid rgba(148, 163, 184, 0.18); }
+
+    .icon-btn {
+      width: 42px;
+      min-width: 42px;
+      padding: 0;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(251, 113, 133, 0.12);
+      color: #ffd1d8;
+      border: 1px solid rgba(251, 113, 133, 0.18);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .side-card {
+      padding: 18px;
+    }
+
+    .side-card + .side-card { margin-top: 16px; }
+
+    .section-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(8, 13, 24, 0.6);
+      border: 1px solid var(--line);
+      padding: 6px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+    }
+
+    .segmented button {
+      padding: 12px;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 10px;
+      border: 0;
+      font-weight: 800;
+    }
+
+    .segmented button.active {
+      background: rgba(96, 165, 250, 0.16);
+      color: var(--text);
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-item {
+      border: 1px solid var(--line);
+      background: rgba(24, 36, 61, 0.65);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .list-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .list-item strong { font-size: 15px; }
+    .small { color: var(--muted); font-size: 13px; }
+
+    .empty {
+      text-align: center;
+      border: 1px dashed rgba(148, 163, 184, 0.24);
+      border-radius: 16px;
+      padding: 26px 18px;
+      color: var(--muted);
+      background: rgba(8, 13, 24, 0.35);
+    }
+
+    @media (max-width: 1050px) {
+      .metric { grid-column: span 6; }
+      .main { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      .wrap { width: min(100%, calc(100% - 16px)); }
+      .metric { grid-column: span 12; }
+      .panel-head,
+      .topbar { align-items: stretch; }
+      .actions,
+      .toolbar { width: 100%; }
+      .actions .btn,
+      .toolbar .btn,
+      .toolbar button { flex: 1; }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <div class="topbar">
-    <div class="brand">
-      <h1>Debt Dashboard Pro</h1>
-      <p>Clean payoff tracking with due-day alerts, utilization, and smooth saving.</p>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="title-block">
+        <h1>Debt Dashboard Pro</h1>
+        <p>Manual save mode. Stable inputs, live utilization, due-day alerts, and payoff focus in one place.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="saveBtn" type="button">Save Changes</button>
+        <a class="btn btn-secondary" href="/logout">Logout</a>
+      </div>
     </div>
-    <div class="actions">
-      <button class="btn-primary" id="addBtn" type="button">+ Add Debt</button>
-      <button class="btn-secondary" id="saveBtn" type="button">Save Now</button>
-      <button class="btn-secondary" id="logoutBtn" type="button">Logout</button>
+
+    <div class="statusbar">
+      <div class="status-pill" id="saveStatus"><span class="status-dot"></span><span id="saveStatusText">Loading dashboard...</span></div>
+      <div class="status-pill"><span>Today:</span> <span id="todayLabel"></span></div>
+      <div class="status-pill"><span>Mode:</span> <span>Manual Save</span></div>
     </div>
+
+    <section class="grid">
+      <div class="card metric">
+        <div class="metric-label">Total Debt</div>
+        <div class="metric-value" id="totalDebt">$0</div>
+        <div class="metric-sub" id="activeDebtCount">0 active accounts</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-label">Monthly Payments</div>
+        <div class="metric-value" id="totalPayments">$0</div>
+        <div class="metric-sub">Combined planned monthly payment amount</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-label">Credit Utilization</div>
+        <div class="metric-value" id="overallUtil">0%</div>
+        <div class="metric-sub" id="overallUtilSub">$0 used of $0 total limit</div>
+      </div>
+      <div class="card metric">
+        <div class="metric-label">This Month Focus</div>
+        <div class="metric-value" id="focusDebt">—</div>
+        <div class="metric-sub" id="focusReason">Pick Snowball or Avalanche to see which debt to attack first.</div>
+      </div>
+    </section>
+
+    <section class="main">
+      <div class="card">
+        <div class="panel-head">
+          <div>
+            <h2>Debt Accounts</h2>
+            <p>Add cards or loans, set due day, mark paid, and save when you’re ready.</p>
+          </div>
+          <div class="toolbar">
+            <button class="btn btn-secondary" type="button" id="addDebtBtn">+ Add Debt</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="min-width:180px;">Name</th>
+                <th style="min-width:120px;">Balance</th>
+                <th style="min-width:110px;">APR %</th>
+                <th style="min-width:130px;">Monthly Pay</th>
+                <th style="min-width:90px;">Due Day</th>
+                <th style="min-width:120px;">Credit Limit</th>
+                <th style="min-width:120px;">Utilization</th>
+                <th style="min-width:110px;">Status</th>
+                <th style="min-width:90px; text-align:center;">Paid</th>
+                <th style="min-width:70px; text-align:center;">Delete</th>
+              </tr>
+            </thead>
+            <tbody id="debtTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card side-card">
+          <h3 class="section-title">Payoff Strategy</h3>
+          <div class="section-sub">Snowball targets the smallest balance first. Avalanche targets the highest APR first.</div>
+          <div class="segmented">
+            <button type="button" id="snowballBtn" class="active">Snowball</button>
+            <button type="button" id="avalancheBtn">Avalanche</button>
+          </div>
+          <div id="strategyList" class="list"></div>
+        </div>
+
+        <div class="card side-card">
+          <h3 class="section-title">Due Soon</h3>
+          <div class="section-sub">This uses the day of the month and compares it with today for a quick snapshot.</div>
+          <div id="dueSoonList" class="list"></div>
+        </div>
+      </div>
+    </section>
   </div>
 
-  <div class="summary-grid">
-    <div class="summary-card">
-      <div class="summary-label">Total Debt</div>
-      <div class="summary-value" id="totalDebt">$0</div>
-      <div class="summary-sub" id="totalAccounts">0 active accounts</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Credit Utilization</div>
-      <div class="summary-value" id="totalUtilization">0%</div>
-      <div class="summary-sub" id="utilizationDetail">$0 used of $0</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Monthly Payments</div>
-      <div class="summary-value" id="monthlyPayments">$0</div>
-      <div class="summary-sub">Minimum payments entered</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-label">Accounts Paid</div>
-      <div class="summary-value" id="paidAccounts">0</div>
-      <div class="summary-sub" id="nextDueSummary">No due dates yet</div>
-    </div>
-  </div>
+  <script>
+    let debts = [];
+    let strategyMode = 'snowball';
+    let isDirty = false;
 
-  <div class="alert-card">
-    <div class="alert-title">Alerts</div>
-    <div class="alert-list" id="alertsList"></div>
-  </div>
+    const debtTableBody = document.getElementById('debtTableBody');
+    const saveBtn = document.getElementById('saveBtn');
+    const addDebtBtn = document.getElementById('addDebtBtn');
+    const snowballBtn = document.getElementById('snowballBtn');
+    const avalancheBtn = document.getElementById('avalancheBtn');
+    const todayLabel = document.getElementById('todayLabel');
+    const saveStatus = document.getElementById('saveStatus');
+    const saveStatusText = document.getElementById('saveStatusText');
 
-  <div class="list" id="debtsList"></div>
-  <div class="save-state" id="saveState">Loaded.</div>
-</div>
-
-<script>
-let debts = [];
-let saveTimer = null;
-let isSaving = false;
-
-function money(value) {
-  const amount = Number(value) || 0;
-  return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-}
-
-function moneyPrecise(value) {
-  const amount = Number(value) || 0;
-  return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function num(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function getDaysUntilDue(dueDay) {
-  if (!dueDay || dueDay < 1 || dueDay > 31) return null;
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const todayDay = today.getDate();
-
-  let targetMonth = month;
-  let targetYear = year;
-
-  if (dueDay < todayDay) {
-    targetMonth += 1;
-    if (targetMonth > 11) {
-      targetMonth = 0;
-      targetYear += 1;
+    function formatCurrency(value) {
+      const num = Number(value) || 0;
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 2,
+      }).format(num);
     }
-  }
 
-  const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
-  const safeDay = Math.min(dueDay, lastDay);
-  const dueDate = new Date(targetYear, targetMonth, safeDay);
-  dueDate.setHours(0, 0, 0, 0);
+    function formatPercent(value) {
+      const num = Number(value) || 0;
+      return `${num.toFixed(1)}%`;
+    }
 
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const diffMs = dueDate - start;
-  return Math.round(diffMs / 86400000);
-}
+    function numberValue(value) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : 0;
+    }
 
-function alertInfo(debt) {
-  const days = getDaysUntilDue(num(debt.due_day));
-  if (debt.paid) {
-    return { label: 'PAID', badgeClass: 'green', rank: 3, meta: 'Marked paid' };
-  }
-  if (days === null) {
-    return { label: 'NO DUE DATE', badgeClass: 'yellow', rank: 2, meta: 'Set a due day to track alerts' };
-  }
-  if (days <= 3) {
-    return { label: 'DUE SOON', badgeClass: 'red', rank: 0, meta: days === 0 ? 'Due today' : `Due in ${days} day${days === 1 ? '' : 's'}` };
-  }
-  if (days <= 7) {
-    return { label: 'COMING UP', badgeClass: 'yellow', rank: 1, meta: `Due in ${days} days` };
-  }
-  return { label: 'SAFE', badgeClass: 'green', rank: 2, meta: `Due in ${days} days` };
-}
+    function dueStatus(dueDay, paid) {
+      if (paid) {
+        return { label: 'Paid', className: 'tag-good', sort: 999 };
+      }
+      if (!dueDay) {
+        return { label: 'No due day', className: 'tag-muted', sort: 998 };
+      }
 
-function utilizationClass(percent) {
-  if (percent <= 9) return 'util-good';
-  if (percent <= 30) return 'util-warn';
-  return 'util-bad';
-}
+      const now = new Date();
+      const today = now.getDate();
+      const delta = dueDay - today;
 
-function summarize() {
-  const active = debts.filter(d => !d.paid);
-  const paid = debts.filter(d => d.paid);
+      if (delta < 0) {
+        return { label: 'Past due', className: 'tag-bad', sort: 0 };
+      }
+      if (delta <= 5) {
+        return { label: `${delta === 0 ? 'Due today' : `Due in ${delta} day${delta === 1 ? '' : 's'}`}` , className: 'tag-warn', sort: 1 + delta };
+      }
+      return { label: `Due on ${dueDay}`, className: 'tag-muted', sort: 50 + delta };
+    }
 
-  const totalDebt = active.reduce((sum, d) => sum + num(d.balance), 0);
-  const monthly = active.reduce((sum, d) => sum + num(d.payment), 0);
+    function utilization(balance, limit) {
+      const bal = numberValue(balance);
+      const lim = numberValue(limit);
+      if (lim <= 0) return null;
+      return (bal / lim) * 100;
+    }
 
-  const totalBalanceForUtil = debts.reduce((sum, d) => sum + (num(d.credit_limit) > 0 ? num(d.balance) : 0), 0);
-  const totalLimit = debts.reduce((sum, d) => sum + num(d.credit_limit), 0);
-  const util = totalLimit > 0 ? (totalBalanceForUtil / totalLimit) * 100 : 0;
+    function setStatus(text, kind = 'neutral') {
+      saveStatusText.textContent = text;
+      saveStatus.classList.remove('status-ok', 'status-bad');
+      if (kind === 'ok') saveStatus.classList.add('status-ok');
+      if (kind === 'bad') saveStatus.classList.add('status-bad');
+    }
 
-  const nextDue = active
-    .map(d => ({ name: d.name || 'Unnamed debt', days: getDaysUntilDue(num(d.due_day)) }))
-    .filter(x => x.days !== null)
-    .sort((a, b) => a.days - b.days)[0];
+    function markDirty() {
+      isDirty = true;
+      setStatus('Unsaved changes', 'neutral');
+    }
 
-  document.getElementById('totalDebt').textContent = money(totalDebt);
-  document.getElementById('totalAccounts').textContent = `${active.length} active account${active.length === 1 ? '' : 's'}`;
-  const utilEl = document.getElementById('totalUtilization');
-  utilEl.textContent = `${util.toFixed(0)}%`;
-  utilEl.className = `summary-value ${utilizationClass(util)}`;
-  document.getElementById('utilizationDetail').textContent = `${money(totalBalanceForUtil)} used of ${money(totalLimit)}`;
-  document.getElementById('monthlyPayments').textContent = money(monthly);
-  document.getElementById('paidAccounts').textContent = String(paid.length);
-  document.getElementById('nextDueSummary').textContent = nextDue ? `${nextDue.name} due in ${nextDue.days} day${nextDue.days === 1 ? '' : 's'}` : 'No due dates yet';
-}
+    function sortDebts(items) {
+      return [...items].sort((a, b) => {
+        if ((a.paid ? 1 : 0) !== (b.paid ? 1 : 0)) return (a.paid ? 1 : 0) - (b.paid ? 1 : 0);
+        const aDue = a.due_day || 999;
+        const bDue = b.due_day || 999;
+        if (aDue !== bDue) return aDue - bDue;
+        return (a.id || 0) - (b.id || 0);
+      });
+    }
 
-function renderAlerts() {
-  const alerts = [...debts]
-    .sort((a, b) => alertInfo(a).rank - alertInfo(b).rank)
-    .map((debt) => {
-      const info = alertInfo(debt);
-      return `
-        <div class="alert-item">
-          <div class="alert-left">
-            <div class="alert-name">${escapeHtml(debt.name || 'Unnamed debt')}</div>
-            <div class="alert-meta">${info.meta} • Balance ${money(num(debt.balance))}</div>
+    function buildRow(debt, index) {
+      const tr = document.createElement('tr');
+      const util = utilization(debt.balance, debt.credit_limit);
+      const status = dueStatus(debt.due_day, debt.paid);
+
+      tr.innerHTML = `
+        <td><input type="text" data-field="name" data-index="${index}" value="${escapeHtml(debt.name || '')}" placeholder="Card or loan name"></td>
+        <td><input type="number" step="0.01" min="0" data-field="balance" data-index="${index}" value="${safeValue(debt.balance)}" placeholder="0.00"></td>
+        <td><input type="number" step="0.01" min="0" data-field="rate" data-index="${index}" value="${safeValue(debt.rate)}" placeholder="0"></td>
+        <td><input type="number" step="0.01" min="0" data-field="payment" data-index="${index}" value="${safeValue(debt.payment)}" placeholder="0.00"></td>
+        <td><input type="number" step="1" min="1" max="31" data-field="due_day" data-index="${index}" value="${safeValue(debt.due_day)}" placeholder="1-31"></td>
+        <td><input type="number" step="0.01" min="0" data-field="credit_limit" data-index="${index}" value="${safeValue(debt.credit_limit)}" placeholder="0.00"></td>
+        <td>
+          <div class="util-box">
+            <div class="util-value">${util === null ? '—' : formatPercent(util)}</div>
+            <div class="util-bar"><div class="util-fill" style="width:${util === null ? 0 : Math.min(util, 100)}%"></div></div>
           </div>
-          <span class="badge ${info.badgeClass}">${info.label}</span>
-        </div>
+        </td>
+        <td><span class="row-tag ${status.className}">${status.label}</span></td>
+        <td style="text-align:center;"><input type="checkbox" data-field="paid" data-index="${index}" ${debt.paid ? 'checked' : ''}></td>
+        <td style="text-align:center;"><button type="button" class="icon-btn" data-delete="${index}" title="Delete">×</button></td>
       `;
-    })
-    .join('');
+      return tr;
+    }
 
-  document.getElementById('alertsList').innerHTML = alerts || '<div class="empty">Add your first debt to start tracking alerts.</div>';
-}
+    function safeValue(value) {
+      return value === null || value === undefined ? '' : String(value);
+    }
 
-function debtCardHtml(debt, index) {
-  const util = num(debt.credit_limit) > 0 ? (num(debt.balance) / num(debt.credit_limit)) * 100 : 0;
-  const utilText = num(debt.credit_limit) > 0 ? `${util.toFixed(0)}% util` : 'No limit set';
-  const status = alertInfo(debt);
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
 
-  return `
-    <div class="debt-card ${debt.paid ? 'paid' : ''}" data-index="${index}">
-      <div class="debt-card-header">
-        <div class="debt-title-wrap">
-          <div class="debt-title">${escapeHtml(debt.name || 'New debt')}</div>
-          <div class="debt-sub">${status.meta}</div>
-        </div>
-        <span class="badge ${status.badgeClass}">${status.label}</span>
-      </div>
+    function renderTable() {
+      debts = sortDebts(debts);
+      debtTableBody.innerHTML = '';
 
-      <div class="form-grid">
-        <div class="field">
-          <label>Debt Name</label>
-          <input type="text" data-field="name" value="${escapeAttr(debt.name || '')}" placeholder="Chase Freedom">
-        </div>
-        <div class="field">
-          <label>Balance</label>
-          <input type="number" step="0.01" min="0" data-field="balance" value="${escapeAttr(num(debt.balance))}" placeholder="0">
-        </div>
-        <div class="field">
-          <label>Credit Limit</label>
-          <input type="number" step="0.01" min="0" data-field="credit_limit" value="${escapeAttr(num(debt.credit_limit))}" placeholder="0">
-        </div>
-        <div class="field">
-          <label>APR %</label>
-          <input type="number" step="0.01" min="0" data-field="rate" value="${escapeAttr(num(debt.rate))}" placeholder="0">
-        </div>
-        <div class="field">
-          <label>Monthly Payment</label>
-          <input type="number" step="0.01" min="0" data-field="payment" value="${escapeAttr(num(debt.payment))}" placeholder="0">
-        </div>
-        <div class="field">
-          <label>Due Day</label>
-          <input type="number" step="1" min="1" max="31" data-field="due_day" value="${escapeAttr(debt.due_day ?? '')}" placeholder="1-31">
-        </div>
-        <div class="field" style="grid-column:span 2;">
-          <label>Paid This Month</label>
-          <div class="checkbox-row">
-            <input type="checkbox" data-field="paid" ${debt.paid ? 'checked' : ''}>
-            <span>${debt.paid ? 'Marked paid and moved lower' : 'Still needs payment'}</span>
+      if (!debts.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="10"><div class="empty">No debts yet. Add your first account to get started.</div></td>`;
+        debtTableBody.appendChild(tr);
+      } else {
+        debts.forEach((debt, index) => debtTableBody.appendChild(buildRow(debt, index)));
+      }
+
+      renderSummary();
+      renderStrategy();
+      renderDueSoon();
+    }
+
+    function renderSummary() {
+      const active = debts.filter(d => !d.paid);
+      const totalDebt = debts.reduce((sum, d) => sum + numberValue(d.balance), 0);
+      const totalPayments = debts.reduce((sum, d) => sum + numberValue(d.payment), 0);
+      const totalUsed = debts.reduce((sum, d) => sum + numberValue(d.balance), 0);
+      const totalLimit = debts.reduce((sum, d) => sum + numberValue(d.credit_limit), 0);
+      const util = totalLimit > 0 ? (totalUsed / totalLimit) * 100 : 0;
+
+      document.getElementById('totalDebt').textContent = formatCurrency(totalDebt);
+      document.getElementById('activeDebtCount').textContent = `${active.length} active account${active.length === 1 ? '' : 's'}`;
+      document.getElementById('totalPayments').textContent = formatCurrency(totalPayments);
+      document.getElementById('overallUtil').textContent = totalLimit > 0 ? formatPercent(util) : '—';
+      document.getElementById('overallUtilSub').textContent = `${formatCurrency(totalUsed)} used of ${formatCurrency(totalLimit)} total limit`;
+
+      const sorted = getStrategySorted();
+      const focus = sorted.find(d => !d.paid);
+      document.getElementById('focusDebt').textContent = focus ? (focus.name || 'Unnamed debt') : 'All paid';
+      document.getElementById('focusReason').textContent = focus
+        ? strategyMode === 'snowball'
+          ? `Lowest balance first: ${formatCurrency(focus.balance)} balance.`
+          : `Highest APR first: ${formatPercent(focus.rate)} APR.`
+        : 'Everything currently marked paid.';
+    }
+
+    function getStrategySorted() {
+      const active = debts.filter(d => !d.paid);
+      if (strategyMode === 'avalanche') {
+        return [...active].sort((a, b) => {
+          const rateDiff = numberValue(b.rate) - numberValue(a.rate);
+          if (rateDiff !== 0) return rateDiff;
+          return numberValue(a.balance) - numberValue(b.balance);
+        });
+      }
+      return [...active].sort((a, b) => {
+        const balanceDiff = numberValue(a.balance) - numberValue(b.balance);
+        if (balanceDiff !== 0) return balanceDiff;
+        return numberValue(b.rate) - numberValue(a.rate);
+      });
+    }
+
+    function renderStrategy() {
+      const container = document.getElementById('strategyList');
+      const sorted = getStrategySorted();
+      container.innerHTML = '';
+
+      if (!sorted.length) {
+        container.innerHTML = '<div class="empty">No active debts to rank yet.</div>';
+        return;
+      }
+
+      sorted.slice(0, 5).forEach((debt, idx) => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div class="list-item-top">
+            <strong>${escapeHtml(debt.name || 'Unnamed debt')}</strong>
+            <span class="row-tag ${idx === 0 ? 'tag-good' : 'tag-muted'}">#${idx + 1}</span>
           </div>
-        </div>
-      </div>
+          <div class="small">Balance: ${formatCurrency(debt.balance)} • APR: ${formatPercent(debt.rate)} • Payment: ${formatCurrency(debt.payment)}</div>
+        `;
+        container.appendChild(item);
+      });
+    }
 
-      <div class="card-footer">
-        <div class="inline-stats">
-          <div class="pill"><strong>Balance:</strong> ${moneyPrecise(debt.balance)}</div>
-          <div class="pill"><strong>Payment:</strong> ${moneyPrecise(debt.payment)}</div>
-          <div class="pill"><strong>APR:</strong> ${num(debt.rate).toFixed(2)}%</div>
-          <div class="pill"><strong>Utilization:</strong> <span class="${utilizationClass(util)}">${utilText}</span></div>
-        </div>
-        <button class="btn-danger delete-btn" type="button" data-delete="${index}">Delete</button>
-      </div>
-    </div>
-  `;
-}
+    function renderDueSoon() {
+      const container = document.getElementById('dueSoonList');
+      const sorted = [...debts]
+        .filter(d => !d.paid)
+        .sort((a, b) => dueStatus(a.due_day, a.paid).sort - dueStatus(b.due_day, b.paid).sort);
 
-function sortDebts() {
-  debts.sort((a, b) => {
-    if (Boolean(a.paid) !== Boolean(b.paid)) return a.paid ? 1 : -1;
+      container.innerHTML = '';
 
-    const aDays = getDaysUntilDue(num(a.due_day));
-    const bDays = getDaysUntilDue(num(b.due_day));
+      if (!sorted.length) {
+        container.innerHTML = '<div class="empty">Nothing due right now.</div>';
+        return;
+      }
 
-    if (aDays === null && bDays === null) return 0;
-    if (aDays === null) return 1;
-    if (bDays === null) return -1;
-    return aDays - bDays;
-  });
-}
+      sorted.slice(0, 5).forEach((debt) => {
+        const status = dueStatus(debt.due_day, debt.paid);
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+          <div class="list-item-top">
+            <strong>${escapeHtml(debt.name || 'Unnamed debt')}</strong>
+            <span class="row-tag ${status.className}">${status.label}</span>
+          </div>
+          <div class="small">Balance: ${formatCurrency(debt.balance)} • Payment: ${formatCurrency(debt.payment)}</div>
+        `;
+        container.appendChild(item);
+      });
+    }
 
-function render() {
-  sortDebts();
-  const list = document.getElementById('debtsList');
+    function readDomIntoState() {
+      const rows = debtTableBody.querySelectorAll('tr');
+      rows.forEach((row) => {
+        const inputs = row.querySelectorAll('[data-field]');
+        inputs.forEach((input) => {
+          const index = Number(input.dataset.index);
+          const field = input.dataset.field;
+          if (!debts[index]) return;
 
-  if (!debts.length) {
-    list.innerHTML = '<div class="empty">No debts yet. Hit <strong>+ Add Debt</strong> to start building the dashboard.</div>';
-  } else {
-    list.innerHTML = debts.map((debt, index) => debtCardHtml(debt, index)).join('');
-  }
+          if (field === 'paid') {
+            debts[index][field] = input.checked ? 1 : 0;
+          } else if (field === 'name') {
+            debts[index][field] = input.value;
+          } else if (field === 'due_day') {
+            debts[index][field] = input.value === '' ? null : Number(input.value);
+          } else {
+            debts[index][field] = input.value === '' ? 0 : Number(input.value);
+          }
+        });
+      });
+    }
 
-  summarize();
-  renderAlerts();
-  bindInputs();
-}
+    debtTableBody.addEventListener('input', (event) => {
+      const target = event.target;
+      if (!target.matches('[data-field]')) return;
+      const index = Number(target.dataset.index);
+      const field = target.dataset.field;
+      if (!debts[index]) return;
 
-function bindInputs() {
-  document.querySelectorAll('[data-field]').forEach((input) => {
-    input.addEventListener('input', handleInput);
-    input.addEventListener('change', handleInput);
-  });
+      if (field === 'name') {
+        debts[index][field] = target.value;
+      } else if (field === 'due_day') {
+        debts[index][field] = target.value === '' ? null : Number(target.value);
+      } else if (field === 'paid') {
+        debts[index][field] = target.checked ? 1 : 0;
+      } else {
+        debts[index][field] = target.value === '' ? 0 : Number(target.value);
+      }
 
-  document.querySelectorAll('[data-delete]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const index = Number(button.getAttribute('data-delete'));
+      markDirty();
+      renderSummary();
+      renderStrategy();
+      renderDueSoon();
+    });
+
+    debtTableBody.addEventListener('change', (event) => {
+      const target = event.target;
+      if (!target.matches('[data-field]')) return;
+      if (target.dataset.field === 'paid') {
+        markDirty();
+        renderTable();
+      }
+    });
+
+    debtTableBody.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-delete]');
+      if (!btn) return;
+      const index = Number(btn.dataset.delete);
       debts.splice(index, 1);
-      markDirty('Deleted. Saving...');
-      render();
-      queueSave();
-    });
-  });
-}
-
-function handleInput(event) {
-  const card = event.target.closest('.debt-card');
-  if (!card) return;
-
-  const index = Number(card.getAttribute('data-index'));
-  const field = event.target.getAttribute('data-field');
-
-  if (field === 'paid') {
-    debts[index][field] = event.target.checked;
-    render();
-    markDirty('Updated. Saving...');
-    queueSave();
-    return;
-  }
-
-  let value = event.target.value;
-  if (["balance", "credit_limit", "rate", "payment"].includes(field)) {
-    debts[index][field] = value === '' ? 0 : num(value);
-  } else if (field === 'due_day') {
-    debts[index][field] = value === '' ? null : Math.max(1, Math.min(31, parseInt(value || '0', 10) || 1));
-  } else {
-    debts[index][field] = value;
-  }
-
-  const title = card.querySelector('.debt-title');
-  if (field === 'name' && title) {
-    title.textContent = value || 'New debt';
-  }
-
-  summarize();
-  renderAlerts();
-  markDirty('Typing... changes queued');
-  queueSave();
-}
-
-function queueSave() {
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveDebts, 500);
-}
-
-function markDirty(message) {
-  document.getElementById('saveState').textContent = message;
-}
-
-async function saveDebts() {
-  if (isSaving) return;
-  isSaving = true;
-  markDirty('Saving...');
-
-  try {
-    const response = await fetch('/save_debts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(debts)
+      markDirty();
+      renderTable();
     });
 
-    if (!response.ok) throw new Error('Save failed');
-    markDirty('All changes saved.');
-  } catch (error) {
-    console.error(error);
-    markDirty('Save failed. Tap Save Now.');
-  } finally {
-    isSaving = false;
-  }
-}
+    addDebtBtn.addEventListener('click', () => {
+      debts.unshift({
+        name: '',
+        balance: 0,
+        rate: 0,
+        payment: 0,
+        due_day: null,
+        paid: 0,
+        credit_limit: 0,
+      });
+      markDirty();
+      renderTable();
+    });
 
-async function loadDebts() {
-  try {
-    const response = await fetch('/get_debts');
-    if (!response.ok) throw new Error('Load failed');
-    debts = await response.json();
-    debts = debts.map(d => ({
-      ...d,
-      paid: Boolean(d.paid)
-    }));
-    render();
-    markDirty('Loaded.');
-  } catch (error) {
-    console.error(error);
-    debts = [];
-    render();
-    markDirty('Could not load debts.');
-  }
-}
+    saveBtn.addEventListener('click', saveDebts);
 
-function addDebt() {
-  debts.unshift({
-    name: '',
-    balance: 0,
-    rate: 0,
-    payment: 0,
-    due_day: null,
-    paid: false,
-    credit_limit: 0
-  });
-  render();
-  markDirty('New debt added. Saving...');
-  queueSave();
-}
+    snowballBtn.addEventListener('click', () => {
+      strategyMode = 'snowball';
+      snowballBtn.classList.add('active');
+      avalancheBtn.classList.remove('active');
+      renderSummary();
+      renderStrategy();
+    });
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
+    avalancheBtn.addEventListener('click', () => {
+      strategyMode = 'avalanche';
+      avalancheBtn.classList.add('active');
+      snowballBtn.classList.remove('active');
+      renderSummary();
+      renderStrategy();
+    });
 
-function escapeAttr(value) {
-  return escapeHtml(value);
-}
+    async function loadDebts() {
+      setStatus('Loading dashboard...', 'neutral');
+      try {
+        const response = await fetch('/get_debts', { credentials: 'same-origin' });
+        if (!response.ok) throw new Error(`Load failed (${response.status})`);
+        debts = await response.json();
+        isDirty = false;
+        renderTable();
+        setStatus('Loaded successfully', 'ok');
+      } catch (error) {
+        console.error(error);
+        setStatus(error.message || 'Failed to load data', 'bad');
+      }
+    }
 
-document.getElementById('addBtn').addEventListener('click', addDebt);
-document.getElementById('saveBtn').addEventListener('click', saveDebts);
-document.getElementById('logoutBtn').addEventListener('click', () => window.location.href = '/logout');
+    async function saveDebts() {
+      readDomIntoState();
+      setStatus('Saving changes...', 'neutral');
+      saveBtn.disabled = true;
 
-loadDebts();
-</script>
+      const payload = debts.map((debt) => ({
+        name: String(debt.name || '').trim(),
+        balance: Math.max(0, numberValue(debt.balance)),
+        rate: Math.max(0, numberValue(debt.rate)),
+        payment: Math.max(0, numberValue(debt.payment)),
+        due_day: debt.due_day === null || debt.due_day === '' ? null : Math.min(31, Math.max(1, parseInt(debt.due_day, 10) || 1)),
+        paid: !!debt.paid,
+        credit_limit: Math.max(0, numberValue(debt.credit_limit)),
+      }));
+
+      try {
+        const response = await fetch('/save_debts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.status !== 'ok') {
+          throw new Error(result.message || `Save failed (${response.status})`);
+        }
+
+        isDirty = false;
+        setStatus('Saved successfully', 'ok');
+        await loadDebts();
+      } catch (error) {
+        console.error(error);
+        setStatus(error.message || 'Save failed', 'bad');
+      } finally {
+        saveBtn.disabled = false;
+      }
+    }
+
+    window.addEventListener('beforeunload', (event) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      event.returnValue = '';
+    });
+
+    todayLabel.textContent = new Date().toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    loadDebts();
+  </script>
 </body>
 </html>

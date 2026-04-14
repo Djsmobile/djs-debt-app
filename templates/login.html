@@ -1,57 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Dashboard Login</title>
-<style>
-:root{
-  --bg:#090b10;
-  --panel:#121721;
-  --border:#2a3446;
-  --text:#eef3fb;
-  --muted:#97a3b8;
-  --green:#3ddc97;
-  --red:#ff6b6b;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;
-  background:radial-gradient(circle at top, #111827 0%, #090b10 45%);
-  color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-}
-.card{
-  width:100%;max-width:420px;background:var(--panel);border:1px solid var(--border);
-  border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.38)
-}
-h1{margin:0 0 8px;font-size:1.9rem}
-p{margin:0 0 20px;color:var(--muted)}
-label{display:block;margin-bottom:8px;color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.08em}
-input{
-  width:100%;padding:14px 14px;border-radius:14px;border:1px solid var(--border);
-  background:#0d131d;color:var(--text);font-size:1rem;outline:none;margin-bottom:14px
-}
-input:focus{border-color:#6aa9ff;box-shadow:0 0 0 3px rgba(106,169,255,.15)}
-button{
-  width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--green),#68f0b7);
-  color:#07140e;font-weight:800;font-size:1rem;cursor:pointer
-}
-.error{
-  margin-bottom:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,107,107,.35);
-  background:rgba(255,107,107,.12);color:#ffb1b1
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debt Dashboard Login</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: rgba(19, 27, 51, 0.92);
+      --card-2: rgba(30, 40, 71, 0.95);
+      --text: #eef2ff;
+      --muted: #a7b1c9;
+      --accent: #5eead4;
+      --accent-2: #60a5fa;
+      --danger: #fb7185;
+      --border: rgba(148, 163, 184, 0.18);
+      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.14), transparent 28%),
+        linear-gradient(180deg, #050814 0%, #0b1020 100%);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0 0 22px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #dbe4ff;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 15px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #08101f;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      cursor: pointer;
+    }
+
+    .error {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(251, 113, 133, 0.12);
+      border: 1px solid rgba(251, 113, 133, 0.22);
+      color: #ffd5dc;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <form class="card" method="POST">
-    <h1>Debt Dashboard</h1>
-    <p>Sign in to manage balances, due dates, alerts, and utilization.</p>
+  <form class="card" method="post" autocomplete="off">
+    <div class="eyebrow">Debt Dashboard Pro</div>
+    <h1>Welcome back</h1>
+    <p>Log in to manage balances, due dates, utilization, and your monthly payment plan in one place.</p>
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" placeholder="Enter password" required>
+
+    <button type="submit">Open Dashboard</button>
+
     {% if error %}
       <div class="error">{{ error }}</div>
     {% endif %}
-    <label>Password</label>
-    <input type="password" name="password" placeholder="Enter password" required>
-    <button type="submit">Enter Dashboard</button>
   </form>
 </body>
 </html>
