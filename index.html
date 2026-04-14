@@ -1,198 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Debt Dashboard</title>
-
 <style>
-body {
-    font-family: Arial;
-    background:#0b0b0b;
-    color:#fff;
-    padding:15px;
-}
-
-.header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-
-.logout {
-    background:#444;
-    padding:8px 12px;
-    text-decoration:none;
-    color:#fff;
-    border-radius:6px;
-}
-
-.totals {
-    background:#1a1a1a;
-    padding:15px;
-    border-radius:10px;
-    margin:15px 0;
-}
-
-.card {
-    background:#1a1a1a;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
-}
-
-input {
-    width:100%;
-    padding:8px;
-    margin-top:5px;
-    background:#111;
-    border:1px solid #333;
-    color:#fff;
-}
-
-button {
-    padding:10px;
-    margin-top:10px;
-    width:100%;
-    background:#00c853;
-    border:none;
-    color:#fff;
-    font-weight:bold;
-}
-
-.delete {
-    background:#d50000;
-    margin-top:8px;
-}
-
-.select {
-    width:100%;
-    padding:10px;
-    background:#111;
-    color:#fff;
-    border:1px solid #333;
-    margin-top:10px;
-}
+body{background:#0b0b0b;color:#fff;font-family:sans-serif;padding:20px}
+.card{background:#1a1a1a;padding:15px;border-radius:10px;margin-bottom:15px}
+input{width:100%;margin:5px 0;padding:8px;background:#222;color:#fff;border:none}
+button{padding:10px;margin:5px}
+.bar{height:8px;background:#333;border-radius:5px;margin-top:5px}
+.fill{height:8px;background:#00c853;border-radius:5px}
 </style>
-
 </head>
 <body>
 
-<div class="header">
-    <h2>Debt Dashboard</h2>
-    <a href="/logout" class="logout">Logout</a>
-</div>
+<h1>Debt Dashboard PRO</h1>
+<button onclick="add()">Add</button>
+<button onclick="save()">Save</button>
 
-<div class="totals">
-    <div>Total Debt: $<span id="totalDebt">0</span></div>
-    <div>Total Payment: $<span id="totalPayment">0</span></div>
-    <div>Extra Payment: $<input id="extra" value="0" onchange="calculate()"></div>
-</div>
-
-<select id="strategy" class="select" onchange="calculate()">
-    <option value="snowball">Snowball (Smallest First)</option>
-    <option value="avalanche">Avalanche (Highest Interest)</option>
-</select>
-
-<div id="debts"></div>
-
-<button onclick="addDebt()">Add Debt</button>
-
-<h3>Payoff Order</h3>
-<div id="order"></div>
+<div id="list"></div>
 
 <script>
+let debts=[]
 
-let debts = [];
-
-function render() {
-    let container = document.getElementById("debts");
-    container.innerHTML = "";
-
-    debts.forEach((d,i)=>{
-        container.innerHTML += `
-        <div class="card">
-            <input value="${d.name}" placeholder="Name" onchange="update(${i},'name',this.value)">
-            <input value="${d.balance}" placeholder="Balance" onchange="update(${i},'balance',this.value)">
-            <input value="${d.rate}" placeholder="Interest %" onchange="update(${i},'rate',this.value)">
-            <input value="${d.payment}" placeholder="Min Payment" onchange="update(${i},'payment',this.value)">
-            <button class="delete" onclick="removeDebt(${i})">Delete</button>
-        </div>`;
-    });
-
-    calculate();
+function render(){
+ let html=""
+ debts.forEach((d,i)=>{
+  let pct = d.credit_limit>0 ? (d.balance/d.credit_limit*100).toFixed(0) : 0
+  html+=`
+  <div class="card">
+    <input value="${d.name}" onchange="set(${i},'name',this.value)">
+    <input value="${d.balance}" onchange="set(${i},'balance',this.value)">
+    <input value="${d.rate}" onchange="set(${i},'rate',this.value)">
+    <input value="${d.payment}" onchange="set(${i},'payment',this.value)">
+    <input value="${d.due_day}" onchange="set(${i},'due_day',this.value)">
+    <input value="${d.credit_limit}" onchange="set(${i},'credit_limit',this.value)">
+    <div>Utilization: ${pct}%</div>
+    <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+  </div>`
+ })
+ document.getElementById("list").innerHTML=html
 }
 
-function update(i,key,val){
-    debts[i][key]=parseFloat(val) || val;
-    save();
-}
+function set(i,k,v){debts[i][k]=v}
 
-function addDebt(){
-    debts.push({name:"",balance:0,rate:0,payment:0});
-    render();
-    save();
-}
-
-function removeDebt(i){
-    debts.splice(i,1);
-    render();
-    save();
-}
-
-function calculate(){
-    let totalDebt = 0;
-    let totalPayment = 0;
-
-    debts.forEach(d=>{
-        totalDebt += Number(d.balance)||0;
-        totalPayment += Number(d.payment)||0;
-    });
-
-    document.getElementById("totalDebt").innerText = totalDebt.toFixed(2);
-    document.getElementById("totalPayment").innerText = totalPayment.toFixed(2);
-
-    let strategy = document.getElementById("strategy").value;
-
-    let sorted = [...debts];
-
-    if(strategy==="snowball"){
-        sorted.sort((a,b)=>a.balance - b.balance);
-    } else {
-        sorted.sort((a,b)=>b.rate - a.rate);
-    }
-
-    let orderDiv = document.getElementById("order");
-    orderDiv.innerHTML = "";
-
-    sorted.forEach(d=>{
-        orderDiv.innerHTML += `<div class="card">${d.name} → $${d.balance}</div>`;
-    });
+function add(){
+ debts.push({name:"",balance:0,rate:0,payment:0,due_day:1,paid:0,credit_limit:0})
+ render()
 }
 
 function save(){
-    fetch("/save_debts",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify(debts)
-    });
+ fetch("/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)})
+ .then(()=>alert("Saved"))
 }
 
-function load(){
-    fetch("/get_debts")
-    .then(r=>r.json())
-    .then(data=>{
-        debts = data.map(d=>({
-            name:d[1],
-            balance:d[2],
-            rate:d[3],
-            payment:d[4]
-        }));
-        render();
-    });
-}
-
-load();
-
+fetch("/get").then(r=>r.json()).then(d=>{debts=d;render()})
 </script>
 
 </body>
