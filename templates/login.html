@@ -1,133 +1,19 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Debt Dashboard Login</title>
-  <style>
-    :root {
-      --bg: #0b1020;
-      --card: rgba(19, 27, 51, 0.92);
-      --card-2: rgba(30, 40, 71, 0.95);
-      --text: #eef2ff;
-      --muted: #a7b1c9;
-      --accent: #5eead4;
-      --accent-2: #60a5fa;
-      --danger: #fb7185;
-      --border: rgba(148, 163, 184, 0.18);
-      --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: Inter, Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 30%),
-        radial-gradient(circle at bottom right, rgba(94, 234, 212, 0.14), transparent 28%),
-        linear-gradient(180deg, #050814 0%, #0b1020 100%);
-      display: grid;
-      place-items: center;
-      padding: 20px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .eyebrow {
-      display: inline-block;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-      line-height: 1.1;
-    }
-
-    p {
-      margin: 0 0 22px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #dbe4ff;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: var(--card-2);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 14px 15px;
-      font-size: 16px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: rgba(96, 165, 250, 0.7);
-      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.14);
-    }
-
-    button {
-      width: 100%;
-      border: 0;
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-top: 16px;
-      font-size: 16px;
-      font-weight: 800;
-      color: #08101f;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      cursor: pointer;
-    }
-
-    .error {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(251, 113, 133, 0.12);
-      border: 1px solid rgba(251, 113, 133, 0.22);
-      color: #ffd5dc;
-      font-size: 14px;
-    }
-  </style>
+<title>Login</title>
+<style>
+body { background:#111; color:white; display:flex; justify-content:center; align-items:center; height:100vh; font-family:sans-serif;}
+form { background:#222; padding:30px; border-radius:10px;}
+input { padding:10px; margin:10px 0; width:200px;}
+button { padding:10px; width:100%;}
+</style>
 </head>
 <body>
-  <form class="card" method="post" autocomplete="off">
-    <div class="eyebrow">Debt Dashboard Pro</div>
-    <h1>Welcome back</h1>
-    <p>Log in to manage balances, due dates, utilization, and your monthly payment plan in one place.</p>
-
-    <label for="password">Password</label>
-    <input id="password" name="password" type="password" placeholder="Enter password" required>
-
-    <button type="submit">Open Dashboard</button>
-
-    {% if error %}
-      <div class="error">{{ error }}</div>
-    {% endif %}
-  </form>
+<form method="POST">
+<h2>Debt Dashboard</h2>
+<input type="password" name="password" placeholder="Password"/>
+<button type="submit">Login</button>
+</form>
 </body>
 </html>
