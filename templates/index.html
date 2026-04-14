@@ -1,95 +1,542 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {
-    background: linear-gradient(135deg,#0f172a,#1e3a8a);
-    color: white;
-    font-family: Arial;
-    padding:20px;
-}
-button {
-    background:#2563eb;
-    border:none;
-    padding:10px 15px;
-    color:white;
-    border-radius:6px;
-    margin-right:5px;
-    cursor:pointer;
-}
-.card {
-    background:#111827;
-    padding:10px;
-    margin-top:10px;
-    border-radius:8px;
-}
-input {
-    width:80px;
-    margin:3px;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Dashboard</title>
+  <style>
+    :root{
+      --bg:#07111f;--bg2:#0d1b2f;--panel:#111c2e;--line:rgba(255,255,255,.08);
+      --text:#eef4ff;--muted:#9cb0cc;--green:#27c46a;--green2:#18894a;--blue:#3b82f6;
+      --yellow:#f59e0b;--red:#ef4444;--shadow:0 18px 44px rgba(0,0,0,.32);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(39,196,106,.08), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(59,130,246,.10), transparent 22%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+    .wrap{max-width:1380px;margin:0 auto;padding:24px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+    .brand h1{margin:0;font-size:38px;letter-spacing:-.03em}
+    .brand p{margin:8px 0 0;color:var(--muted);font-size:14px}
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill,.logout{
+      display:inline-flex;align-items:center;padding:10px 14px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03);color:var(--text);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;
+    }
+
+    .summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;margin-bottom:18px}
+    .summary,.main,.side,.debt-card{
+      background:linear-gradient(180deg, rgba(17,28,46,.96), rgba(12,21,37,.98));
+      border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);
+    }
+    .summary{padding:18px}
+    .summary .label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+    .summary .value{font-size:30px;font-weight:900;letter-spacing:-.03em}
+    .summary .sub{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.35}
+
+    .layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(350px,.95fr);gap:18px}
+    .main,.side{padding:20px}
+    .section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+    .section-title{font-size:24px;font-weight:900;letter-spacing:-.02em}
+    .section-copy{margin-top:6px;color:var(--muted);font-size:13px;line-height:1.45}
+    .debt-list,.side-stack,.alert-group,.list-group,.metric-group{display:grid;gap:14px}
+
+    .btn{
+      border:none;border-radius:14px;padding:12px 16px;font-size:14px;font-weight:800;color:white;cursor:pointer;
+    }
+    .btn-add{background:linear-gradient(135deg,var(--green),var(--green2))}
+    .btn-delete{background:linear-gradient(135deg,var(--red),#c61f1f);padding:10px 14px}
+
+    .debt-card{padding:18px}
+    .debt-card.paid{opacity:.78;border-color:rgba(39,196,106,.22)}
+    .debt-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+    .title-stack{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .chip{
+      display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid var(--line);
+      background:rgba(255,255,255,.04);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    }
+    .chip.good{background:rgba(39,196,106,.12);color:#b9ffd4;border-color:rgba(39,196,106,.22)}
+    .chip.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}
+    .chip.bad{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.24)}
+    .chip.blue{background:rgba(59,130,246,.12);color:#c7ddff;border-color:rgba(59,130,246,.22)}
+
+    .fields{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr 1fr .85fr auto;gap:12px;align-items:end}
+    .field label{display:block;margin-bottom:8px;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+    .field input{
+      width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:#091220;color:var(--text);font-size:15px;outline:none;
+    }
+    .field input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(39,196,106,.10)}
+    .checkbox-box{
+      display:flex;align-items:center;justify-content:center;gap:10px;min-height:49px;padding:0 12px;
+      border:1px solid var(--line);border-radius:14px;background:#091220;font-weight:700;
+    }
+    .checkbox-box input{width:18px;height:18px;accent-color:var(--green);margin:0}
+
+    .alert,.metric,.list-item{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)
+    }
+    .alert.good{background:rgba(39,196,106,.08);border-color:rgba(39,196,106,.18)}
+    .alert.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.18)}
+    .alert.bad{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.18)}
+    .meta-title{font-weight:800}
+    .meta-sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}
+    .rank{
+      width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;
+      background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.22);color:#dbeafe;font-size:12px;font-weight:900;flex:0 0 auto;
+    }
+    .list-left{display:flex;gap:12px;align-items:center;min-width:0}
+    .empty{
+      padding:18px;text-align:center;color:var(--muted);border-radius:18px;border:1px dashed rgba(255,255,255,.12);
+      background:rgba(255,255,255,.02)
+    }
+
+    .quick-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+    .quick{border:none;border-radius:12px;padding:10px 12px;background:rgba(59,130,246,.12);color:#dbeafe;font-weight:800;cursor:pointer}
+    .side .field + .field{margin-top:14px}
+
+    @media (max-width:1320px){
+      .summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .layout{grid-template-columns:1fr}
+    }
+    @media (max-width:1050px){
+      .fields{grid-template-columns:1fr 1fr 1fr}
+    }
+    @media (max-width:920px){
+      .summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .fields{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:760px){
+      .wrap{padding:16px}
+      .topbar{flex-direction:column;align-items:stretch}
+      .brand h1{font-size:30px}
+      .summary-grid{grid-template-columns:1fr}
+      .section-head,.debt-top{flex-direction:column;align-items:stretch}
+      .fields{grid-template-columns:1fr}
+      .quick-buttons{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <h1>Debt Dashboard</h1>
+        <p>Clean pro dashboard with utilization, due-day alerts, and stable syncing.</p>
+      </div>
+      <div class="top-actions">
+        <div id="saveStatus" class="pill">Auto-save on</div>
+        <a href="/logout" class="logout">Logout</a>
+      </div>
+    </div>
 
-<h1>Debt Dashboard PRO</h1>
+    <div class="summary-grid">
+      <div class="summary">
+        <div class="label">Active Debt</div>
+        <div class="value" id="sumDebt">$0</div>
+        <div class="sub">Only unpaid balances count here</div>
+      </div>
+      <div class="summary">
+        <div class="label">Monthly Minimums</div>
+        <div class="value" id="sumMonthly">$0</div>
+        <div class="sub">Combined active minimum payments</div>
+      </div>
+      <div class="summary">
+        <div class="label">Credit Utilization</div>
+        <div class="value" id="sumUtil">0%</div>
+        <div class="sub" id="sumUtilSub">Add card limits to track utilization</div>
+      </div>
+      <div class="summary">
+        <div class="label">Estimated Payoff</div>
+        <div class="value" id="sumPayoff">—</div>
+        <div class="sub">Simple estimate using monthly power</div>
+      </div>
+      <div class="summary">
+        <div class="label">Due This Week</div>
+        <div class="value" id="sumDue">$0</div>
+        <div class="sub">Payments coming due in 7 days</div>
+      </div>
+    </div>
 
-<button onclick="addRow()">Add</button>
-<button onclick="save()">Save</button>
+    <div class="layout">
+      <div class="main">
+        <div class="section-head">
+          <div>
+            <div class="section-title">Your Debts</div>
+            <div class="section-copy">This repair version restores a clean layout, working save routes, and keeps utilization + due-day tracking.</div>
+          </div>
+          <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Debt</button>
+        </div>
+        <div id="debts" class="debt-list"></div>
+      </div>
 
-<div id="list"></div>
+      <div class="side-stack">
+        <div class="side">
+          <div class="section-title">Alerts</div>
+          <div class="section-copy">See what is urgent, due soon, or hurting utilization.</div>
+          <div id="alerts" class="alert-group"></div>
+        </div>
 
-<script>
-let debts = []
+        <div class="side">
+          <div class="section-title">Payoff Settings</div>
+          <div class="section-copy" style="margin-bottom:16px;">Quick buttons for what-if planning.</div>
 
-function addRow(d={}) {
-    debts.push({
-        name:d.name||"",
-        balance:d.balance||"",
-        rate:d.rate||"",
-        payment:d.payment||"",
-        due_day:d.due_day||"",
-        paid:d.paid||0,
-        credit_limit:d.credit_limit||""
-    })
-    render()
-}
+          <div class="field">
+            <label for="extraPayment">Extra Monthly Payment</label>
+            <input id="extraPayment" type="number" min="0" step="0.01" value="0" oninput="handleExtraInput()">
+          </div>
 
-function render() {
-    let html=""
-    debts.forEach((d,i)=>{
-        html+=`
-        <div class="card">
-            <input placeholder="Name" value="${d.name}" onchange="debts[${i}].name=this.value">
-            <input placeholder="Bal" value="${d.balance}" onchange="debts[${i}].balance=this.value">
-            <input placeholder="Rate" value="${d.rate}" onchange="debts[${i}].rate=this.value">
-            <input placeholder="Pay" value="${d.payment}" onchange="debts[${i}].payment=this.value">
-            <input placeholder="Due" value="${d.due_day}" onchange="debts[${i}].due_day=this.value">
-        </div>`
-    })
-    document.getElementById("list").innerHTML = html
-}
+          <div class="quick-buttons">
+            <button class="quick" type="button" onclick="setExtra(50)">+50</button>
+            <button class="quick" type="button" onclick="setExtra(100)">+100</button>
+            <button class="quick" type="button" onclick="setExtra(200)">+200</button>
+            <button class="quick" type="button" onclick="setExtra(500)">+500</button>
+          </div>
 
-function load() {
-    fetch("/get_debts")
-    .then(r=>r.json())
-    .then(data=>{
-        debts=data
-        render()
-    })
-}
+          <div class="metric-group">
+            <div class="metric"><span>Total Monthly Power</span><strong id="metricPower">$0</strong></div>
+            <div class="metric"><span>Paid Debts</span><strong id="metricPaid">0</strong></div>
+            <div class="metric"><span>Average Interest</span><strong id="metricAPR">0%</strong></div>
+          </div>
+        </div>
 
-function save() {
-    fetch("/save",{
+        <div class="side">
+          <div class="section-title">Upcoming Due Days</div>
+          <div class="section-copy">Active debts sorted by next due day.</div>
+          <div id="dueDays" class="list-group"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let debts = [];
+    let saveTimer = null;
+    let saveTextTimer = null;
+
+    function setSaveStatus(text){
+      const el = document.getElementById("saveStatus");
+      if (el) el.textContent = text;
+    }
+
+    function money(n){
+      n = Number(n) || 0;
+      return "$" + n.toLocaleString(undefined,{minimumFractionDigits:n%1===0?0:2,maximumFractionDigits:2});
+    }
+
+    function num(v){
+      const n = parseFloat(v);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function clampDay(v){
+      if (v === "" || v === null || v === undefined) return null;
+      const n = parseInt(v,10);
+      if (isNaN(n)) return null;
+      return Math.max(1, Math.min(31, n));
+    }
+
+    function esc(t){
+      return String(t || "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function monthsToWords(months){
+      if (!isFinite(months) || months <= 0) return "—";
+      const m = Math.ceil(months);
+      if (m < 12) return m + (m===1 ? " month" : " months");
+      const y = Math.floor(m/12);
+      const r = m%12;
+      if (r === 0) return y + (y===1 ? " year" : " years");
+      return y + (y===1 ? " year " : " years ") + r + (r===1 ? " month" : " months");
+    }
+
+    function dueStatus(day){
+      if (!day) return {label:"No due day", level:"none", away:null};
+      const today = new Date().getDate();
+      const away = day - today;
+      if (away < 0) return {label:Math.abs(away)+" day(s) late", level:"bad", away};
+      if (away === 0) return {label:"Due today", level:"bad", away};
+      if (away <= 3) return {label:"Due in "+away+" day(s)", level:"warn", away};
+      return {label:"Due on day "+day, level:"good", away};
+    }
+
+    function utilData(){
+      const active = debts.filter(d => !d.paid && num(d.credit_limit) > 0);
+      const bal = active.reduce((s,d)=>s+num(d.balance),0);
+      const lim = active.reduce((s,d)=>s+num(d.credit_limit),0);
+      const pct = lim > 0 ? (bal/lim)*100 : 0;
+      return {bal, lim, pct, count: active.length};
+    }
+
+    function utilClass(p){
+      if (p === 0 || p < 10) return "good";
+      if (p <= 30) return "warn";
+      return "bad";
+    }
+
+    function queueSave(){
+      clearTimeout(saveTimer);
+      setSaveStatus("Saving...");
+      saveTimer = setTimeout(saveDebts, 250);
+    }
+
+    function markSaved(){
+      clearTimeout(saveTextTimer);
+      setSaveStatus("Saved");
+      saveTextTimer = setTimeout(()=>setSaveStatus("Auto-save on"), 1500);
+    }
+
+    function addDebt(){
+      debts.push({name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, credit_limit:0});
+      render();
+      queueSave();
+    }
+
+    function removeDebt(i){
+      debts.splice(i,1);
+      render();
+      queueSave();
+    }
+
+    function updateDebt(i,key,value){
+      if (key === "name") debts[i][key] = value;
+      else if (key === "due_day") debts[i][key] = value === "" ? null : clampDay(value);
+      else debts[i][key] = num(value);
+      calcPanels();
+      queueSave();
+    }
+
+    function togglePaid(i, checked){
+      debts[i].paid = !!checked;
+      render();
+      queueSave();
+    }
+
+    function setExtra(amount){
+      document.getElementById("extraPayment").value = amount;
+      localStorage.setItem("debt_extra_payment", String(amount));
+      calcPanels();
+    }
+
+    function handleExtraInput(){
+      localStorage.setItem("debt_extra_payment", document.getElementById("extraPayment").value || "0");
+      calcPanels();
+    }
+
+    function getExtra(){
+      return num(localStorage.getItem("debt_extra_payment") || 0);
+    }
+
+    function renderDebts(){
+      const wrap = document.getElementById("debts");
+      if (!debts.length){
+        wrap.innerHTML = '<div class="empty">No debts yet. Add one to start building your payoff plan.</div>';
+        return;
+      }
+
+      wrap.innerHTML = debts.map((d,i)=>{
+        const status = dueStatus(d.due_day);
+        const paidClass = d.paid ? "paid" : "";
+        const limit = num(d.credit_limit);
+        const util = limit > 0 ? (num(d.balance)/limit)*100 : null;
+        const utilChip = util !== null
+          ? `<div class="chip ${utilClass(util)}">${util.toFixed(0)}% utilization</div>`
+          : "";
+        const dueChip = (!d.paid && d.due_day)
+          ? `<div class="chip ${status.level === "bad" ? "bad" : status.level === "warn" ? "warn" : "good"}">Day ${d.due_day} • ${esc(status.label)}</div>`
+          : "";
+
+        return `
+          <div class="debt-card ${paidClass}">
+            <div class="debt-top">
+              <div class="title-stack">
+                <div class="chip blue">Debt ${i+1}</div>
+                ${d.paid ? '<div class="chip good">Paid</div>' : ''}
+                ${dueChip}
+                ${utilChip}
+              </div>
+              <button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete</button>
+            </div>
+
+            <div class="fields">
+              <div class="field">
+                <label>Debt Name</label>
+                <input type="text" value="${esc(d.name)}" placeholder="Capital One, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)">
+              </div>
+              <div class="field">
+                <label>Balance</label>
+                <input type="number" min="0" step="0.01" value="${num(d.balance)}" oninput="updateDebt(${i}, 'balance', this.value)">
+              </div>
+              <div class="field">
+                <label>Credit Limit</label>
+                <input type="number" min="0" step="0.01" value="${num(d.credit_limit)}" placeholder="0 if not a card" oninput="updateDebt(${i}, 'credit_limit', this.value)">
+              </div>
+              <div class="field">
+                <label>Interest %</label>
+                <input type="number" min="0" step="0.01" value="${num(d.rate)}" oninput="updateDebt(${i}, 'rate', this.value)">
+              </div>
+              <div class="field">
+                <label>Monthly Payment</label>
+                <input type="number" min="0" step="0.01" value="${num(d.payment)}" oninput="updateDebt(${i}, 'payment', this.value)">
+              </div>
+              <div class="field">
+                <label>Due Day</label>
+                <input type="number" min="1" max="31" step="1" value="${d.due_day ?? ''}" placeholder="1-31" oninput="updateDebt(${i}, 'due_day', this.value)">
+              </div>
+              <div class="field">
+                <label>Paid?</label>
+                <div class="checkbox-box">
+                  <input type="checkbox" ${d.paid ? "checked" : ""} onchange="togglePaid(${i}, this.checked)">
+                  <span>${d.paid ? "Yes" : "No"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAlerts(){
+      const wrap = document.getElementById("alerts");
+      const active = debts.filter(d => !d.paid);
+      const overdue = active.filter(d => d.due_day && dueStatus(d.due_day).level === "bad");
+      const soon = active.filter(d => d.due_day && dueStatus(d.due_day).level === "warn");
+      const util = utilData();
+
+      const alerts = [];
+      if (overdue.length){
+        alerts.push({
+          cls:"bad",
+          title:overdue.length + " urgent debt(s)",
+          sub:money(overdue.reduce((s,d)=>s+num(d.payment),0)) + " due today or already late"
+        });
+      }
+      if (soon.length){
+        alerts.push({
+          cls:"warn",
+          title:soon.length + " debt(s) due soon",
+          sub:money(soon.reduce((s,d)=>s+num(d.payment),0)) + " due within 3 days"
+        });
+      }
+      if (util.count){
+        alerts.push({
+          cls:utilClass(util.pct),
+          title:"Credit utilization at " + util.pct.toFixed(0) + "%",
+          sub:money(util.bal) + " used of " + money(util.lim)
+        });
+      }
+      if (!alerts.length){
+        alerts.push({cls:"good", title:"No urgent alerts", sub:"Everything looks calm right now"});
+      }
+
+      wrap.innerHTML = alerts.map(a => `
+        <div class="alert ${a.cls}">
+          <div>
+            <div class="meta-title">${esc(a.title)}</div>
+            <div class="meta-sub">${esc(a.sub)}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderDueDays(){
+      const wrap = document.getElementById("dueDays");
+      const items = debts
+        .filter(d => !d.paid && d.due_day)
+        .sort((a,b) => (a.due_day||99) - (b.due_day||99));
+
+      if (!items.length){
+        wrap.innerHTML = '<div class="empty">Add due days to unpaid debts and they will show here.</div>';
+        return;
+      }
+
+      wrap.innerHTML = items.map(d => {
+        const st = dueStatus(d.due_day);
+        return `
+          <div class="list-item">
+            <div class="list-left">
+              <div class="rank">${d.due_day}</div>
+              <div>
+                <div class="meta-title">${esc(d.name || "Unnamed Debt")}</div>
+                <div class="meta-sub">${esc(st.label)} • ${money(d.payment)} payment</div>
+              </div>
+            </div>
+            <strong>${money(d.balance)}</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function calcPanels(){
+      const active = debts.filter(d => !d.paid);
+      const totalDebt = active.reduce((s,d)=>s+num(d.balance),0);
+      const totalMonthly = active.reduce((s,d)=>s+num(d.payment),0);
+      const extra = getExtra();
+      const util = utilData();
+      const monthlyPower = totalMonthly + extra;
+      const payoffMonths = monthlyPower > 0 ? totalDebt / monthlyPower : 0;
+      const dueWeek = active
+        .filter(d => d.due_day && dueStatus(d.due_day).away !== null && dueStatus(d.due_day).away >= 0 && dueStatus(d.due_day).away <= 7)
+        .reduce((s,d)=>s+num(d.payment),0);
+      const avgAPR = active.length ? active.reduce((s,d)=>s+num(d.rate),0) / active.length : 0;
+
+      document.getElementById("sumDebt").textContent = money(totalDebt);
+      document.getElementById("sumMonthly").textContent = money(totalMonthly);
+      document.getElementById("sumUtil").textContent = util.count ? util.pct.toFixed(1) + "%" : "0%";
+      document.getElementById("sumUtilSub").textContent = util.count
+        ? money(util.bal) + " used of " + money(util.lim)
+        : "Add card limits to track utilization";
+      document.getElementById("sumPayoff").textContent = monthsToWords(payoffMonths);
+      document.getElementById("sumDue").textContent = money(dueWeek);
+      document.getElementById("metricPower").textContent = money(monthlyPower);
+      document.getElementById("metricPaid").textContent = String(debts.filter(d => d.paid).length);
+      document.getElementById("metricAPR").textContent = avgAPR.toFixed(1) + "%";
+
+      renderAlerts();
+      renderDueDays();
+    }
+
+    function render(){
+      renderDebts();
+      calcPanels();
+    }
+
+    function saveDebts(){
+      fetch("/save", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(debts)
-    }).then(()=>alert("Saved"))
-}
+      })
+      .then(() => markSaved())
+      .catch(() => setSaveStatus("Save failed"));
+    }
 
-load()
-</script>
+    function load(){
+      const savedExtra = localStorage.getItem("debt_extra_payment");
+      if (savedExtra !== null) document.getElementById("extraPayment").value = savedExtra;
 
+      fetch("/get_debts")
+        .then(r => r.json())
+        .then(d => {
+          debts = d.map(x => ({
+            id:x.id || null,
+            name:x.name || "",
+            balance:num(x.balance),
+            rate:num(x.rate),
+            payment:num(x.payment),
+            due_day:x.due_day || null,
+            paid:!!x.paid,
+            credit_limit:num(x.credit_limit)
+          }));
+          render();
+        });
+    }
+
+    load();
+  </script>
 </body>
 </html>
