@@ -57,3 +57,106 @@ fetch("/get").then(r=>r.json()).then(d=>{debts=d;render()})
 
 </body>
 </html>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+    background:#0b0b0b;
+    color:white;
+    font-family:Arial;
+    padding:15px;
+}
+
+h1 {
+    margin-bottom:10px;
+}
+
+button {
+    background:#222;
+    color:white;
+    border:none;
+    padding:10px;
+    margin:5px;
+    border-radius:6px;
+}
+
+.card {
+    background:#111;
+    padding:10px;
+    margin-bottom:10px;
+    border-radius:8px;
+}
+
+input {
+    width:100%;
+    margin:5px 0;
+    padding:8px;
+    background:#222;
+    color:white;
+    border:none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Debt Dashboard PRO</h1>
+
+<button onclick="add()">Add</button>
+<button onclick="save()">Save</button>
+
+<div id="list"></div>
+
+<script>
+let debts = []
+
+function render(){
+    let html = ""
+    debts.forEach((d,i)=>{
+        html += `
+        <div class="card">
+            <input placeholder="Name" value="${d.name||''}" onchange="set(${i},'name',this.value)">
+            <input placeholder="Balance" value="${d.balance||''}" onchange="set(${i},'balance',this.value)">
+            <input placeholder="APR %" value="${d.rate||''}" onchange="set(${i},'rate',this.value)">
+            <input placeholder="Payment" value="${d.payment||''}" onchange="set(${i},'payment',this.value)">
+            <input placeholder="Due Day (1-31)" value="${d.due_day||''}" onchange="set(${i},'due_day',this.value)">
+            <input placeholder="Credit Limit" value="${d.credit_limit||''}" onchange="set(${i},'credit_limit',this.value)">
+        </div>
+        `
+    })
+    document.getElementById("list").innerHTML = html
+}
+
+function set(i,k,v){
+    debts[i][k] = v
+}
+
+function add(){
+    debts.push({})
+    render()
+}
+
+function save(){
+    fetch("/save",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(debts)
+    })
+}
+
+function load(){
+    fetch("/get")
+    .then(r=>r.json())
+    .then(d=>{
+        debts = d
+        render()
+    })
+}
+
+load()
+</script>
+
+</body>
+</html>
