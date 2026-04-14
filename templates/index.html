@@ -1,105 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Debt Dashboard PRO</title>
 <style>
-body{background:#0b0b0b;color:#fff;font-family:sans-serif;padding:20px}
-.card{background:#1a1a1a;padding:15px;border-radius:10px;margin-bottom:15px}
-input{width:100%;margin:5px 0;padding:8px;background:#222;color:#fff;border:none}
-button{padding:10px;margin:5px}
-.bar{height:8px;background:#333;border-radius:5px;margin-top:5px}
-.fill{height:8px;background:#00c853;border-radius:5px}
+body {background:#0f172a;color:white;font-family:sans-serif;padding:20px}
+button {padding:10px;margin:5px;background:#2563eb;color:white;border:none;border-radius:5px}
+.card {background:#1e293b;padding:10px;margin:10px 0;border-radius:10px}
+input {width:100%;margin:5px 0;padding:8px;background:#334155;color:white;border:none}
 </style>
 </head>
-<body>
-
-<h1>Debt Dashboard PRO</h1>
-<button onclick="add()">Add</button>
-<button onclick="save()">Save</button>
-
-<div id="list"></div>
-
-<script>
-let debts=[]
-
-function render(){
- let html=""
- debts.forEach((d,i)=>{
-  let pct = d.credit_limit>0 ? (d.balance/d.credit_limit*100).toFixed(0) : 0
-  html+=`
-  <div class="card">
-    <input value="${d.name}" onchange="set(${i},'name',this.value)">
-    <input value="${d.balance}" onchange="set(${i},'balance',this.value)">
-    <input value="${d.rate}" onchange="set(${i},'rate',this.value)">
-    <input value="${d.payment}" onchange="set(${i},'payment',this.value)">
-    <input value="${d.due_day}" onchange="set(${i},'due_day',this.value)">
-    <input value="${d.credit_limit}" onchange="set(${i},'credit_limit',this.value)">
-    <div>Utilization: ${pct}%</div>
-    <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
-  </div>`
- })
- document.getElementById("list").innerHTML=html
-}
-
-function set(i,k,v){debts[i][k]=v}
-
-function add(){
- debts.push({name:"",balance:0,rate:0,payment:0,due_day:1,paid:0,credit_limit:0})
- render()
-}
-
-function save(){
- fetch("/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)})
- .then(()=>alert("Saved"))
-}
-
-fetch("/get").then(r=>r.json()).then(d=>{debts=d;render()})
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {
-    background:#0b0b0b;
-    color:white;
-    font-family:Arial;
-    padding:15px;
-}
-
-h1 {
-    margin-bottom:10px;
-}
-
-button {
-    background:#222;
-    color:white;
-    border:none;
-    padding:10px;
-    margin:5px;
-    border-radius:6px;
-}
-
-.card {
-    background:#111;
-    padding:10px;
-    margin-bottom:10px;
-    border-radius:8px;
-}
-
-input {
-    width:100%;
-    margin:5px 0;
-    padding:8px;
-    background:#222;
-    color:white;
-    border:none;
-}
-</style>
-</head>
-
 <body>
 
 <h1>Debt Dashboard PRO</h1>
@@ -110,52 +19,39 @@ input {
 <div id="list"></div>
 
 <script>
-let debts = []
+let debts = [];
 
 function render(){
-    let html = ""
+    let html = "";
     debts.forEach((d,i)=>{
         html += `
         <div class="card">
-            <input placeholder="Name" value="${d.name||''}" onchange="set(${i},'name',this.value)">
-            <input placeholder="Balance" value="${d.balance||''}" onchange="set(${i},'balance',this.value)">
-            <input placeholder="APR %" value="${d.rate||''}" onchange="set(${i},'rate',this.value)">
-            <input placeholder="Payment" value="${d.payment||''}" onchange="set(${i},'payment',this.value)">
-            <input placeholder="Due Day (1-31)" value="${d.due_day||''}" onchange="set(${i},'due_day',this.value)">
-            <input placeholder="Credit Limit" value="${d.credit_limit||''}" onchange="set(${i},'credit_limit',this.value)">
-        </div>
-        `
-    })
-    document.getElementById("list").innerHTML = html
-}
-
-function set(i,k,v){
-    debts[i][k] = v
+            <input placeholder="Name" value="${d.name||''}" onchange="debts[${i}].name=this.value">
+            <input placeholder="Balance" value="${d.balance||''}" onchange="debts[${i}].balance=this.value">
+            <input placeholder="Rate" value="${d.rate||''}" onchange="debts[${i}].rate=this.value">
+            <input placeholder="Payment" value="${d.payment||''}" onchange="debts[${i}].payment=this.value">
+        </div>`;
+    });
+    document.getElementById("list").innerHTML = html;
 }
 
 function add(){
-    debts.push({})
-    render()
+    debts.push({});
+    render();
 }
 
 function save(){
-    fetch("/save",{
+    fetch("/save_debts", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(debts)
-    })
+    });
 }
 
-function load(){
-    fetch("/get")
-    .then(r=>r.json())
-    .then(d=>{
-        debts = d
-        render()
-    })
-}
-
-load()
+fetch("/get_debts").then(r=>r.json()).then(d=>{
+    debts=d;
+    render();
+});
 </script>
 
 </body>
