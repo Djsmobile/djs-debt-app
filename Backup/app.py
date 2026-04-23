@@ -24,33 +24,6 @@ def ensure_column(conn, table_name, column_name, column_sql):
         conn.commit()
 
 
-def normalize_history(raw_history):
-    if isinstance(raw_history, str):
-        try:
-            raw_history = json.loads(raw_history)
-        except Exception:
-            raw_history = []
-
-    if not isinstance(raw_history, list):
-        return []
-
-    cleaned = []
-    for item in raw_history[:10]:
-        if not isinstance(item, dict):
-            continue
-        amount = max(0.0, float(item.get("amount", 0) or 0))
-        if amount <= 0:
-            continue
-        cleaned.append(
-            {
-                "amount": round(amount, 2),
-                "type": str(item.get("type", "custom") or "custom")[:20],
-                "label": str(item.get("label", "Payment") or "Payment")[:40],
-            }
-        )
-    return cleaned
-
-
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True) if os.path.dirname(DB_PATH) else None
     conn = get_db()
@@ -68,8 +41,7 @@ def init_db():
             paid_this_month INTEGER DEFAULT 0,
             paycheck_group TEXT DEFAULT 'check1',
             monthly_paid_amount REAL DEFAULT 0,
-            last_payment_amount REAL DEFAULT 0,
-            payment_history TEXT DEFAULT '[]'
+            last_payment_amount REAL DEFAULT 0
         )
         """
     )
@@ -81,7 +53,6 @@ def init_db():
     ensure_column(conn, "debts", "paycheck_group", "TEXT DEFAULT 'check1'")
     ensure_column(conn, "debts", "monthly_paid_amount", "REAL DEFAULT 0")
     ensure_column(conn, "debts", "last_payment_amount", "REAL DEFAULT 0")
-    ensure_column(conn, "debts", "payment_history", "TEXT DEFAULT '[]'")
     conn.close()
 
 
@@ -100,7 +71,6 @@ def fetch_all_debts():
         item["paycheck_group"] = "check2" if item.get("paycheck_group") == "check2" else "check1"
         item["monthly_paid_amount"] = float(item.get("monthly_paid_amount") or 0)
         item["last_payment_amount"] = float(item.get("last_payment_amount") or 0)
-        item["payment_history"] = normalize_history(item.get("payment_history"))
         cleaned.append(item)
     return cleaned
 
@@ -185,14 +155,13 @@ def save_debts():
         monthly_paid_amount = max(0.0, float(d.get("monthly_paid_amount", 0) or 0))
         last_payment_amount = max(0.0, float(d.get("last_payment_amount", 0) or 0))
         paid_this_month = 1 if d.get("paid_this_month") or monthly_paid_amount > 0 else 0
-        payment_history = json.dumps(normalize_history(d.get("payment_history")))
 
         conn.execute(
             """
             INSERT INTO debts (
                 name, balance, rate, payment, due_day, paid, credit_limit,
-                paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount, payment_history
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 name,
@@ -206,7 +175,6 @@ def save_debts():
                 paycheck_group,
                 monthly_paid_amount,
                 last_payment_amount,
-                payment_history,
             ),
         )
 
