@@ -145,3 +145,25 @@ def debug_db():
                 output.append(f"Error reading {path}: {e}")
 
     return "<br>".join(output)
+    @app.route("/debug-rows")
+def debug_rows():
+    import sqlite3
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+
+    output = []
+
+    cols = cur.execute("PRAGMA table_info(debts)").fetchall()
+    output.append("COLUMNS:")
+    for c in cols:
+        output.append(str(tuple(c)))
+
+    rows = cur.execute("SELECT * FROM debts LIMIT 5").fetchall()
+    output.append("\nSAMPLE ROWS:")
+    for row in rows:
+        output.append(str(dict(row)))
+
+    conn.close()
+    return "<br>".join(output).replace("\n", "<br>")
