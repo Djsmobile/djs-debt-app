@@ -290,14 +290,40 @@ function saveDebts(){
 }
 
 function load(){
-  const savedExtra=localStorage.getItem("debt_extra_payment");
+  const savedExtra = localStorage.getItem("debt_extra_payment");
   if(savedExtra!==null) document.getElementById("extraPayment").value=savedExtra;
-  fetch("/get_debts").then(r=>r.json()).then(d=>{
-    debts=d.map(x=>({id:x.id||null,name:x.name||"",balance:num(x.balance),rate:num(x.rate),payment:num(x.payment),due_day:x.due_day||null,paid:!!x.paid,paid_this_month:!!x.paid_this_month,credit_limit:num(x.credit_limit),paycheck_group:(x.paycheck_group==="check2"?"check2":"check1")}));
-    render();
-  }).catch(()=>{ document.getElementById("debts").innerHTML='<div class="empty">Could not load your bills.</div>'; setSaveStatus("Load failed"); });
-}
-load();
+
+  fetch("/get_debts")
+    .then(async r => {
+      if (!r.ok) {
+        window.location.href = "/"; // force login if session expired
+        return [];
+      }
+      return await r.json();
+    })
+    .then(d=>{
+      if (!Array.isArray(d)) return;
+
+      debts = d.map((x, idx)=>({
+        ui_id: x.ui_id || x.id || `debt-${idx}-${Date.now()}`,
+        id:x.id||null,
+        name:x.name||"",
+        balance:num(x.balance),
+        rate:num(x.rate),
+        payment:num(x.payment),
+        due_day:x.due_day||null,
+        paid:!!x.paid,
+        paid_this_month:!!x.paid_this_month,
+        credit_limit:num(x.credit_limit),
+        paycheck_group:(x.paycheck_group==="check2"?"check2":"check1")
+      }));
+
+      debts.forEach(d=>{ if(!d.paid) expandedDebtIds.add(d.ui_id); });
+      render();
+    })
+    .catch(()=>{
+      window.location.href = "/";
+    });
 </script>
 </body>
 </html>
