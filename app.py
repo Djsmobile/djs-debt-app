@@ -145,7 +145,7 @@ def debug_db():
                 output.append(f"Error reading {path}: {e}")
 
     return "<br>".join(output)
-    @app.route("/debug-rows")
+@app.route("/debug-rows")
 def debug_rows():
     import sqlite3
 
@@ -161,9 +161,10 @@ def debug_rows():
         output.append(str(tuple(c)))
 
     rows = cur.execute("SELECT * FROM debts LIMIT 5").fetchall()
-    output.append("\nSAMPLE ROWS:")
+    output.append("")
+    output.append("SAMPLE ROWS:")
     for row in rows:
         output.append(str(dict(row)))
 
     conn.close()
-    return "<br>".join(output).replace("\n", "<br>")
+    return "<br>".join(output)
