@@ -112,3 +112,36 @@ def save_debts():
 
 if __name__ == "__main__":
     app.run(debug=True)
+@app.route("/debug-db")
+def debug_db():
+    import os, sqlite3
+
+    output = []
+
+    try:
+        files = os.listdir("/data")
+        output.append(f"FILES IN /data: {files}")
+    except Exception as e:
+        output.append(f"Error listing /data: {e}")
+
+    for f in files:
+        if f.endswith(".db"):
+            path = f"/data/{f}"
+            output.append(f"\nDB FILE: {path}")
+
+            try:
+                conn = sqlite3.connect(path)
+                cur = conn.cursor()
+
+                tables = cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+                output.append(f"Tables: {tables}")
+
+                for (t,) in tables:
+                    count = cur.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
+                    output.append(f"{t}: {count} rows")
+
+                conn.close()
+            except Exception as e:
+                output.append(f"Error reading {path}: {e}")
+
+    return "<br>".join(output)
