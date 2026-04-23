@@ -39,7 +39,9 @@ def init_db():
             paid INTEGER DEFAULT 0,
             credit_limit REAL DEFAULT 0,
             paid_this_month INTEGER DEFAULT 0,
-            paycheck_group TEXT DEFAULT 'check1'
+            paycheck_group TEXT DEFAULT 'check1',
+            monthly_paid_amount REAL DEFAULT 0,
+            last_payment_amount REAL DEFAULT 0
         )
         """
     )
@@ -49,6 +51,8 @@ def init_db():
     ensure_column(conn, "debts", "credit_limit", "REAL DEFAULT 0")
     ensure_column(conn, "debts", "paid_this_month", "INTEGER DEFAULT 0")
     ensure_column(conn, "debts", "paycheck_group", "TEXT DEFAULT 'check1'")
+    ensure_column(conn, "debts", "monthly_paid_amount", "REAL DEFAULT 0")
+    ensure_column(conn, "debts", "last_payment_amount", "REAL DEFAULT 0")
     conn.close()
 
 
@@ -65,6 +69,8 @@ def fetch_all_debts():
         item["paid"] = 1 if item.get("paid") else 0
         item["paid_this_month"] = 1 if item.get("paid_this_month") else 0
         item["paycheck_group"] = "check2" if item.get("paycheck_group") == "check2" else "check1"
+        item["monthly_paid_amount"] = float(item.get("monthly_paid_amount") or 0)
+        item["last_payment_amount"] = float(item.get("last_payment_amount") or 0)
         cleaned.append(item)
     return cleaned
 
@@ -141,20 +147,35 @@ def save_debts():
             paycheck_group = "check1"
 
         name = str(d.get("name", "")).strip()
-        balance = float(d.get("balance", 0) or 0)
+        balance = max(0.0, float(d.get("balance", 0) or 0))
         rate = float(d.get("rate", 0) or 0)
-        payment = float(d.get("payment", 0) or 0)
+        payment = max(0.0, float(d.get("payment", 0) or 0))
         paid = 1 if d.get("paid") else 0
-        credit_limit = float(d.get("credit_limit", 0) or 0)
-        paid_this_month = 1 if d.get("paid_this_month") else 0
+        credit_limit = max(0.0, float(d.get("credit_limit", 0) or 0))
+        monthly_paid_amount = max(0.0, float(d.get("monthly_paid_amount", 0) or 0))
+        last_payment_amount = max(0.0, float(d.get("last_payment_amount", 0) or 0))
+        paid_this_month = 1 if d.get("paid_this_month") or monthly_paid_amount > 0 else 0
 
         conn.execute(
             """
             INSERT INTO debts (
-                name, balance, rate, payment, due_day, paid, credit_limit, paid_this_month, paycheck_group
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                name, balance, rate, payment, due_day, paid, credit_limit,
+                paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (name, balance, rate, payment, due_day, paid, credit_limit, paid_this_month, paycheck_group),
+            (
+                name,
+                balance,
+                rate,
+                payment,
+                due_day,
+                paid,
+                credit_limit,
+                paid_this_month,
+                paycheck_group,
+                monthly_paid_amount,
+                last_payment_amount,
+            ),
         )
 
     conn.commit()

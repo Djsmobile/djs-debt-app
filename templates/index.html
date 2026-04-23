@@ -23,7 +23,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
 .summary,.main,.side,.debt-card,.paycheck-panel,.compact-bar{background:linear-gradient(180deg, rgba(17,28,46,.96), rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
 .summary{padding:15px 16px}.summary .label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}.summary .value{font-size:26px;font-weight:900;letter-spacing:-.03em}.summary .sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
-.compact-bar{display:grid;grid-template-columns:1.2fr 1.2fr .9fr .9fr 1.1fr;gap:10px;padding:12px 14px;margin-bottom:14px}
+.compact-bar{display:grid;grid-template-columns:1.1fr 1.1fr .9fr .9fr 1.1fr;gap:10px;padding:12px 14px;margin-bottom:14px}
 .compact-metric{padding:6px 8px}.compact-metric .mini-label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.07em;text-transform:uppercase}.compact-metric .mini-value{margin-top:5px;font-size:18px;font-weight:900}
 .paycheck-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.paycheck-panel{padding:16px}.paycheck-title{font-size:18px;font-weight:900;letter-spacing:-.02em}.paycheck-sub{color:var(--muted);font-size:12px;margin:4px 0 12px}.paycheck-total{font-size:26px;font-weight:900}.paycheck-meta{margin-top:5px;color:var(--muted);font-size:12px}
 .layout{display:grid;grid-template-columns:minmax(0,1.95fr) minmax(320px,.95fr);gap:14px}.main,.side{padding:18px}.side-stack{display:grid;gap:14px}
@@ -33,8 +33,8 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .search,.toolbar select,.field input,.field select{width:100%;padding:12px 13px;border-radius:13px;border:1px solid var(--line);background:#091220;color:var(--text);font-size:14px;outline:none}
 .search:focus,.toolbar select:focus,.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(39,196,106,.10)}
 .toolbar .chip-btn{cursor:pointer;text-transform:none;letter-spacing:.03em;font-size:13px;border-radius:13px;padding:11px 14px}
-.debt-list,.alert-group,.list-group{display:grid;gap:10px}
-.debt-card{padding:14px 14px 12px}.debt-card.paid-off{opacity:.76;border-color:rgba(39,196,106,.22)}
+.debt-list,.alert-group,.list-group,.paycheck-list{display:grid;gap:10px}
+.debt-card{padding:14px 14px 12px;transition:transform .14s ease,border-color .14s ease, box-shadow .14s ease}.debt-card.paid-off{opacity:.76;border-color:rgba(39,196,106,.22)}.debt-card.just-paid{border-color:rgba(39,196,106,.38);box-shadow:0 0 0 4px rgba(39,196,106,.08), var(--shadow);transform:translateY(-1px)}
 .debt-header{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(4, minmax(90px,.42fr)) auto;gap:10px;align-items:center}
 .debt-main{min-width:0}.debt-name{font-size:18px;font-weight:900;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.debt-sub{margin-top:5px;color:var(--muted);font-size:12px;display:flex;gap:8px;flex-wrap:wrap}
 .header-stat{padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.header-stat .stat-label{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}.header-stat .stat-value{margin-top:4px;font-size:15px;font-weight:900}
@@ -42,13 +42,18 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .icon-btn{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
 .card-body{display:none;padding-top:12px}.debt-card.expanded .card-body{display:block}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.chip.good{background:rgba(39,196,106,.12);color:#b9ffd4;border-color:rgba(39,196,106,.22)}.chip.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}.chip.bad{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.24)}.chip.blue{background:rgba(59,130,246,.12);color:#c7ddff;border-color:rgba(59,130,246,.22)}
-.fields{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:10px;align-items:end;margin-top:12px}.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}.checkbox-box{display:flex;align-items:center;justify-content:center;gap:7px;min-height:45px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:#091220;font-weight:700;font-size:13px;text-align:center}.checkbox-box input{width:17px;height:17px;accent-color:var(--green);margin:0}
+.fields{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr 1fr;gap:10px;align-items:end;margin-top:12px}.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+.checkbox-box{display:flex;align-items:center;justify-content:center;gap:7px;min-height:45px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:#091220;font-weight:700;font-size:13px;text-align:center}.checkbox-box input{width:17px;height:17px;accent-color:var(--green);margin:0}
+.payment-strip{display:grid;grid-template-columns:1.1fr 1fr auto auto auto;gap:10px;align-items:end;margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.payment-note{font-size:12px;color:var(--muted);line-height:1.4}.payment-btn{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer;color:#fff}.payment-btn.min{background:linear-gradient(135deg,var(--green),var(--green2))}.payment-btn.custom{background:linear-gradient(135deg,var(--blue),#2563eb)}.payment-btn.undo{background:linear-gradient(135deg,var(--yellow),#d97706)}.payment-btn:disabled{opacity:.45;cursor:not-allowed}
+.paycheck-card{padding:11px 13px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.paycheck-card .row{display:flex;justify-content:space-between;gap:10px;align-items:center}.tiny{font-size:12px;color:var(--muted)}
 .alert,.list-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 13px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.alert.good{background:rgba(39,196,106,.08);border-color:rgba(39,196,106,.18)}.alert.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.18)}.alert.bad{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.18)}
 .meta-title{font-weight:800}.meta-sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}.rank{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.22);color:#dbeafe;font-size:12px;font-weight:900;flex:0 0 auto}.list-left{display:flex;gap:12px;align-items:center;min-width:0}.empty{padding:18px;text-align:center;color:var(--muted);border-radius:18px;border:1px dashed rgba(255,255,255,.12);background:rgba(255,255,255,.02)}
 .quick-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.quick{border:none;border-radius:12px;padding:10px 12px;background:rgba(59,130,246,.12);color:#dbeafe;font-weight:800;cursor:pointer}
 @media (max-width:1450px){.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-bar{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}.debt-header{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(90px,.5fr)) auto}.hide-lg{display:none}}
-@media (max-width:1080px){.toolbar{grid-template-columns:1fr 1fr 1fr}.toolbar .span-all{grid-column:1/-1}.fields{grid-template-columns:1fr 1fr 1fr}.debt-header{grid-template-columns:1fr 1fr auto}.hide-md{display:none}}
-@media (max-width:760px){.wrap{padding:14px}.topbar,.section-head{flex-direction:column;align-items:stretch}.brand h1{font-size:29px}.summary-grid,.paycheck-grid,.compact-bar,.fields,.toolbar{grid-template-columns:1fr}.debt-header{grid-template-columns:1fr}.header-actions{justify-content:stretch}.header-actions>*{flex:1}.quick-buttons{grid-template-columns:repeat(2,1fr)}.hide-sm{display:none}}
+@media (max-width:1080px){.toolbar{grid-template-columns:1fr 1fr 1fr}.toolbar .span-all{grid-column:1/-1}.fields{grid-template-columns:1fr 1fr 1fr}.debt-header{grid-template-columns:1fr 1fr auto}.hide-md{display:none}.payment-strip{grid-template-columns:1fr 1fr 1fr}}
+@media (max-width:760px){.wrap{padding:14px}.topbar,.section-head{flex-direction:column;align-items:stretch}.brand h1{font-size:29px}.summary-grid,.paycheck-grid,.compact-bar,.fields,.toolbar,.payment-strip{grid-template-columns:1fr}.debt-header{grid-template-columns:1fr}.header-actions{justify-content:stretch}.header-actions>*{flex:1}.quick-buttons{grid-template-columns:repeat(2,1fr)}.hide-sm{display:none}}
 </style>
 </head>
 <body>
@@ -56,7 +61,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
   <div class="topbar">
     <div class="brand">
       <h1>Debt Dashboard</h1>
-      <p>Cleaner row layout with individual bill expansion so the page stays fast to scan.</p>
+      <p>Cleaner row layout, individual bill expansion, and a real payment workflow with min, custom, and undo.</p>
     </div>
     <div class="top-actions">
       <div id="saveStatus" class="pill">Auto-save on</div>
@@ -66,9 +71,9 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 
   <div class="summary-grid">
     <div class="summary"><div class="label">Total Active Debt</div><div class="value" id="sumDebt">$0</div><div class="sub">Open balances not marked paid off</div></div>
-    <div class="summary"><div class="label">Monthly Bills Left</div><div class="value" id="sumMonthly">$0</div><div class="sub">Only unpaid monthly bills</div></div>
+    <div class="summary"><div class="label">Monthly Bills Left</div><div class="value" id="sumMonthly">$0</div><div class="sub">Only unpaid monthly bills still left this month</div></div>
     <div class="summary"><div class="label">Due This Week</div><div class="value" id="sumDue">$0</div><div class="sub">Bills due in the next 7 days</div></div>
-    <div class="summary"><div class="label">Paid This Month</div><div class="value" id="sumPaidMonth">0</div><div class="sub">Handled without being paid off</div></div>
+    <div class="summary"><div class="label">Paid This Month</div><div class="value" id="sumPaidMonth">0</div><div class="sub">Bills with payment activity this month</div></div>
   </div>
 
   <div class="compact-bar">
@@ -80,8 +85,20 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
   </div>
 
   <div class="paycheck-grid">
-    <div class="paycheck-panel"><div class="paycheck-title">Check 1</div><div class="paycheck-sub">Bills assigned to your first paycheck</div><div class="paycheck-total" id="check1Total">$0</div><div class="paycheck-meta" id="check1Meta">0 active monthly bill(s)</div></div>
-    <div class="paycheck-panel"><div class="paycheck-title">Check 2</div><div class="paycheck-sub">Bills assigned to your second paycheck</div><div class="paycheck-total" id="check2Total">$0</div><div class="paycheck-meta" id="check2Meta">0 active monthly bill(s)</div></div>
+    <div class="paycheck-panel">
+      <div class="paycheck-title">Check 1</div>
+      <div class="paycheck-sub">Bills assigned to your first paycheck</div>
+      <div class="paycheck-total" id="check1Total">$0</div>
+      <div class="paycheck-meta" id="check1Meta">0 active monthly bill(s)</div>
+      <div id="check1List" class="paycheck-list" style="margin-top:12px;"></div>
+    </div>
+    <div class="paycheck-panel">
+      <div class="paycheck-title">Check 2</div>
+      <div class="paycheck-sub">Bills assigned to your second paycheck</div>
+      <div class="paycheck-total" id="check2Total">$0</div>
+      <div class="paycheck-meta" id="check2Meta">0 active monthly bill(s)</div>
+      <div id="check2List" class="paycheck-list" style="margin-top:12px;"></div>
+    </div>
   </div>
 
   <div class="layout">
@@ -89,7 +106,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
       <div class="section-head">
         <div>
           <div class="section-title">Your Bills</div>
-          <div class="section-copy">Sheet-style rows up top, with each bill opening on its own when you need the extra details.</div>
+          <div class="section-copy">Compact rows up top, with each bill opening on its own when you need details or want to apply a payment.</div>
         </div>
         <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Bill</button>
       </div>
@@ -119,7 +136,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
     <div class="side-stack">
       <div class="side">
         <div class="section-title">Alerts</div>
-        <div class="section-copy">Monthly alerts ignore bills already handled this month.</div>
+        <div class="section-copy">Monthly alerts ignore bills you have already made progress on this month.</div>
         <div id="alerts" class="alert-group"></div>
       </div>
 
@@ -156,6 +173,7 @@ let statusFilter = "all";
 let checkFilter = "all";
 let expandedDebtIds = new Set();
 let expandAllMode = false;
+let flashDebtIds = new Set();
 
 const num = v => Number(v || 0);
 const money = v => (isFinite(num(v)) ? num(v) : 0).toLocaleString(undefined,{style:"currency",currency:"USD"});
@@ -184,8 +202,9 @@ function utilData(){
 }
 function utilClass(p){ if(p===0||p<10)return "good"; if(p<=30)return "warn"; return "bad"; }
 function queueSave(){ clearTimeout(saveTimer); setSaveStatus("Saving..."); saveTimer=setTimeout(saveDebts,250); }
+function flashPaid(uiId){ flashDebtIds.add(uiId); renderDebts(); setTimeout(()=>{ flashDebtIds.delete(uiId); renderDebts(); }, 950); }
 function addDebt(){
-  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1" };
+  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0 };
   debts.unshift(debt);
   expandedDebtIds.add(debt.ui_id);
   render();
@@ -196,14 +215,26 @@ function updateDebt(i,key,value){
   if(key==="name") debts[i][key]=value;
   else if(key==="due_day") debts[i][key]=value===""?null:clampDay(value);
   else if(key==="paycheck_group") debts[i][key]=value==="check2"?"check2":"check1";
-  else debts[i][key]=num(value);
+  else debts[i][key]=Math.max(0, num(value));
   calcPanels();
   queueSave();
   if(key==="name") renderDebts();
 }
-function togglePaidThisMonth(i,checked){ debts[i].paid_this_month=!!checked; calcPanels(); queueSave(); renderDebts(); }
-function togglePaidOff(i,checked){ debts[i].paid=!!checked; if(checked) debts[i].paid_this_month=true; render(); queueSave(); }
-function resetMonth(){ debts.forEach(d => { d.paid_this_month = false; }); render(); queueSave(); }
+function togglePaidOff(i,checked){
+  debts[i].paid=!!checked;
+  if(checked) debts[i].paid_this_month=true;
+  render();
+  queueSave();
+}
+function resetMonth(){
+  debts.forEach(d => {
+    d.paid_this_month = false;
+    d.monthly_paid_amount = 0;
+    d.last_payment_amount = 0;
+  });
+  render();
+  queueSave();
+}
 function setExtra(a){ document.getElementById("extraPayment").value=a; localStorage.setItem("debt_extra_payment", String(a)); calcPanels(); }
 function handleExtraInput(){ localStorage.setItem("debt_extra_payment", document.getElementById("extraPayment").value || "0"); calcPanels(); }
 function handleSearch(v){ searchTerm = String(v || "").trim().toLowerCase(); renderDebts(); }
@@ -224,6 +255,42 @@ function shouldShowDebt(d){
   return matchesSearch && matchesCheck && matchesStatus;
 }
 function debtSummaryName(d, i){ return d.name && d.name.trim() ? d.name.trim() : `Debt ${i+1}`; }
+function applyPayment(i, mode){
+  const d = debts[i];
+  if(!d || d.paid) return;
+  let amount = 0;
+  if(mode === 'minimum') {
+    amount = num(d.payment);
+  } else {
+    const input = document.getElementById(`customPay-${d.ui_id}`);
+    amount = num(input ? input.value : 0);
+  }
+  amount = Math.max(0, amount);
+  if(amount <= 0) { alert('Enter a payment amount greater than $0.'); return; }
+  if(num(d.balance) <= 0) { alert('This balance is already at $0.'); return; }
+  const applied = Math.min(amount, num(d.balance));
+  d.balance = +(num(d.balance) - applied).toFixed(2);
+  d.last_payment_amount = +(applied).toFixed(2);
+  d.monthly_paid_amount = +(num(d.monthly_paid_amount) + applied).toFixed(2);
+  d.paid_this_month = d.monthly_paid_amount > 0;
+  if(d.balance <= 0) { d.balance = 0; d.paid = true; }
+  flashPaid(d.ui_id);
+  calcPanels();
+  queueSave();
+}
+function undoLastPayment(i){
+  const d = debts[i];
+  if(!d) return;
+  const undo = num(d.last_payment_amount);
+  if(undo <= 0) return;
+  d.balance = +(num(d.balance) + undo).toFixed(2);
+  d.monthly_paid_amount = +(Math.max(0, num(d.monthly_paid_amount) - undo)).toFixed(2);
+  d.last_payment_amount = 0;
+  d.paid_this_month = d.monthly_paid_amount > 0;
+  if(d.balance > 0) d.paid = false;
+  render();
+  queueSave();
+}
 
 function renderDebts(){
   const wrap = document.getElementById("debts");
@@ -235,16 +302,18 @@ function renderDebts(){
     const i = debts.indexOf(d);
     const status = dueStatus(d.due_day);
     const paidClass = d.paid ? "paid-off" : "";
+    const flashClass = flashDebtIds.has(d.ui_id) ? 'just-paid' : '';
     const limit = num(d.credit_limit);
     const util = limit > 0 ? (num(d.balance) / limit) * 100 : null;
     const isExpanded = expandAllMode || expandedDebtIds.has(d.ui_id);
     const utilChip = util!==null ? `<div class="chip ${utilClass(util)}">${util.toFixed(0)}% utilization</div>` : "";
     const dueChip = (!d.paid && !d.paid_this_month && d.due_day) ? `<div class="chip ${status.level==="bad"?"bad":status.level==="warn"?"warn":"good"}">Day ${d.due_day} • ${esc(status.label)}</div>` : "";
-    const paidMonthChip = d.paid_this_month && !d.paid ? '<div class="chip good">Paid this month</div>' : "";
+    const progressChip = d.paid_this_month && !d.paid ? `<div class="chip good">Paid this month • ${money(d.monthly_paid_amount || d.payment)}</div>` : "";
     const paidOffChip = d.paid ? '<div class="chip good">Paid off</div>' : "";
     const checkChip = `<div class="chip blue">${d.paycheck_group === "check2" ? "Check 2" : "Check 1"}</div>`;
+    const lastPaymentChip = num(d.last_payment_amount) > 0 ? `<div class="chip blue">Last payment ${money(d.last_payment_amount)}</div>` : "";
     return `
-      <div class="debt-card ${paidClass} ${isExpanded ? "expanded" : ""}">
+      <div class="debt-card ${paidClass} ${flashClass} ${isExpanded ? "expanded" : ""}">
         <div class="debt-header">
           <div class="debt-main">
             <div class="debt-name">${esc(debtSummaryName(d, i))}</div>
@@ -255,9 +324,9 @@ function renderDebts(){
             </div>
           </div>
           <div class="header-stat"><div class="stat-label">Balance</div><div class="stat-value">${money(d.balance)}</div></div>
-          <div class="header-stat hide-sm"><div class="stat-label">Payment</div><div class="stat-value">${money(d.payment)}</div></div>
+          <div class="header-stat hide-sm"><div class="stat-label">Min Payment</div><div class="stat-value">${money(d.payment)}</div></div>
           <div class="header-stat hide-md"><div class="stat-label">APR</div><div class="stat-value">${num(d.rate).toFixed(1)}%</div></div>
-          <div class="header-stat hide-lg"><div class="stat-label">Limit</div><div class="stat-value">${limit > 0 ? money(limit) : '—'}</div></div>
+          <div class="header-stat hide-lg"><div class="stat-label">This Month</div><div class="stat-value">${money(d.monthly_paid_amount || 0)}</div></div>
           <div class="header-actions">
             <button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Edit'}</button>
             <button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete</button>
@@ -265,7 +334,20 @@ function renderDebts(){
         </div>
 
         <div class="card-body">
-          <div class="chips">${checkChip}${paidOffChip}${paidMonthChip}${dueChip}${utilChip}</div>
+          <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${lastPaymentChip}</div>
+          <div class="payment-strip">
+            <div>
+              <div class="field" style="margin:0;">
+                <label>Custom Payment</label>
+                <input id="customPay-${d.ui_id}" type="number" min="0" step="0.01" placeholder="0.00">
+              </div>
+            </div>
+            <div class="payment-note">Use <strong>Min Payment</strong> for the normal bill amount, <strong>Apply Custom</strong> for anything else, and <strong>Undo</strong> for the last payment only.</div>
+            <button class="payment-btn min" type="button" onclick="applyPayment(${i}, 'minimum')" ${d.paid ? 'disabled' : ''}>Min Payment</button>
+            <button class="payment-btn custom" type="button" onclick="applyPayment(${i}, 'custom')" ${d.paid ? 'disabled' : ''}>Apply Custom</button>
+            <button class="payment-btn undo" type="button" onclick="undoLastPayment(${i})" ${num(d.last_payment_amount) > 0 ? '' : 'disabled'}>Undo</button>
+          </div>
+
           <div class="fields">
             <div class="field"><label>Bill Name</label><input type="text" value="${esc(d.name)}" placeholder="Capital One, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)"></div>
             <div class="field"><label>Balance</label><input type="number" min="0" step="0.01" value="${num(d.balance)}" oninput="updateDebt(${i}, 'balance', this.value)"></div>
@@ -274,7 +356,7 @@ function renderDebts(){
             <div class="field"><label>Credit Limit</label><input type="number" min="0" step="0.01" value="${num(d.credit_limit)}" placeholder="0 if not a card" oninput="updateDebt(${i}, 'credit_limit', this.value)"></div>
             <div class="field"><label>Due Day</label><input type="number" min="1" max="31" step="1" value="${d.due_day ?? ''}" placeholder="1-31" oninput="updateDebt(${i}, 'due_day', this.value)"></div>
             <div class="field"><label>Paycheck</label><select onchange="updateDebt(${i}, 'paycheck_group', this.value)"><option value="check1" ${d.paycheck_group!=="check2"?"selected":""}>Check 1</option><option value="check2" ${d.paycheck_group==="check2"?"selected":""}>Check 2</option></select></div>
-            <div class="field"><label>Paid This Month?</label><div class="checkbox-box"><input type="checkbox" ${d.paid_this_month?"checked":""} onchange="togglePaidThisMonth(${i}, this.checked)"><span>${d.paid_this_month?"Yes":"No"}</span></div></div>
+            <div class="field"><label>This Month Total</label><input type="number" min="0" step="0.01" value="${num(d.monthly_paid_amount)}" oninput="updateDebt(${i}, 'monthly_paid_amount', this.value)"></div>
             <div class="field"><label>Paid Off?</label><div class="checkbox-box"><input type="checkbox" ${d.paid?"checked":""} onchange="togglePaidOff(${i}, this.checked)"><span>${d.paid?"Yes":"No"}</span></div></div>
           </div>
         </div>
@@ -306,7 +388,31 @@ function renderDueDays(){
   }).join("");
 }
 
+function renderPaycheckLists(){
+  const groups = {
+    check1: debts.filter(d => !d.paid && !d.paid_this_month && (d.paycheck_group || 'check1') !== 'check2'),
+    check2: debts.filter(d => !d.paid && !d.paid_this_month && d.paycheck_group === 'check2')
+  };
+  ['check1','check2'].forEach(key => {
+    const el = document.getElementById(key + 'List');
+    const items = groups[key].sort((a,b)=>(a.due_day||99)-(b.due_day||99));
+    if(!items.length){ el.innerHTML = '<div class="empty">Nothing left in this paycheck group.</div>'; return; }
+    el.innerHTML = items.map(d => `
+      <div class="paycheck-card">
+        <div class="row"><strong>${esc(d.name || 'Unnamed Bill')}</strong><strong>${money(d.payment)}</strong></div>
+        <div class="tiny">${d.due_day ? `Due day ${d.due_day}` : 'No due day'} • Balance ${money(d.balance)}</div>
+      </div>
+    `).join('');
+  });
+}
+
 function calcPanels(){
+  debts.forEach(d => {
+    d.monthly_paid_amount = Math.max(0, num(d.monthly_paid_amount));
+    d.last_payment_amount = Math.max(0, num(d.last_payment_amount));
+    d.paid_this_month = d.monthly_paid_amount > 0;
+    if(num(d.balance) <= 0) { d.balance = 0; if(!d.paid) d.paid = true; }
+  });
   const active=activeDebts();
   const activeMonthly=currentMonthDueDebts();
   const totalDebt=active.reduce((s,d)=>s+num(d.balance),0);
@@ -338,6 +444,7 @@ function calcPanels(){
 
   renderAlerts();
   renderDueDays();
+  renderPaycheckLists();
 }
 
 function render(){ renderDebts(); calcPanels(); }
@@ -360,15 +467,17 @@ function normalizeRows(rows){
     ui_id: x.ui_id || x.id || `debt-${idx}-${Date.now()}`,
     id:x.id||null,
     name:x.name||"",
-    balance:num(x.balance),
-    rate:num(x.rate),
-    payment:num(x.payment),
+    balance:Math.max(0, num(x.balance)),
+    rate:Math.max(0, num(x.rate)),
+    payment:Math.max(0, num(x.payment)),
     due_day:x.due_day ?? null,
     paid:!!x.paid,
     paid_this_month:!!x.paid_this_month,
-    credit_limit:num(x.credit_limit),
+    monthly_paid_amount:Math.max(0, num(x.monthly_paid_amount)),
+    last_payment_amount:Math.max(0, num(x.last_payment_amount)),
+    credit_limit:Math.max(0, num(x.credit_limit)),
     paycheck_group:(x.paycheck_group==="check2"?"check2":"check1")
-  }));
+  })).map(d => ({...d, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
 }
 
 function load(){
