@@ -10,6 +10,32 @@ app.permanent_session_lifetime = timedelta(days=30)
 DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 PASSWORD = os.environ.get("APP_PASSWORD", "1234")
 
+CREDIT_REPORT_SNAPSHOT = {
+    "report_date": "2026-04-24", "score": 548, "rating": "Unfavorable",
+    "total_accounts": 14, "open_accounts": 13, "closed_accounts": 1,
+    "total_balances": 22936, "monthly_payments": 1227,
+    "delinquent": 0, "derogatory": 0, "credit_inquiries": 1, "public_records": 1,
+}
+
+CREDIT_REPORT_ACCOUNTS = [
+    {"name":"GOLDEN 1 CU - 29755****","balance":2429,"credit_limit":0,"payment":108,"account_type":"Unsecured loan","paycheck_group":"check1"},
+    {"name":"LENDING CLUB - 6582****","balance":0,"credit_limit":0,"payment":234,"account_type":"Unsecured loan","paycheck_group":"check2","paid":True},
+    {"name":"SCHOOLS FIN - 310867******","balance":0,"credit_limit":0,"payment":0,"account_type":"Auto loan","paycheck_group":"check2","paid":True},
+    {"name":"THD/CBNA - 603532**********","balance":332,"credit_limit":500,"payment":0,"account_type":"Charge account","paycheck_group":"check1"},
+    {"name":"SYNCB/HFT - 604420**********","balance":746,"credit_limit":1500,"payment":0,"account_type":"Charge account","paycheck_group":"check1"},
+    {"name":"CCB/CHLDPLCE - 578097**********","balance":54,"credit_limit":750,"payment":0,"account_type":"Charge account","paycheck_group":"check1"},
+    {"name":"LES SCHWAB - 6292****","balance":195,"credit_limit":500,"payment":0,"account_type":"Charge account","paycheck_group":"check1"},
+    {"name":"CAPITAL ONE - 517805****** $500 limit","balance":400,"credit_limit":500,"payment":0,"account_type":"Credit card","paycheck_group":"check1"},
+    {"name":"WFBNA CARD - 414718******","balance":5889,"credit_limit":6000,"payment":0,"account_type":"Credit card","paycheck_group":"check2"},
+    {"name":"GS BANK USA - 11**","balance":445,"credit_limit":450,"payment":0,"account_type":"Credit card","paycheck_group":"check1"},
+    {"name":"CAPITAL ONE - 517805****** $4,800 limit","balance":4810,"credit_limit":4800,"payment":0,"account_type":"Credit card","paycheck_group":"check2"},
+    {"name":"TBOM RETAIL - 763700**********","balance":2449,"credit_limit":6400,"payment":0,"account_type":"Credit card","paycheck_group":"check2"},
+    {"name":"CAPITAL ONE - 515676******","balance":1928,"credit_limit":2000,"payment":0,"account_type":"Credit card","paycheck_group":"check2"},
+    {"name":"CAPITAL ONE - 414709******","balance":3259,"credit_limit":3100,"payment":0,"account_type":"Flexible spending credit card","paycheck_group":"check2"},
+    {"name":"AFFIRM INC - JJZZ****","balance":238,"credit_limit":0,"payment":0,"account_type":"Buy Now Pay Later","paycheck_group":"check1"},
+    {"name":"AFFIRM INC - 2WEK4**","balance":399,"credit_limit":0,"payment":0,"account_type":"Buy Now Pay Later","paycheck_group":"check1"},
+]
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -30,10 +56,8 @@ def normalize_history(raw_history):
             raw_history = json.loads(raw_history)
         except Exception:
             raw_history = []
-
     if not isinstance(raw_history, list):
         return []
-
     cleaned = []
     for item in raw_history[:10]:
         if not isinstance(item, dict):
@@ -41,21 +65,14 @@ def normalize_history(raw_history):
         amount = max(0.0, float(item.get("amount", 0) or 0))
         if amount <= 0:
             continue
-        cleaned.append(
-            {
-                "amount": round(amount, 2),
-                "type": str(item.get("type", "custom") or "custom")[:20],
-                "label": str(item.get("label", "Payment") or "Payment")[:40],
-            }
-        )
+        cleaned.append({"amount": round(amount, 2), "type": str(item.get("type", "custom") or "custom")[:20], "label": str(item.get("label", "Payment") or "Payment")[:40]})
     return cleaned
 
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True) if os.path.dirname(DB_PATH) else None
     conn = get_db()
-    conn.execute(
-        """
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS debts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
@@ -69,19 +86,21 @@ def init_db():
             paycheck_group TEXT DEFAULT 'check1',
             monthly_paid_amount REAL DEFAULT 0,
             last_payment_amount REAL DEFAULT 0,
-            payment_history TEXT DEFAULT '[]'
+            payment_history TEXT DEFAULT '[]',
+            account_type TEXT DEFAULT '',
+            report_source TEXT DEFAULT '',
+            report_date TEXT DEFAULT ''
         )
-        """
-    )
+    """)
     conn.commit()
-    ensure_column(conn, "debts", "due_day", "INTEGER")
-    ensure_column(conn, "debts", "paid", "INTEGER DEFAULT 0")
-    ensure_column(conn, "debts", "credit_limit", "REAL DEFAULT 0")
-    ensure_column(conn, "debts", "paid_this_month", "INTEGER DEFAULT 0")
-    ensure_column(conn, "debts", "paycheck_group", "TEXT DEFAULT 'check1'")
-    ensure_column(conn, "debts", "monthly_paid_amount", "REAL DEFAULT 0")
-    ensure_column(conn, "debts", "last_payment_amount", "REAL DEFAULT 0")
-    ensure_column(conn, "debts", "payment_history", "TEXT DEFAULT '[]'")
+    for name, sql in [
+        ("due_day", "INTEGER"), ("paid", "INTEGER DEFAULT 0"), ("credit_limit", "REAL DEFAULT 0"),
+        ("paid_this_month", "INTEGER DEFAULT 0"), ("paycheck_group", "TEXT DEFAULT 'check1'"),
+        ("monthly_paid_amount", "REAL DEFAULT 0"), ("last_payment_amount", "REAL DEFAULT 0"),
+        ("payment_history", "TEXT DEFAULT '[]'"), ("account_type", "TEXT DEFAULT ''"),
+        ("report_source", "TEXT DEFAULT ''"), ("report_date", "TEXT DEFAULT ''"),
+    ]:
+        ensure_column(conn, "debts", name, sql)
     conn.close()
 
 
@@ -101,6 +120,9 @@ def fetch_all_debts():
         item["monthly_paid_amount"] = float(item.get("monthly_paid_amount") or 0)
         item["last_payment_amount"] = float(item.get("last_payment_amount") or 0)
         item["payment_history"] = normalize_history(item.get("payment_history"))
+        item["account_type"] = str(item.get("account_type") or "")
+        item["report_source"] = str(item.get("report_source") or "")
+        item["report_date"] = str(item.get("report_date") or "")
         cleaned.append(item)
     return cleaned
 
@@ -117,7 +139,6 @@ def login():
             session["logged_in"] = True
             return redirect("/dashboard")
         return render_template("login.html", error="Wrong password")
-
     if session.get("logged_in"):
         return redirect("/dashboard")
     return render_template("login.html", error=None)
@@ -127,8 +148,7 @@ def login():
 def dashboard():
     if not session.get("logged_in"):
         return redirect("/")
-    debts = fetch_all_debts()
-    return render_template("index.html", initial_debts=json.dumps(debts))
+    return render_template("index.html", initial_debts=json.dumps(fetch_all_debts()), credit_report_snapshot=json.dumps(CREDIT_REPORT_SNAPSHOT), credit_report_accounts=json.dumps(CREDIT_REPORT_ACCOUNTS))
 
 
 @app.route("/logout")
@@ -144,38 +164,36 @@ def get_debts_route():
     return jsonify(fetch_all_debts())
 
 
+@app.route("/credit_report_import")
+def credit_report_import():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    return jsonify({"snapshot": CREDIT_REPORT_SNAPSHOT, "accounts": CREDIT_REPORT_ACCOUNTS})
+
+
 @app.route("/save", methods=["POST"])
 @app.route("/save_debts", methods=["POST"])
 def save_debts():
     if not session.get("logged_in"):
         return jsonify({"error": "Unauthorized"}), 401
-
     data = request.get_json(silent=True)
     if not isinstance(data, list):
         return jsonify({"error": "Invalid payload"}), 400
-
     conn = get_db()
     conn.execute("DELETE FROM debts")
-
     for d in data:
         if not isinstance(d, dict):
             continue
-
-        due_day = d.get("due_day")
-        if due_day in ("", None, "null"):
-            due_day = None
-        else:
-            try:
-                due_day = int(due_day)
-                if due_day < 1 or due_day > 31:
-                    due_day = None
-            except Exception:
+        try:
+            due_day = d.get("due_day")
+            due_day = None if due_day in ("", None, "null") else int(due_day)
+            if due_day is not None and (due_day < 1 or due_day > 31):
                 due_day = None
-
+        except Exception:
+            due_day = None
         paycheck_group = str(d.get("paycheck_group", "check1") or "check1").lower()
         if paycheck_group not in ("check1", "check2"):
             paycheck_group = "check1"
-
         name = str(d.get("name", "")).strip()
         balance = max(0.0, float(d.get("balance", 0) or 0))
         rate = float(d.get("rate", 0) or 0)
@@ -186,30 +204,18 @@ def save_debts():
         last_payment_amount = max(0.0, float(d.get("last_payment_amount", 0) or 0))
         paid_this_month = 1 if d.get("paid_this_month") or monthly_paid_amount > 0 else 0
         payment_history = json.dumps(normalize_history(d.get("payment_history")))
-
-        conn.execute(
-            """
+        account_type = str(d.get("account_type", "") or "")[:80]
+        report_source = str(d.get("report_source", "") or "")[:80]
+        report_date = str(d.get("report_date", "") or "")[:20]
+        conn.execute("""
             INSERT INTO debts (
                 name, balance, rate, payment, due_day, paid, credit_limit,
-                paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount, payment_history
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                name,
-                balance,
-                rate,
-                payment,
-                due_day,
-                paid,
-                credit_limit,
-                paid_this_month,
-                paycheck_group,
-                monthly_paid_amount,
-                last_payment_amount,
-                payment_history,
-            ),
-        )
-
+                paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount,
+                payment_history, account_type, report_source, report_date
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (name, balance, rate, payment, due_day, paid, credit_limit, paid_this_month,
+              paycheck_group, monthly_paid_amount, last_payment_amount, payment_history,
+              account_type, report_source, report_date))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
