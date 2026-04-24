@@ -10,6 +10,8 @@ app.permanent_session_lifetime = timedelta(days=30)
 DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 PASSWORD = os.environ.get("APP_PASSWORD", "1234")
 
+DEFAULT_SETTINGS = {"check1_income": 0, "check2_income": 0, "safety_buffer": 300}
+
 CREDIT_REPORT_SNAPSHOT = {
     "report_date": "2026-04-24", "score": 548, "rating": "Unfavorable",
     "total_accounts": 14, "open_accounts": 13, "closed_accounts": 1,
@@ -101,6 +103,10 @@ def init_db():
         ("report_source", "TEXT DEFAULT ''"), ("report_date", "TEXT DEFAULT ''"),
     ]:
         ensure_column(conn, "debts", name, sql)
+    conn.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)")
+    for key, value in DEFAULT_SETTINGS.items():
+        conn.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (key, str(value)))
+    conn.commit()
     conn.close()
 
 
@@ -127,6 +133,34 @@ def fetch_all_debts():
     return cleaned
 
 
+def fetch_settings():
+    conn = get_db()
+    rows = conn.execute("SELECT key, value FROM settings").fetchall()
+    conn.close()
+    settings = dict(DEFAULT_SETTINGS)
+    for row in rows:
+        if row["key"] in settings:
+            try:
+                settings[row["key"]] = float(row["value"] or 0)
+            except Exception:
+                pass
+    return settings
+
+def save_settings_payload(payload):
+    cleaned = {}
+    for key, default in DEFAULT_SETTINGS.items():
+        try:
+            cleaned[key] = max(0.0, float(payload.get(key, default) or 0))
+        except Exception:
+            cleaned[key] = float(default)
+    conn = get_db()
+    for key, value in cleaned.items():
+        conn.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, str(value)))
+    conn.commit()
+    conn.close()
+    return cleaned
+
+
 @app.before_request
 def make_session_permanent():
     session.permanent = True
@@ -148,7 +182,7 @@ def login():
 def dashboard():
     if not session.get("logged_in"):
         return redirect("/")
-    return render_template("index.html", initial_debts=json.dumps(fetch_all_debts()), credit_report_snapshot=json.dumps(CREDIT_REPORT_SNAPSHOT), credit_report_accounts=json.dumps(CREDIT_REPORT_ACCOUNTS))
+    return render_template("index.html", initial_debts=json.dumps(fetch_all_debts()), initial_settings=json.dumps(fetch_settings()), credit_report_snapshot=json.dumps(CREDIT_REPORT_SNAPSHOT), credit_report_accounts=json.dumps(CREDIT_REPORT_ACCOUNTS))
 
 
 @app.route("/logout")
@@ -169,6 +203,18 @@ def credit_report_import():
     if not session.get("logged_in"):
         return jsonify({"error": "Unauthorized"}), 401
     return jsonify({"snapshot": CREDIT_REPORT_SNAPSHOT, "accounts": CREDIT_REPORT_ACCOUNTS})
+
+
+@app.route("/settings", methods=["GET", "POST"])
+def settings_route():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    if request.method == "GET":
+        return jsonify(fetch_settings())
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        return jsonify({"error": "Invalid payload"}), 400
+    return jsonify({"ok": True, "settings": save_settings_payload(data)})
 
 
 @app.route("/save", methods=["POST"])
