@@ -639,7 +639,7 @@ function saveDebts(){
 function normalizeRows(rows){
   if(!Array.isArray(rows)) return [];
   return rows.map((x, idx)=>({
-    ui_id: x.ui_id || x.id || `debt-${idx}-${Date.now()}`,
+    ui_id: String(x.ui_id || x.id || `debt-${idx}-${Date.now()}`),
     id:x.id||null,
     name:x.name||"",
     balance:Math.max(0, num(x.balance)),
@@ -672,7 +672,6 @@ function load(){
   debts = normalizeRows(INITIAL_DEBTS);
 
   if (debts.length) {
-    debts.forEach(d => { if(!d.paid) expandedDebtIds.add(d.ui_id); });
     render();
     return;
   }
@@ -687,7 +686,6 @@ function load(){
     })
     .then(d => {
       debts = normalizeRows(d);
-      debts.forEach(item => { if(!item.paid) expandedDebtIds.add(item.ui_id); });
       render();
     })
     .catch(() => {
