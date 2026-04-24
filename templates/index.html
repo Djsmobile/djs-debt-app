@@ -297,7 +297,7 @@ function updateDebt(i,key,value){
   else debts[i][key]=Math.max(0, num(value));
   calcPanels();
   queueSave();
-  if(key==="name") renderDebts();
+  // Do not re-render while typing text fields. Re-rendering steals focus after each keystroke.
 }
 function togglePaidOff(i,checked){
   debts[i].paid=!!checked;
