@@ -47,13 +47,26 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .payment-strip{display:grid;grid-template-columns:1.1fr 1fr auto auto auto;gap:10px;align-items:end;margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
 .payment-note{font-size:12px;color:var(--muted);line-height:1.4}.payment-btn{border:none;border-radius:12px;padding:12px 14px;font-weight:800;cursor:pointer;color:#fff}.payment-btn.min{background:linear-gradient(135deg,var(--green),var(--green2))}.payment-btn.custom{background:linear-gradient(135deg,var(--blue),#2563eb)}.payment-btn.undo{background:linear-gradient(135deg,var(--yellow),#d97706)}.payment-btn:disabled{opacity:.45;cursor:not-allowed}
 .paycheck-card{padding:11px 13px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.cash-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cash-input label{display:block;margin-bottom:6px;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.cash-input input{width:100%;padding:11px 12px;border-radius:13px;border:1px solid var(--line);background:#091220;color:var(--text);font-size:14px;outline:none}
+.cash-result{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.cash-box{padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07)}
+.cash-box .label{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.cash-box .value{font-size:19px;font-weight:950;margin-top:5px}
+.cash-box.good .value{color:#b9ffd4}.cash-box.warn .value{color:#fde68a}.cash-box.bad .value{color:#fecaca}
+.safe-spend{border-color:rgba(39,196,106,.2);background:rgba(39,196,106,.07)}
 .paycheck-card .row{display:flex;justify-content:space-between;gap:10px;align-items:center}.tiny{font-size:12px;color:var(--muted)}
 .alert,.list-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 13px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.alert.good{background:rgba(39,196,106,.08);border-color:rgba(39,196,106,.18)}.alert.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.18)}.alert.bad{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.18)}
 .meta-title{font-weight:800}.meta-sub{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}.rank{width:30px;height:30px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.22);color:#dbeafe;font-size:12px;font-weight:900;flex:0 0 auto}.list-left{display:flex;gap:12px;align-items:center;min-width:0}.empty{padding:18px;text-align:center;color:var(--muted);border-radius:18px;border:1px dashed rgba(255,255,255,.12);background:rgba(255,255,255,.02)}
 .quick-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.quick{border:none;border-radius:12px;padding:10px 12px;background:rgba(59,130,246,.12);color:#dbeafe;font-weight:800;cursor:pointer}
-@media (max-width:1450px){.summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-bar{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}.debt-header{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(90px,.5fr)) auto}.hide-lg{display:none}}
+
+.credit-import-panel{margin:0 0 14px;padding:16px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.credit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.credit-title{font-size:20px;font-weight:900;letter-spacing:-.02em}.credit-copy{color:var(--muted);font-size:12px;line-height:1.4;margin-top:5px}.credit-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.credit-metric{padding:11px 12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.credit-metric .label{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.credit-metric .value{margin-top:5px;font-size:18px;font-weight:900}.credit-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn-blue{background:linear-gradient(135deg,var(--blue),#1d4ed8)}.credit-note{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}.priority-list{display:grid;gap:8px;margin-top:12px}.priority-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.priority-row.bad{border-color:rgba(239,68,68,.2);background:rgba(239,68,68,.07)}.priority-row.warn{border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.07)}
+
+@media (max-width:1450px){.summary-grid,.credit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-bar{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}.debt-header{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(90px,.5fr)) auto}.hide-lg{display:none}}
 @media (max-width:1080px){.toolbar{grid-template-columns:1fr 1fr 1fr}.toolbar .span-all{grid-column:1/-1}.fields{grid-template-columns:1fr 1fr 1fr}.debt-header{grid-template-columns:1fr 1fr auto}.hide-md{display:none}.payment-strip{grid-template-columns:1fr 1fr 1fr}}
-@media (max-width:760px){.wrap{padding:14px}.topbar,.section-head{flex-direction:column;align-items:stretch}.brand h1{font-size:29px}.summary-grid,.paycheck-grid,.compact-bar,.fields,.toolbar,.payment-strip{grid-template-columns:1fr}.debt-header{grid-template-columns:1fr}.header-actions{justify-content:stretch}.header-actions>*{flex:1}.quick-buttons{grid-template-columns:repeat(2,1fr)}.hide-sm{display:none}}
+@media (max-width:760px){.wrap{padding:14px}.topbar,.section-head{flex-direction:column;align-items:stretch}.brand h1{font-size:29px}.summary-grid,.credit-grid,.paycheck-grid,.compact-bar,.fields,.toolbar,.payment-strip{grid-template-columns:1fr}.debt-header{grid-template-columns:1fr}.header-actions{justify-content:stretch}.header-actions>*{flex:1}.quick-buttons{grid-template-columns:repeat(2,1fr)}.hide-sm{display:none}}
 </style>
 </head>
 <body>
@@ -67,6 +80,23 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
       <div id="saveStatus" class="pill">Auto-save on</div>
       <a href="/logout" class="logout">Logout</a>
     </div>
+  </div>
+
+
+  <div class="credit-import-panel">
+    <div class="credit-head">
+      <div><div class="credit-title">Credit Report Snapshot</div><div class="credit-copy">Import the accounts from your latest report into the dashboard, then use your normal payment buttons to attack utilization.</div></div>
+      <div class="credit-actions"><button class="btn btn-blue" type="button" onclick="importCreditReportAccounts()">Import / Update Report Accounts</button></div>
+    </div>
+    <div class="credit-grid">
+      <div class="credit-metric"><div class="label">Score</div><div class="value" id="crScore">—</div></div>
+      <div class="credit-metric"><div class="label">Rating</div><div class="value" id="crRating">—</div></div>
+      <div class="credit-metric"><div class="label">Report Balance</div><div class="value" id="crBalance">$0</div></div>
+      <div class="credit-metric"><div class="label">Report Payments</div><div class="value" id="crPayments">$0</div></div>
+      <div class="credit-metric"><div class="label">Open Accounts</div><div class="value" id="crOpen">0</div></div>
+      <div class="credit-metric"><div class="label">Delinq / Derog</div><div class="value" id="crClean">0 / 0</div></div>
+    </div>
+    <div class="credit-note" id="crNote">Credit report import keeps your existing app data and merges matching names instead of wiping the dashboard.</div>
   </div>
 
   <div class="summary-grid">
@@ -87,15 +117,33 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
   <div class="paycheck-grid">
     <div class="paycheck-panel">
       <div class="paycheck-title">Check 1</div>
-      <div class="paycheck-sub">Bills assigned to your first paycheck</div>
-      <div class="paycheck-total" id="check1Total">$0</div>
+      <div class="paycheck-sub">Editable income for this pay period minus bills still assigned to your first paycheck.</div>
+      <div class="cash-row">
+        <div class="cash-input"><label>Check 1 Income</label><input id="check1Income" type="number" min="0" step="0.01" value="0" oninput="handleIncomeInput('check1_income', this.value)"></div>
+        <div class="cash-input"><label>Safety Buffer</label><input id="safetyBuffer1" type="number" min="0" step="0.01" value="300" oninput="handleIncomeInput('safety_buffer', this.value)"></div>
+      </div>
+      <div class="cash-result">
+        <div class="cash-box"><div class="label">Bills Left</div><div class="value" id="check1Total">$0</div></div>
+        <div class="cash-box" id="check1LeftBox"><div class="label">Money Left</div><div class="value" id="check1Left">$0</div></div>
+        <div class="cash-box safe-spend" id="check1SafeBox"><div class="label">Safe Spend</div><div class="value" id="check1Safe">$0</div></div>
+        <div class="cash-box"><div class="label">Paid So Far</div><div class="value" id="check1Paid">$0</div></div>
+      </div>
       <div class="paycheck-meta" id="check1Meta">0 active monthly bill(s)</div>
       <div id="check1List" class="paycheck-list" style="margin-top:12px;"></div>
     </div>
     <div class="paycheck-panel">
       <div class="paycheck-title">Check 2</div>
-      <div class="paycheck-sub">Bills assigned to your second paycheck</div>
-      <div class="paycheck-total" id="check2Total">$0</div>
+      <div class="paycheck-sub">Editable income for this pay period minus bills still assigned to your second paycheck.</div>
+      <div class="cash-row">
+        <div class="cash-input"><label>Check 2 Income</label><input id="check2Income" type="number" min="0" step="0.01" value="0" oninput="handleIncomeInput('check2_income', this.value)"></div>
+        <div class="cash-input"><label>Safety Buffer</label><input id="safetyBuffer2" type="number" min="0" step="0.01" value="300" oninput="handleIncomeInput('safety_buffer', this.value)"></div>
+      </div>
+      <div class="cash-result">
+        <div class="cash-box"><div class="label">Bills Left</div><div class="value" id="check2Total">$0</div></div>
+        <div class="cash-box" id="check2LeftBox"><div class="label">Money Left</div><div class="value" id="check2Left">$0</div></div>
+        <div class="cash-box safe-spend" id="check2SafeBox"><div class="label">Safe Spend</div><div class="value" id="check2Safe">$0</div></div>
+        <div class="cash-box"><div class="label">Paid So Far</div><div class="value" id="check2Paid">$0</div></div>
+      </div>
       <div class="paycheck-meta" id="check2Meta">0 active monthly bill(s)</div>
       <div id="check2List" class="paycheck-list" style="margin-top:12px;"></div>
     </div>
@@ -140,6 +188,14 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
         <div id="alerts" class="alert-group"></div>
       </div>
 
+
+
+      <div class="side">
+        <div class="section-title">Score Impact Priority</div>
+        <div class="section-copy">Cards over 90% utilization usually deserve attention first because usage is your weak spot.</div>
+        <div id="priorityList" class="priority-list"></div>
+      </div>
+
       <div class="side">
         <div class="section-title">Extra payment power</div>
         <div class="section-copy" style="margin-bottom:14px;">Add any extra amount you want included in your monthly payoff math.</div>
@@ -165,7 +221,12 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 
 <script>
 const INITIAL_DEBTS = {{ initial_debts|safe if initial_debts else '[]' }};
+const INITIAL_SETTINGS = {{ initial_settings|safe if initial_settings else '{}' }};
+const CREDIT_REPORT_SNAPSHOT = {{ credit_report_snapshot|safe if credit_report_snapshot else '{}' }};
+const CREDIT_REPORT_ACCOUNTS = {{ credit_report_accounts|safe if credit_report_accounts else '[]' }};
 let debts = [];
+let settings = { check1_income: 0, check2_income: 0, safety_buffer: 300 };
+let settingsTimer = null;
 let saveTimer = null;
 let saveTextTimer = null;
 let searchTerm = "";
@@ -202,9 +263,12 @@ function utilData(){
 }
 function utilClass(p){ if(p===0||p<10)return "good"; if(p<=30)return "warn"; return "bad"; }
 function queueSave(){ clearTimeout(saveTimer); setSaveStatus("Saving..."); saveTimer=setTimeout(saveDebts,250); }
+function queueSettingsSave(){ clearTimeout(settingsTimer); setSaveStatus("Saving money plan..."); settingsTimer=setTimeout(saveSettings,300); }
+function setCashClass(boxId, value){ const el=document.getElementById(boxId); if(!el) return; el.classList.remove("good","warn","bad"); el.classList.add(value < 0 ? "bad" : value < 100 ? "warn" : "good"); }
+function handleIncomeInput(key, value){ settings[key] = Math.max(0, num(value)); if(key === "safety_buffer"){ document.getElementById("safetyBuffer1").value = settings.safety_buffer; document.getElementById("safetyBuffer2").value = settings.safety_buffer; } calcPanels(); queueSettingsSave(); }
 function flashPaid(uiId){ flashDebtIds.add(uiId); renderDebts(); setTimeout(()=>{ flashDebtIds.delete(uiId); renderDebts(); }, 950); }
 function addDebt(){
-  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[] };
+  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"" };
   debts.unshift(debt);
   expandedDebtIds.add(debt.ui_id);
   render();
@@ -212,7 +276,7 @@ function addDebt(){
 }
 function removeDebt(i){ debts.splice(i,1); render(); queueSave(); }
 function updateDebt(i,key,value){
-  if(key==="name") debts[i][key]=value;
+  if(key==="name" || key==="account_type" || key==="report_source" || key==="report_date") debts[i][key]=value;
   else if(key==="due_day") debts[i][key]=value===""?null:clampDay(value);
   else if(key==="paycheck_group") debts[i][key]=value==="check2"?"check2":"check1";
   else debts[i][key]=Math.max(0, num(value));
@@ -319,6 +383,8 @@ function renderDebts(){
     const progressChip = d.paid_this_month && !d.paid ? `<div class="chip good">Paid this month • ${money(d.monthly_paid_amount || d.payment)}</div>` : "";
     const paidOffChip = d.paid ? '<div class="chip good">Paid off</div>' : "";
     const checkChip = `<div class="chip blue">${d.paycheck_group === "check2" ? "Check 2" : "Check 1"}</div>`;
+    const typeChip = d.account_type ? `<div class="chip">${esc(d.account_type)}</div>` : "";
+    const reportChip = d.report_source ? `<div class="chip warn">Report ${esc(d.report_date || "import")}</div>` : "";
     const lastPaymentChip = num(d.last_payment_amount) > 0 ? `<div class="chip blue">Last payment ${money(d.last_payment_amount)}</div>` : "";
     const paymentHistory = Array.isArray(d.payment_history) ? d.payment_history : [];
     const paymentHistoryHtml = paymentHistory.length
@@ -364,6 +430,7 @@ function renderDebts(){
 
           <div class="fields">
             <div class="field"><label>Bill Name</label><input type="text" value="${esc(d.name)}" placeholder="Capital One, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)"></div>
+            <div class="field"><label>Account Type</label><input type="text" value="${esc(d.account_type || "")}" placeholder="Credit card, Loan, BNPL..." oninput="updateDebt(${i}, 'account_type', this.value)"></div>
             <div class="field"><label>Balance</label><input type="number" min="0" step="0.01" value="${num(d.balance)}" oninput="updateDebt(${i}, 'balance', this.value)"></div>
             <div class="field"><label>Monthly Payment</label><input type="number" min="0" step="0.01" value="${num(d.payment)}" oninput="updateDebt(${i}, 'payment', this.value)"></div>
             <div class="field"><label>Interest %</label><input type="number" min="0" step="0.01" value="${num(d.rate)}" oninput="updateDebt(${i}, 'rate', this.value)"></div>
@@ -420,6 +487,41 @@ function renderPaycheckLists(){
   });
 }
 
+
+function renderCreditSnapshot(){
+  const s = CREDIT_REPORT_SNAPSHOT || {};
+  document.getElementById("crScore").textContent = s.score || "—";
+  document.getElementById("crRating").textContent = s.rating || "—";
+  document.getElementById("crBalance").textContent = money(s.total_balances || 0);
+  document.getElementById("crPayments").textContent = money(s.monthly_payments || 0);
+  document.getElementById("crOpen").textContent = String(s.open_accounts || 0);
+  document.getElementById("crClean").textContent = `${s.delinquent || 0} / ${s.derogatory || 0}`;
+  document.getElementById("crNote").textContent = `Report date ${s.report_date || "unknown"}. Import updates matching account names and adds missing ones.`;
+}
+
+function importCreditReportAccounts(){
+  const rows = Array.isArray(CREDIT_REPORT_ACCOUNTS) ? CREDIT_REPORT_ACCOUNTS : [];
+  let added = 0, updated = 0;
+  rows.forEach((r, idx) => {
+    const name = String(r.name || "").trim();
+    if(!name) return;
+    const existing = debts.find(d => String(d.name || "").trim().toLowerCase() === name.toLowerCase());
+    const next = {ui_id: existing?.ui_id || (crypto.randomUUID ? crypto.randomUUID() : `cr-${Date.now()}-${idx}`), name, balance:num(r.balance), rate:num(r.rate), payment:num(r.payment), due_day:existing?.due_day ?? null, paid:!!r.paid || num(r.balance) <= 0, paid_this_month:existing?.paid_this_month || false, credit_limit:num(r.credit_limit), paycheck_group:r.paycheck_group === "check2" ? "check2" : "check1", monthly_paid_amount:existing?.monthly_paid_amount || 0, last_payment_amount:existing?.last_payment_amount || 0, payment_history:existing?.payment_history || [], account_type:r.account_type || existing?.account_type || "", report_source:"Credit Report", report_date:(CREDIT_REPORT_SNAPSHOT && CREDIT_REPORT_SNAPSHOT.report_date) || "2026-04-24"};
+    if(existing){ Object.assign(existing, next); updated++; } else { debts.push(next); added++; }
+  });
+  debts.sort((a,b) => (num(b.credit_limit)>0)-(num(a.credit_limit)>0) || num(b.balance)-num(a.balance));
+  setSaveStatus(`Imported ${added} / updated ${updated}`);
+  render(); queueSave();
+}
+
+function renderPriorityList(){
+  const wrap = document.getElementById("priorityList");
+  if(!wrap) return;
+  const items = debts.filter(d => !d.paid && num(d.credit_limit) > 0).map(d => ({...d, utilization:(num(d.balance)/num(d.credit_limit))*100})).sort((a,b) => b.utilization - a.utilization).slice(0,6);
+  if(!items.length){ wrap.innerHTML='<div class="empty">Import credit report accounts to build the payoff priority list.</div>'; return; }
+  wrap.innerHTML = items.map(d => { const cls = d.utilization >= 90 ? "bad" : d.utilization >= 70 ? "warn" : ""; const goal30 = Math.max(0, num(d.balance) - (num(d.credit_limit) * 0.30)); return `<div class="priority-row ${cls}"><div><div class="meta-title">${esc(d.name)}</div><div class="meta-sub">${d.utilization.toFixed(0)}% utilization • pay ${money(goal30)} to reach 30%</div></div><strong>${money(d.balance)}</strong></div>`; }).join("");
+}
+
 function calcPanels(){
   debts.forEach(d => {
     d.monthly_paid_amount = Math.max(0, num(d.monthly_paid_amount));
@@ -441,6 +543,12 @@ function calcPanels(){
   const check2Items=activeMonthly.filter(d=>d.paycheck_group==="check2");
   const check1Total=check1Items.reduce((s,d)=>s+num(d.payment),0);
   const check2Total=check2Items.reduce((s,d)=>s+num(d.payment),0);
+  const check1Paid=debts.filter(d=>(d.paycheck_group||"check1")!=="check2").reduce((s,d)=>s+num(d.monthly_paid_amount),0);
+  const check2Paid=debts.filter(d=>d.paycheck_group==="check2").reduce((s,d)=>s+num(d.monthly_paid_amount),0);
+  const check1Left=num(settings.check1_income)-check1Total;
+  const check2Left=num(settings.check2_income)-check2Total;
+  const check1Safe=check1Left-num(settings.safety_buffer);
+  const check2Safe=check2Left-num(settings.safety_buffer);
 
   document.getElementById("sumDebt").textContent=money(totalDebt);
   document.getElementById("sumMonthly").textContent=money(totalMonthly);
@@ -452,9 +560,17 @@ function calcPanels(){
   document.getElementById("metricPaidOff").textContent=String(debts.filter(d=>d.paid).length);
   document.getElementById("metricAPR").textContent=avgAPR.toFixed(1)+"%";
   document.getElementById("check1Total").textContent=money(check1Total);
-  document.getElementById("check1Meta").textContent=check1Items.length+" active monthly bill(s)";
+  document.getElementById("check1Meta").textContent=check1Items.length+" active monthly bill(s) left after paid items";
+  document.getElementById("check1Left").textContent=money(check1Left);
+  document.getElementById("check1Safe").textContent=money(check1Safe);
+  document.getElementById("check1Paid").textContent=money(check1Paid);
+  setCashClass("check1LeftBox", check1Left); setCashClass("check1SafeBox", check1Safe);
   document.getElementById("check2Total").textContent=money(check2Total);
-  document.getElementById("check2Meta").textContent=check2Items.length+" active monthly bill(s)";
+  document.getElementById("check2Meta").textContent=check2Items.length+" active monthly bill(s) left after paid items";
+  document.getElementById("check2Left").textContent=money(check2Left);
+  document.getElementById("check2Safe").textContent=money(check2Safe);
+  document.getElementById("check2Paid").textContent=money(check2Paid);
+  setCashClass("check2LeftBox", check2Left); setCashClass("check2SafeBox", check2Safe);
 
   renderAlerts();
   renderDueDays();
@@ -462,6 +578,12 @@ function calcPanels(){
 }
 
 function render(){ renderDebts(); calcPanels(); }
+
+function saveSettings(){
+  fetch("/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(settings)})
+    .then(async r => { if(!r.ok) throw new Error("settings failed"); await r.json(); clearTimeout(saveTextTimer); setSaveStatus("Saved"); saveTextTimer=setTimeout(()=>setSaveStatus("Auto-save on"),1500); })
+    .catch(()=>setSaveStatus("Settings save failed"));
+}
 
 function saveDebts(){
   fetch("/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(debts)})
@@ -490,11 +612,21 @@ function normalizeRows(rows){
     monthly_paid_amount:Math.max(0, num(x.monthly_paid_amount)),
     last_payment_amount:Math.max(0, num(x.last_payment_amount)),
     credit_limit:Math.max(0, num(x.credit_limit)),
-    paycheck_group:(x.paycheck_group==="check2"?"check2":"check1")
+    paycheck_group:(x.paycheck_group==="check2"?"check2":"check1"),
+    payment_history:Array.isArray(x.payment_history)?x.payment_history:[],
+    account_type:x.account_type||"",
+    report_source:x.report_source||"",
+    report_date:x.report_date||""
   })).map(d => ({...d, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
 }
 
 function load(){
+  settings = { ...settings, ...(INITIAL_SETTINGS || {}) };
+  document.getElementById("check1Income").value = num(settings.check1_income);
+  document.getElementById("check2Income").value = num(settings.check2_income);
+  document.getElementById("safetyBuffer1").value = num(settings.safety_buffer);
+  document.getElementById("safetyBuffer2").value = num(settings.safety_buffer);
+  renderCreditSnapshot();
   const savedExtra = localStorage.getItem("debt_extra_payment");
   if(savedExtra!==null) document.getElementById("extraPayment").value=savedExtra;
 
