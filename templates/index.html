@@ -67,6 +67,21 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 @media (max-width:1450px){.summary-grid,.credit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.compact-bar{grid-template-columns:repeat(3,minmax(0,1fr))}.layout{grid-template-columns:1fr}.debt-header{grid-template-columns:minmax(0,1.3fr) repeat(3,minmax(90px,.5fr)) auto}.hide-lg{display:none}}
 @media (max-width:1080px){.toolbar{grid-template-columns:1fr 1fr 1fr}.toolbar .span-all{grid-column:1/-1}.fields{grid-template-columns:1fr 1fr 1fr}.debt-header{grid-template-columns:1fr 1fr auto}.hide-md{display:none}.payment-strip{grid-template-columns:1fr 1fr 1fr}}
 @media (max-width:760px){.wrap{padding:14px}.topbar,.section-head{flex-direction:column;align-items:stretch}.brand h1{font-size:29px}.summary-grid,.credit-grid,.paycheck-grid,.compact-bar,.fields,.toolbar,.payment-strip{grid-template-columns:1fr}.debt-header{grid-template-columns:1fr}.header-actions{justify-content:stretch}.header-actions>*{flex:1}.quick-buttons{grid-template-columns:repeat(2,1fr)}.hide-sm{display:none}}
+
+/* Streamlined bill rows: simple checklist up top, details below */
+.debt-header.streamlined{grid-template-columns:minmax(0,1.7fr) minmax(105px,.45fr) minmax(110px,.5fr) minmax(120px,.45fr) auto;gap:10px;}
+.due-badge{padding:9px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.due-badge .stat-label{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.due-badge .stat-value{margin-top:4px;font-size:15px;font-weight:950}
+.paid-check{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:9px 12px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.paid-check input{width:20px;height:20px;accent-color:var(--green);margin:0}.paid-check.is-paid{background:rgba(39,196,106,.10);border-color:rgba(39,196,106,.25);color:#b9ffd4}
+.detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.detail-box{padding:10px 12px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.detail-box .label{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.detail-box .value{margin-top:5px;font-size:16px;font-weight:950}
+.details-section-title{margin-top:14px;margin-bottom:8px;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.history-strip{margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)}
+.history-title{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}.history-list{display:grid;gap:7px}.history-item{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);font-size:12px}.history-empty{color:var(--muted);font-size:12px}
+@media (max-width:1080px){.debt-header.streamlined{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}.paid-check,.header-actions{justify-content:stretch}}
+@media (max-width:760px){.debt-header.streamlined,.detail-grid{grid-template-columns:1fr}.paid-check{justify-content:flex-start}.due-badge{padding:10px 12px}}
+
 </style>
 </head>
 <body>
@@ -290,6 +305,28 @@ function togglePaidOff(i,checked){
   render();
   queueSave();
 }
+
+function toggleMonthlyPaid(i, checked){
+  const d = debts[i];
+  if(!d) return;
+  if(checked){
+    if(num(d.monthly_paid_amount) <= 0 && !d.paid){
+      applyPayment(i, 'minimum');
+      return;
+    }
+    d.paid_this_month = true;
+  } else {
+    if(num(d.last_payment_amount) > 0){
+      undoLastPayment(i);
+      return;
+    }
+    d.paid_this_month = false;
+    d.monthly_paid_amount = 0;
+  }
+  render();
+  queueSave();
+}
+
 function resetMonth(){
   debts.forEach(d => {
     d.paid_this_month = false;
@@ -378,56 +415,57 @@ function renderDebts(){
     const limit = num(d.credit_limit);
     const util = limit > 0 ? (num(d.balance) / limit) * 100 : null;
     const isExpanded = expandAllMode || expandedDebtIds.has(d.ui_id);
-    const utilChip = util!==null ? `<div class="chip ${utilClass(util)}">${util.toFixed(0)}% utilization</div>` : "";
-    const dueChip = (!d.paid && !d.paid_this_month && d.due_day) ? `<div class="chip ${status.level==="bad"?"bad":status.level==="warn"?"warn":"good"}">Day ${d.due_day} • ${esc(status.label)}</div>` : "";
-    const progressChip = d.paid_this_month && !d.paid ? `<div class="chip good">Paid this month • ${money(d.monthly_paid_amount || d.payment)}</div>` : "";
-    const paidOffChip = d.paid ? '<div class="chip good">Paid off</div>' : "";
-    const checkChip = `<div class="chip blue">${d.paycheck_group === "check2" ? "Check 2" : "Check 1"}</div>`;
-    const typeChip = d.account_type ? `<div class="chip">${esc(d.account_type)}</div>` : "";
-    const reportChip = d.report_source ? `<div class="chip warn">Report ${esc(d.report_date || "import")}</div>` : "";
-    const lastPaymentChip = num(d.last_payment_amount) > 0 ? `<div class="chip blue">Last payment ${money(d.last_payment_amount)}</div>` : "";
+    const dueText = d.due_day ? `Day ${d.due_day}` : 'No date';
+    const dueDetail = d.due_day ? status.label : 'No due day set';
+    const monthlyPaid = num(d.monthly_paid_amount || 0);
+    const isMonthlyPaid = !!d.paid_this_month || monthlyPaid > 0 || !!d.paid;
+    const paidLabel = d.paid ? 'Paid off' : isMonthlyPaid ? 'Paid' : 'Not paid';
     const paymentHistory = Array.isArray(d.payment_history) ? d.payment_history : [];
     const paymentHistoryHtml = paymentHistory.length
       ? paymentHistory.map(item => `<div class="history-item"><span>${esc(item.label || 'Payment')}</span><strong>${money(item.amount)}</strong></div>`).join('')
       : '<div class="history-empty">No payments logged yet.</div>';
+    const checkChip = `<div class="chip blue">${d.paycheck_group === "check2" ? "Check 2" : "Check 1"}</div>`;
+    const paidOffChip = d.paid ? '<div class="chip good">Paid off</div>' : '';
+    const progressChip = isMonthlyPaid && !d.paid ? `<div class="chip good">Paid this month • ${money(monthlyPaid || d.payment)}</div>` : '';
+    const dueChip = (!d.paid && !isMonthlyPaid && d.due_day) ? `<div class="chip ${status.level==="bad"?"bad":status.level==="warn"?"warn":"good"}">${esc(status.label)}</div>` : '';
+    const utilChip = util!==null ? `<div class="chip ${utilClass(util)}">${util.toFixed(0)}% utilization</div>` : "";
+    const typeChip = d.account_type ? `<div class="chip">${esc(d.account_type)}</div>` : "";
+    const reportChip = d.report_source ? `<div class="chip warn">Report ${esc(d.report_date || "import")}</div>` : "";
+    const lastPaymentChip = num(d.last_payment_amount) > 0 ? `<div class="chip blue">Last payment ${money(d.last_payment_amount)}</div>` : "";
+
     return `
       <div class="debt-card ${paidClass} ${flashClass} ${isExpanded ? "expanded" : ""}">
-        <div class="debt-header">
+        <div class="debt-header streamlined">
           <div class="debt-main">
             <div class="debt-name">${esc(debtSummaryName(d, i))}</div>
             <div class="debt-sub">
-              <span>${d.paid ? "Closed item" : "Open item"}</span>
-              ${d.due_day ? `<span>Due day ${d.due_day}</span>` : '<span>No due day</span>'}
+              <span>${esc(dueDetail)}</span>
               <span>${d.paycheck_group === "check2" ? "Second paycheck" : "First paycheck"}</span>
             </div>
           </div>
-          <div class="header-stat"><div class="stat-label">Balance</div><div class="stat-value">${money(d.balance)}</div></div>
-          <div class="header-stat hide-sm"><div class="stat-label">Min Payment</div><div class="stat-value">${money(d.payment)}</div></div>
-          <div class="header-stat hide-md"><div class="stat-label">APR</div><div class="stat-value">${num(d.rate).toFixed(1)}%</div></div>
-          <div class="header-stat hide-lg"><div class="stat-label">This Month</div><div class="stat-value">${money(d.monthly_paid_amount || 0)}</div></div>
-          <div class="header-actions">
-            <button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Edit'}</button>
-            <button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete</button>
-          </div>
+          <div class="due-badge"><div class="stat-label">Due Date</div><div class="stat-value">${esc(dueText)}</div></div>
+          <div class="due-badge"><div class="stat-label">Amount Due</div><div class="stat-value">${money(d.payment)}</div></div>
+          <label class="paid-check ${isMonthlyPaid ? 'is-paid' : ''}"><input type="checkbox" ${isMonthlyPaid ? "checked" : ""} onchange="toggleMonthlyPaid(${i}, this.checked)"><span>${paidLabel}</span></label>
+          <div class="header-actions"><button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Details'}</button></div>
         </div>
-
         <div class="card-body">
-          <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${lastPaymentChip}</div>
+          <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${typeChip}${reportChip}${lastPaymentChip}</div>
+          <div class="detail-grid">
+            <div class="detail-box"><div class="label">Balance</div><div class="value">${money(d.balance)}</div></div>
+            <div class="detail-box"><div class="label">APR</div><div class="value">${num(d.rate).toFixed(1)}%</div></div>
+            <div class="detail-box"><div class="label">Credit Limit</div><div class="value">${limit > 0 ? money(limit) : '—'}</div></div>
+            <div class="detail-box"><div class="label">This Month</div><div class="value">${money(monthlyPaid)}</div></div>
+          </div>
+          <div class="details-section-title">Payment Controls</div>
           <div class="payment-strip">
-            <div>
-              <div class="field" style="margin:0;">
-                <label>Custom Payment</label>
-                <input id="customPay-${d.ui_id}" type="number" min="0" step="0.01" placeholder="0.00">
-              </div>
-            </div>
-            <div class="payment-note">Use <strong>Min Payment</strong> for the normal bill amount, <strong>Apply Custom</strong> for anything else, and <strong>Undo</strong> for the last payment only.</div>
+            <div><div class="field" style="margin:0;"><label>Custom Payment</label><input id="customPay-${d.ui_id}" type="number" min="0" step="0.01" placeholder="0.00"></div></div>
+            <div class="payment-note">Top checkbox pays the normal amount. Use custom for extra or partial payments. Undo reverses only the last payment.</div>
             <button class="payment-btn min" type="button" onclick="applyPayment(${i}, 'minimum')" ${d.paid ? 'disabled' : ''}>Min Payment</button>
             <button class="payment-btn custom" type="button" onclick="applyPayment(${i}, 'custom')" ${d.paid ? 'disabled' : ''}>Apply Custom</button>
             <button class="payment-btn undo" type="button" onclick="undoLastPayment(${i})" ${num(d.last_payment_amount) > 0 ? '' : 'disabled'}>Undo</button>
           </div>
-
           <div class="history-strip"><div class="history-title">Recent Payments</div><div class="history-list">${paymentHistoryHtml}</div></div>
-
+          <div class="details-section-title">Edit Details</div>
           <div class="fields">
             <div class="field"><label>Bill Name</label><input type="text" value="${esc(d.name)}" placeholder="Capital One, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)"></div>
             <div class="field"><label>Account Type</label><input type="text" value="${esc(d.account_type || "")}" placeholder="Credit card, Loan, BNPL..." oninput="updateDebt(${i}, 'account_type', this.value)"></div>
@@ -437,9 +475,10 @@ function renderDebts(){
             <div class="field"><label>Credit Limit</label><input type="number" min="0" step="0.01" value="${num(d.credit_limit)}" placeholder="0 if not a card" oninput="updateDebt(${i}, 'credit_limit', this.value)"></div>
             <div class="field"><label>Due Day</label><input type="number" min="1" max="31" step="1" value="${d.due_day ?? ''}" placeholder="1-31" oninput="updateDebt(${i}, 'due_day', this.value)"></div>
             <div class="field"><label>Paycheck</label><select onchange="updateDebt(${i}, 'paycheck_group', this.value)"><option value="check1" ${d.paycheck_group!=="check2"?"selected":""}>Check 1</option><option value="check2" ${d.paycheck_group==="check2"?"selected":""}>Check 2</option></select></div>
-            <div class="field"><label>This Month Total</label><input type="number" min="0" step="0.01" value="${num(d.monthly_paid_amount)}" oninput="updateDebt(${i}, 'monthly_paid_amount', this.value)"></div>
+            <div class="field"><label>This Month Total</label><input type="number" min="0" step="0.01" value="${monthlyPaid}" oninput="updateDebt(${i}, 'monthly_paid_amount', this.value)"></div>
             <div class="field"><label>Paid Off?</label><div class="checkbox-box"><input type="checkbox" ${d.paid?"checked":""} onchange="togglePaidOff(${i}, this.checked)"><span>${d.paid?"Yes":"No"}</span></div></div>
           </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;"><button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete Bill</button></div>
         </div>
       </div>`;
   }).join("");
