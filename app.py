@@ -91,7 +91,8 @@ def init_db():
             payment_history TEXT DEFAULT '[]',
             account_type TEXT DEFAULT '',
             report_source TEXT DEFAULT '',
-            report_date TEXT DEFAULT ''
+            report_date TEXT DEFAULT '',
+            is_recurring INTEGER DEFAULT 0
         )
     """)
     conn.commit()
@@ -101,6 +102,7 @@ def init_db():
         ("monthly_paid_amount", "REAL DEFAULT 0"), ("last_payment_amount", "REAL DEFAULT 0"),
         ("payment_history", "TEXT DEFAULT '[]'"), ("account_type", "TEXT DEFAULT ''"),
         ("report_source", "TEXT DEFAULT ''"), ("report_date", "TEXT DEFAULT ''"),
+        ("is_recurring", "INTEGER DEFAULT 0"),
     ]:
         ensure_column(conn, "debts", name, sql)
     conn.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)")
@@ -129,6 +131,13 @@ def fetch_all_debts():
         item["account_type"] = str(item.get("account_type") or "")
         item["report_source"] = str(item.get("report_source") or "")
         item["report_date"] = str(item.get("report_date") or "")
+        item["is_recurring"] = 1 if item.get("is_recurring") else 0
+        if item["is_recurring"]:
+            item["balance"] = 0
+            item["credit_limit"] = 0
+            item["rate"] = 0
+            if not item["account_type"]:
+                item["account_type"] = "Monthly Bill"
         cleaned.append(item)
     return cleaned
 
@@ -241,11 +250,17 @@ def save_debts():
         if paycheck_group not in ("check1", "check2"):
             paycheck_group = "check1"
         name = str(d.get("name", "")).strip()
+        is_recurring = 1 if d.get("is_recurring") else 0
         balance = max(0.0, float(d.get("balance", 0) or 0))
         rate = float(d.get("rate", 0) or 0)
         payment = max(0.0, float(d.get("payment", 0) or 0))
         paid = 1 if d.get("paid") else 0
         credit_limit = max(0.0, float(d.get("credit_limit", 0) or 0))
+        if is_recurring:
+            balance = 0
+            rate = 0
+            credit_limit = 0
+            paid = 0
         monthly_paid_amount = max(0.0, float(d.get("monthly_paid_amount", 0) or 0))
         last_payment_amount = max(0.0, float(d.get("last_payment_amount", 0) or 0))
         paid_this_month = 1 if d.get("paid_this_month") or monthly_paid_amount > 0 else 0
@@ -257,11 +272,11 @@ def save_debts():
             INSERT INTO debts (
                 name, balance, rate, payment, due_day, paid, credit_limit,
                 paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount,
-                payment_history, account_type, report_source, report_date
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                payment_history, account_type, report_source, report_date, is_recurring
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (name, balance, rate, payment, due_day, paid, credit_limit, paid_this_month,
               paycheck_group, monthly_paid_amount, last_payment_amount, payment_history,
-              account_type, report_source, report_date))
+              account_type, report_source, report_date, is_recurring))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})

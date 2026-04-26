@@ -41,7 +41,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .header-actions{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
 .icon-btn{border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);border-radius:12px;padding:10px 12px;font-weight:800;cursor:pointer}
 .card-body{display:none;padding-top:12px}.debt-card.expanded .card-body{display:block}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.chip.good{background:rgba(39,196,106,.12);color:#b9ffd4;border-color:rgba(39,196,106,.22)}.chip.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}.chip.bad{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.24)}.chip.blue{background:rgba(59,130,246,.12);color:#c7ddff;border-color:rgba(59,130,246,.22)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.chip.good{background:rgba(39,196,106,.12);color:#b9ffd4;border-color:rgba(39,196,106,.22)}.chip.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}.chip.bad{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.24)}.chip.blue{background:rgba(59,130,246,.12);color:#c7ddff;border-color:rgba(59,130,246,.22)}.chip.purple{background:rgba(168,85,247,.12);color:#ead6ff;border-color:rgba(168,85,247,.24)}
 .fields{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr 1fr;gap:10px;align-items:end;margin-top:12px}.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
 .checkbox-box{display:flex;align-items:center;justify-content:center;gap:7px;min-height:45px;padding:0 10px;border:1px solid var(--line);border-radius:13px;background:#091220;font-weight:700;font-size:13px;text-align:center}.checkbox-box input{width:17px;height:17px;accent-color:var(--green);margin:0}
 .payment-strip{display:grid;grid-template-columns:1.1fr 1fr auto auto auto;gap:10px;align-items:end;margin-top:12px;padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
@@ -268,7 +268,9 @@ function dueStatus(d){
   if(diff <= 7) return {label:`Due in ${diff} days`, level:"good", away:diff};
   return {label:`Due on day ${d}`, level:"good", away:diff};
 }
+function isRecurringBill(d){ return !!d.is_recurring; }
 function activeDebts(){ return debts.filter(d => !d.paid); }
+function activePayoffDebts(){ return debts.filter(d => !d.paid && !isRecurringBill(d)); }
 function currentMonthDueDebts(){ return debts.filter(d => !d.paid && !d.paid_this_month); }
 function utilData(){
   const cards = debts.filter(d => !d.paid && num(d.credit_limit) > 0);
@@ -283,7 +285,7 @@ function setCashClass(boxId, value){ const el=document.getElementById(boxId); if
 function handleIncomeInput(key, value){ settings[key] = Math.max(0, num(value)); if(key === "safety_buffer"){ document.getElementById("safetyBuffer1").value = settings.safety_buffer; document.getElementById("safetyBuffer2").value = settings.safety_buffer; } calcPanels(); queueSettingsSave(); }
 function flashPaid(uiId){ flashDebtIds.add(uiId); renderDebts(); setTimeout(()=>{ flashDebtIds.delete(uiId); renderDebts(); }, 950); }
 function addDebt(){
-  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"" };
+  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"", is_recurring:false };
   debts.unshift(debt);
   expandedDebtIds.add(debt.ui_id);
   render();
@@ -294,6 +296,17 @@ function updateDebt(i,key,value){
   if(key==="name" || key==="account_type" || key==="report_source" || key==="report_date") debts[i][key]=value;
   else if(key==="due_day") debts[i][key]=value===""?null:clampDay(value);
   else if(key==="paycheck_group") debts[i][key]=value==="check2"?"check2":"check1";
+  else if(key==="is_recurring"){
+    debts[i][key]=!!value;
+    if(debts[i][key]){
+      debts[i].balance = 0;
+      debts[i].rate = 0;
+      debts[i].credit_limit = 0;
+      debts[i].paid = false;
+      if(!debts[i].account_type) debts[i].account_type = "Monthly Bill";
+    }
+    render();
+  }
   else debts[i][key]=Math.max(0, num(value));
   calcPanels();
   queueSave();
@@ -371,6 +384,19 @@ function applyPayment(i, mode){
   }
   amount = Math.max(0, amount);
   if(amount <= 0) { alert('Enter a payment amount greater than $0.'); return; }
+  if(isRecurringBill(d)){
+    const applied = +(amount).toFixed(2);
+    d.last_payment_amount = applied;
+    d.monthly_paid_amount = +(num(d.monthly_paid_amount) + applied).toFixed(2);
+    d.payment_history = Array.isArray(d.payment_history) ? d.payment_history : [];
+    d.payment_history.unshift({ amount: applied, type: historyType, label: historyLabel });
+    d.payment_history = d.payment_history.slice(0, 5);
+    d.paid_this_month = d.monthly_paid_amount > 0;
+    flashPaid(d.ui_id);
+    calcPanels();
+    queueSave();
+    return;
+  }
   if(num(d.balance) <= 0) { alert('This balance is already at $0.'); return; }
   const applied = Math.min(amount, num(d.balance));
   d.balance = +(num(d.balance) - applied).toFixed(2);
@@ -396,7 +422,7 @@ function undoLastPayment(i){
   d.payment_history = Array.isArray(d.payment_history) ? d.payment_history : [];
   if(d.payment_history.length) d.payment_history.shift();
   d.paid_this_month = d.monthly_paid_amount > 0;
-  if(d.balance > 0) d.paid = false;
+  if(!isRecurringBill(d) && d.balance > 0) d.paid = false;
   render();
   queueSave();
 }
@@ -413,7 +439,8 @@ function renderDebts(){
     const paidClass = d.paid ? "paid-off" : "";
     const flashClass = flashDebtIds.has(d.ui_id) ? 'just-paid' : '';
     const limit = num(d.credit_limit);
-    const util = limit > 0 ? (num(d.balance) / limit) * 100 : null;
+    const util = (!isRecurringBill(d) && limit > 0) ? (num(d.balance) / limit) * 100 : null;
+    const recurring = isRecurringBill(d);
     const isExpanded = expandAllMode || expandedDebtIds.has(d.ui_id);
     const dueText = d.due_day ? `Day ${d.due_day}` : 'No date';
     const dueDetail = d.due_day ? status.label : 'No due day set';
@@ -425,6 +452,7 @@ function renderDebts(){
       ? paymentHistory.map(item => `<div class="history-item"><span>${esc(item.label || 'Payment')}</span><strong>${money(item.amount)}</strong></div>`).join('')
       : '<div class="history-empty">No payments logged yet.</div>';
     const checkChip = `<div class="chip blue">${d.paycheck_group === "check2" ? "Check 2" : "Check 1"}</div>`;
+    const recurringChip = recurring ? '<div class="chip purple">Monthly bill • no payoff</div>' : '';
     const paidOffChip = d.paid ? '<div class="chip good">Paid off</div>' : '';
     const progressChip = isMonthlyPaid && !d.paid ? `<div class="chip good">Paid this month • ${money(monthlyPaid || d.payment)}</div>` : '';
     const dueChip = (!d.paid && !isMonthlyPaid && d.due_day) ? `<div class="chip ${status.level==="bad"?"bad":status.level==="warn"?"warn":"good"}">${esc(status.label)}</div>` : '';
@@ -451,15 +479,15 @@ function renderDebts(){
         <div class="card-body">
           <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${typeChip}${reportChip}${lastPaymentChip}</div>
           <div class="detail-grid">
-            <div class="detail-box"><div class="label">Balance</div><div class="value">${money(d.balance)}</div></div>
-            <div class="detail-box"><div class="label">APR</div><div class="value">${num(d.rate).toFixed(1)}%</div></div>
-            <div class="detail-box"><div class="label">Credit Limit</div><div class="value">${limit > 0 ? money(limit) : '—'}</div></div>
+            <div class="detail-box"><div class="label">Balance</div><div class="value">${recurring ? 'No payoff' : money(d.balance)}</div></div>
+            <div class="detail-box"><div class="label">APR</div><div class="value">${recurring ? '—' : num(d.rate).toFixed(1)+'%'}</div></div>
+            <div class="detail-box"><div class="label">Credit Limit</div><div class="value">${(!recurring && limit > 0) ? money(limit) : '—'}</div></div>
             <div class="detail-box"><div class="label">This Month</div><div class="value">${money(monthlyPaid)}</div></div>
           </div>
           <div class="details-section-title">Payment Controls</div>
           <div class="payment-strip">
             <div><div class="field" style="margin:0;"><label>Custom Payment</label><input id="customPay-${d.ui_id}" type="number" min="0" step="0.01" placeholder="0.00"></div></div>
-            <div class="payment-note">Top checkbox pays the normal amount. Use custom for extra or partial payments. Undo reverses only the last payment.</div>
+            <div class="payment-note">${recurring ? 'Top checkbox logs this month as paid without changing a balance. Undo reverses only the last monthly payment.' : 'Top checkbox pays the normal amount. Use custom for extra or partial payments. Undo reverses only the last payment.'}</div>
             <button class="payment-btn min" type="button" onclick="applyPayment(${i}, 'minimum')" ${d.paid ? 'disabled' : ''}>Min Payment</button>
             <button class="payment-btn custom" type="button" onclick="applyPayment(${i}, 'custom')" ${d.paid ? 'disabled' : ''}>Apply Custom</button>
             <button class="payment-btn undo" type="button" onclick="undoLastPayment(${i})" ${num(d.last_payment_amount) > 0 ? '' : 'disabled'}>Undo</button>
@@ -467,16 +495,17 @@ function renderDebts(){
           <div class="history-strip"><div class="history-title">Recent Payments</div><div class="history-list">${paymentHistoryHtml}</div></div>
           <div class="details-section-title">Edit Details</div>
           <div class="fields">
-            <div class="field"><label>Bill Name</label><input type="text" value="${esc(d.name)}" placeholder="Capital One, Loan, Medical..." oninput="updateDebt(${i}, 'name', this.value)"></div>
-            <div class="field"><label>Account Type</label><input type="text" value="${esc(d.account_type || "")}" placeholder="Credit card, Loan, BNPL..." oninput="updateDebt(${i}, 'account_type', this.value)"></div>
-            <div class="field"><label>Balance</label><input type="number" min="0" step="0.01" value="${num(d.balance)}" oninput="updateDebt(${i}, 'balance', this.value)"></div>
+            <div class="field"><label>Bill Name</label><input type="text" value="${esc(d.name)}" placeholder="Capital One, Netflix, PG&E..." oninput="updateDebt(${i}, 'name', this.value)"></div>
+            <div class="field"><label>Bill Type</label><select onchange="updateDebt(${i}, 'is_recurring', this.value === '1')"><option value="0" ${!recurring ? "selected" : ""}>Debt / payoff balance</option><option value="1" ${recurring ? "selected" : ""}>Monthly bill / no payoff</option></select></div>
+            <div class="field"><label>Account Type</label><input type="text" value="${esc(d.account_type || "")}" placeholder="Credit card, Loan, Subscription..." oninput="updateDebt(${i}, 'account_type', this.value)"></div>
+            <div class="field"><label>Balance</label><input type="number" min="0" step="0.01" value="${num(d.balance)}" ${recurring ? 'disabled' : ''} oninput="updateDebt(${i}, 'balance', this.value)"></div>
             <div class="field"><label>Monthly Payment</label><input type="number" min="0" step="0.01" value="${num(d.payment)}" oninput="updateDebt(${i}, 'payment', this.value)"></div>
-            <div class="field"><label>Interest %</label><input type="number" min="0" step="0.01" value="${num(d.rate)}" oninput="updateDebt(${i}, 'rate', this.value)"></div>
-            <div class="field"><label>Credit Limit</label><input type="number" min="0" step="0.01" value="${num(d.credit_limit)}" placeholder="0 if not a card" oninput="updateDebt(${i}, 'credit_limit', this.value)"></div>
+            <div class="field"><label>Interest %</label><input type="number" min="0" step="0.01" value="${num(d.rate)}" ${recurring ? 'disabled' : ''} oninput="updateDebt(${i}, 'rate', this.value)"></div>
+            <div class="field"><label>Credit Limit</label><input type="number" min="0" step="0.01" value="${num(d.credit_limit)}" placeholder="0 if not a card" ${recurring ? 'disabled' : ''} oninput="updateDebt(${i}, 'credit_limit', this.value)"></div>
             <div class="field"><label>Due Day</label><input type="number" min="1" max="31" step="1" value="${d.due_day ?? ''}" placeholder="1-31" oninput="updateDebt(${i}, 'due_day', this.value)"></div>
             <div class="field"><label>Paycheck</label><select onchange="updateDebt(${i}, 'paycheck_group', this.value)"><option value="check1" ${d.paycheck_group!=="check2"?"selected":""}>Check 1</option><option value="check2" ${d.paycheck_group==="check2"?"selected":""}>Check 2</option></select></div>
             <div class="field"><label>This Month Total</label><input type="number" min="0" step="0.01" value="${monthlyPaid}" oninput="updateDebt(${i}, 'monthly_paid_amount', this.value)"></div>
-            <div class="field"><label>Paid Off?</label><div class="checkbox-box"><input type="checkbox" ${d.paid?"checked":""} onchange="togglePaidOff(${i}, this.checked)"><span>${d.paid?"Yes":"No"}</span></div></div>
+            <div class="field"><label>Paid Off?</label><div class="checkbox-box"><input type="checkbox" ${d.paid?"checked":""} ${recurring ? 'disabled' : ''} onchange="togglePaidOff(${i}, this.checked)"><span>${recurring ? "N/A" : d.paid?"Yes":"No"}</span></div></div>
           </div>
           <div style="margin-top:12px;display:flex;justify-content:flex-end;"><button class="btn btn-delete" type="button" onclick="removeDebt(${i})">Delete Bill</button></div>
         </div>
@@ -520,7 +549,7 @@ function renderPaycheckLists(){
     el.innerHTML = items.map(d => `
       <div class="paycheck-card">
         <div class="row"><strong>${esc(d.name || 'Unnamed Bill')}</strong><strong>${money(d.payment)}</strong></div>
-        <div class="tiny">${d.due_day ? `Due day ${d.due_day}` : 'No due day'} • Balance ${money(d.balance)}</div>
+        <div class="tiny">${d.due_day ? `Due day ${d.due_day}` : 'No due day'} • ${isRecurringBill(d) ? 'Monthly bill' : 'Balance ' + money(d.balance)}</div>
       </div>
     `).join('');
   });
@@ -545,7 +574,7 @@ function importCreditReportAccounts(){
     const name = String(r.name || "").trim();
     if(!name) return;
     const existing = debts.find(d => String(d.name || "").trim().toLowerCase() === name.toLowerCase());
-    const next = {ui_id: existing?.ui_id || (crypto.randomUUID ? crypto.randomUUID() : `cr-${Date.now()}-${idx}`), name, balance:num(r.balance), rate:num(r.rate), payment:num(r.payment), due_day:existing?.due_day ?? null, paid:!!r.paid || num(r.balance) <= 0, paid_this_month:existing?.paid_this_month || false, credit_limit:num(r.credit_limit), paycheck_group:r.paycheck_group === "check2" ? "check2" : "check1", monthly_paid_amount:existing?.monthly_paid_amount || 0, last_payment_amount:existing?.last_payment_amount || 0, payment_history:existing?.payment_history || [], account_type:r.account_type || existing?.account_type || "", report_source:"Credit Report", report_date:(CREDIT_REPORT_SNAPSHOT && CREDIT_REPORT_SNAPSHOT.report_date) || "2026-04-24"};
+    const next = {ui_id: existing?.ui_id || (crypto.randomUUID ? crypto.randomUUID() : `cr-${Date.now()}-${idx}`), name, balance:num(r.balance), rate:num(r.rate), payment:num(r.payment), due_day:existing?.due_day ?? null, paid:!!r.paid || num(r.balance) <= 0, paid_this_month:existing?.paid_this_month || false, credit_limit:num(r.credit_limit), paycheck_group:r.paycheck_group === "check2" ? "check2" : "check1", monthly_paid_amount:existing?.monthly_paid_amount || 0, last_payment_amount:existing?.last_payment_amount || 0, payment_history:existing?.payment_history || [], account_type:r.account_type || existing?.account_type || "", report_source:"Credit Report", report_date:(CREDIT_REPORT_SNAPSHOT && CREDIT_REPORT_SNAPSHOT.report_date) || "2026-04-24", is_recurring: existing?.is_recurring || false};
     if(existing){ Object.assign(existing, next); updated++; } else { debts.push(next); added++; }
   });
   debts.sort((a,b) => (num(b.credit_limit)>0)-(num(a.credit_limit)>0) || num(b.balance)-num(a.balance));
@@ -566,18 +595,20 @@ function calcPanels(){
     d.monthly_paid_amount = Math.max(0, num(d.monthly_paid_amount));
     d.last_payment_amount = Math.max(0, num(d.last_payment_amount));
     d.paid_this_month = d.monthly_paid_amount > 0;
-    if(num(d.balance) <= 0) { d.balance = 0; if(!d.paid) d.paid = true; }
+    if(isRecurringBill(d)){ d.balance = 0; d.rate = 0; d.credit_limit = 0; d.paid = false; }
+    else if(num(d.balance) <= 0) { d.balance = 0; if(!d.paid) d.paid = true; }
   });
   const active=activeDebts();
+  const payoffDebts=activePayoffDebts();
   const activeMonthly=currentMonthDueDebts();
-  const totalDebt=active.reduce((s,d)=>s+num(d.balance),0);
+  const totalDebt=payoffDebts.reduce((s,d)=>s+num(d.balance),0);
   const totalMonthly=activeMonthly.reduce((s,d)=>s+num(d.payment),0);
   const extra=getExtra();
   const util=utilData();
-  const monthlyPower=active.reduce((s,d)=>s+num(d.payment),0)+extra;
+  const monthlyPower=payoffDebts.reduce((s,d)=>s+num(d.payment),0)+extra;
   const payoffMonths=monthlyPower>0 ? totalDebt/monthlyPower : 0;
   const dueWeek=activeMonthly.filter(d=>d.due_day && dueStatus(d.due_day).away!==null && dueStatus(d.due_day).away>=0 && dueStatus(d.due_day).away<=7).reduce((s,d)=>s+num(d.payment),0);
-  const avgAPR=active.length ? active.reduce((s,d)=>s+num(d.rate),0)/active.length : 0;
+  const avgAPR=payoffDebts.length ? payoffDebts.reduce((s,d)=>s+num(d.rate),0)/payoffDebts.length : 0;
   const check1Items=activeMonthly.filter(d=>(d.paycheck_group||"check1")!=="check2");
   const check2Items=activeMonthly.filter(d=>d.paycheck_group==="check2");
   const check1Total=check1Items.reduce((s,d)=>s+num(d.payment),0);
@@ -655,8 +686,9 @@ function normalizeRows(rows){
     payment_history:Array.isArray(x.payment_history)?x.payment_history:[],
     account_type:x.account_type||"",
     report_source:x.report_source||"",
-    report_date:x.report_date||""
-  })).map(d => ({...d, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
+    report_date:x.report_date||"",
+    is_recurring:!!x.is_recurring
+  })).map(d => ({...d, paid: d.is_recurring ? false : d.paid, balance: d.is_recurring ? 0 : d.balance, rate: d.is_recurring ? 0 : d.rate, credit_limit: d.is_recurring ? 0 : d.credit_limit, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
 }
 
 function load(){
