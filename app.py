@@ -10,7 +10,7 @@ app.permanent_session_lifetime = timedelta(days=30)
 DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 PASSWORD = os.environ.get("APP_PASSWORD", "1234")
 
-DEFAULT_SETTINGS = {"check1_income": 0, "check2_income": 0, "safety_buffer": 300}
+DEFAULT_SETTINGS = {"current_balance": 0, "check1_income": 0, "check2_income": 0, "safety_buffer": 300}
 
 CREDIT_REPORT_SNAPSHOT = {
     "report_date": "2026-04-24", "score": 548, "rating": "Unfavorable",
@@ -159,7 +159,8 @@ def save_settings_payload(payload):
     cleaned = {}
     for key, default in DEFAULT_SETTINGS.items():
         try:
-            cleaned[key] = max(0.0, float(payload.get(key, default) or 0))
+            value = float(payload.get(key, default) or 0)
+            cleaned[key] = value if key == "current_balance" else max(0.0, value)
         except Exception:
             cleaned[key] = float(default)
     conn = get_db()
