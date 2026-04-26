@@ -10,7 +10,7 @@ app.permanent_session_lifetime = timedelta(days=30)
 DB_PATH = os.environ.get("DB_PATH", "/data/debts.db")
 PASSWORD = os.environ.get("APP_PASSWORD", "1234")
 
-DEFAULT_SETTINGS = {"current_balance": 0, "check1_income": 0, "check2_income": 0, "safety_buffer": 300}
+DEFAULT_SETTINGS = {"current_balance": 0, "check1_income": 0, "check2_income": 0, "safety_buffer": 300, "savings_goal": 1000, "savings_balance": 0}
 
 CREDIT_REPORT_SNAPSHOT = {
     "report_date": "2026-04-24", "score": 548, "rating": "Unfavorable",
