@@ -25,7 +25,7 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .summary{padding:15px 16px}.summary.safe-summary{border-color:rgba(39,196,106,.25);background:linear-gradient(180deg,rgba(39,196,106,.12),rgba(12,21,37,.98))}.summary.safe-summary.warn{border-color:rgba(245,158,11,.35);background:linear-gradient(180deg,rgba(245,158,11,.13),rgba(12,21,37,.98))}.summary.safe-summary.bad{border-color:rgba(239,68,68,.35);background:linear-gradient(180deg,rgba(239,68,68,.13),rgba(12,21,37,.98))}.summary .label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}.summary .value{font-size:26px;font-weight:900;letter-spacing:-.03em}.summary .sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
 .compact-bar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;padding:12px 14px;margin-bottom:14px}
 .compact-metric{padding:6px 8px}.compact-metric .mini-label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.07em;text-transform:uppercase}.compact-metric .mini-value{margin-top:5px;font-size:18px;font-weight:900}
-.money-control{display:grid;grid-template-columns:1.1fr 1fr 1fr 1fr 1.1fr;gap:10px;align-items:end;padding:14px;margin-bottom:14px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.money-control .money-note{color:var(--muted);font-size:12px;line-height:1.35}.money-control .money-total{font-size:23px;font-weight:950;letter-spacing:-.03em}.money-control .money-total.good{color:#b9ffd4}.money-control .money-total.warn{color:#fde68a}.money-control .money-total.bad{color:#fecaca}@media (max-width:1080px){.money-control{grid-template-columns:1fr 1fr}}@media (max-width:760px){.money-control{grid-template-columns:1fr}}.paycheck-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.paycheck-panel{padding:16px}.paycheck-title{font-size:18px;font-weight:900;letter-spacing:-.02em}.paycheck-sub{color:var(--muted);font-size:12px;margin:4px 0 12px}.paycheck-total{font-size:26px;font-weight:900}.paycheck-meta{margin-top:5px;color:var(--muted);font-size:12px}
+.money-control{display:grid;grid-template-columns:1.1fr 1fr 1fr 1.1fr;gap:10px;align-items:end;padding:14px;margin-bottom:14px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.money-control .money-note{color:var(--muted);font-size:12px;line-height:1.35}.money-control .money-total{font-size:23px;font-weight:950;letter-spacing:-.03em}.money-control .money-total.good{color:#b9ffd4}.money-control .money-total.warn{color:#fde68a}.money-control .money-total.bad{color:#fecaca}@media (max-width:1080px){.money-control{grid-template-columns:1fr 1fr}}@media (max-width:760px){.money-control{grid-template-columns:1fr}}.paycheck-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.paycheck-panel{padding:16px}.paycheck-title{font-size:18px;font-weight:900;letter-spacing:-.02em}.paycheck-sub{color:var(--muted);font-size:12px;margin:4px 0 12px}.paycheck-total{font-size:26px;font-weight:900}.paycheck-meta{margin-top:5px;color:var(--muted);font-size:12px}
 .layout{display:grid;grid-template-columns:minmax(0,1.95fr) minmax(320px,.95fr);gap:14px}.main,.side{padding:18px}.side-stack{display:grid;gap:14px}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.section-title{font-size:22px;font-weight:900;letter-spacing:-.02em}.section-copy{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.4}
 .btn{border:none;border-radius:13px;padding:11px 15px;font-size:14px;font-weight:800;color:white;cursor:pointer}.btn-add{background:linear-gradient(135deg,var(--green),var(--green2))}.btn-delete{background:linear-gradient(135deg,var(--red),#c61f1f);padding:9px 12px;font-size:12px}
@@ -123,13 +123,12 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 
   <div class="money-control">
     <div class="cash-input"><label>Current Bank Balance</label><input id="currentBalance" type="number" step="0.01" value="0" oninput="handleIncomeInput('current_balance', this.value)"></div>
-    <div class="compact-metric"><div class="mini-label">Planned Income</div><div class="mini-value" id="plannedIncome">$0</div></div>
     <div class="compact-metric"><div class="mini-label">Bills Remaining</div><div class="mini-value" id="billsRemainingMetric">$0</div></div>
     <div class="compact-metric"><div class="mini-label">Safety Buffer</div><div class="mini-value" id="bufferMetric">$0</div></div>
     <div>
       <div class="mini-label" style="font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase;">True Available</div>
       <div class="money-total" id="trueAvailableMetric">$0</div>
-      <div class="money-note">Current balance + planned income - unpaid bills - buffer.</div>
+      <div class="money-note">Current bank balance - unpaid bills - buffer. Check 1 and Check 2 stay separate below.</div>
     </div>
   </div>
 
@@ -538,7 +537,7 @@ function renderAlerts(){
   if(soon.length) alerts.push({cls:"warn",title:soon.length+" monthly bill(s) due soon",sub:money(soon.reduce((s,d)=>s+num(d.payment),0))+" due within 3 days"});
   if(util.count) alerts.push({cls:utilClass(util.pct),title:"Credit utilization at "+util.pct.toFixed(0)+"%",sub:money(util.bal)+" used of "+money(util.lim)});
   const remainingBills=activeMonthly.reduce((s,d)=>s+num(d.payment),0);
-  const trueAvailable=num(settings.current_balance)+num(settings.check1_income)+num(settings.check2_income)-remainingBills-num(settings.safety_buffer);
+  const trueAvailable=num(settings.current_balance)-remainingBills-num(settings.safety_buffer);
   if(trueAvailable < 0) alerts.unshift({cls:"bad",title:"Safe spend is negative",sub:`You are short ${money(Math.abs(trueAvailable))} after unpaid bills and buffer.`});
   else if(trueAvailable < 100) alerts.unshift({cls:"warn",title:"Safe spend is tight",sub:`Only ${money(trueAvailable)} remains after unpaid bills and buffer.`});
   if(!alerts.length) alerts.push({cls:"good",title:"No urgent alerts",sub:"Everything looks calm right now"});
@@ -621,9 +620,8 @@ function calcPanels(){
   const activeMonthly=currentMonthDueDebts();
   const totalDebt=payoffDebts.reduce((s,d)=>s+num(d.balance),0);
   const totalMonthly=activeMonthly.reduce((s,d)=>s+num(d.payment),0);
-  const plannedIncome=num(settings.check1_income)+num(settings.check2_income);
   const safetyBuffer=num(settings.safety_buffer);
-  const trueAvailable=num(settings.current_balance)+plannedIncome-totalMonthly-safetyBuffer;
+  const trueAvailable=num(settings.current_balance)-totalMonthly-safetyBuffer;
   const extra=getExtra();
   const util=utilData();
   const monthlyPower=payoffDebts.reduce((s,d)=>s+num(d.payment),0)+extra;
@@ -644,10 +642,9 @@ function calcPanels(){
   document.getElementById("sumDebt").textContent=money(totalDebt);
   document.getElementById("sumMonthly").textContent=money(totalMonthly);
   document.getElementById("sumSafeSpend").textContent=money(trueAvailable);
-  document.getElementById("safeSpendSub").textContent=`Bank ${money(settings.current_balance)} + income ${money(plannedIncome)} - bills ${money(totalMonthly)} - buffer ${money(safetyBuffer)}`;
+  document.getElementById("safeSpendSub").textContent=`Bank ${money(settings.current_balance)} - bills ${money(totalMonthly)} - buffer ${money(safetyBuffer)}`;
   const safeCard=document.getElementById("safeSpendCard");
   safeCard.classList.remove("good","warn","bad"); safeCard.classList.add(moneyStateClass(trueAvailable));
-  document.getElementById("plannedIncome").textContent=money(plannedIncome);
   document.getElementById("billsRemainingMetric").textContent=money(totalMonthly);
   document.getElementById("bufferMetric").textContent=money(safetyBuffer);
   const trueEl=document.getElementById("trueAvailableMetric");
