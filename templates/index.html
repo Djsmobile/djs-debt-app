@@ -311,6 +311,16 @@ function dueStatus(d){
 function isRecurringBill(d){ return !!d.is_recurring; }
 function activeDebts(){ return debts.filter(d => !d.paid); }
 function activePayoffDebts(){ return debts.filter(d => !d.paid && !isRecurringBill(d)); }
+function reindexDebts(){ debts.forEach((d, idx) => d.position = idx); }
+function moveDebt(i, direction){
+  const next = i + direction;
+  if(next < 0 || next >= debts.length) return;
+  const item = debts.splice(i, 1)[0];
+  debts.splice(next, 0, item);
+  reindexDebts();
+  render();
+  queueSave();
+}
 function currentMonthDueDebts(){ return debts.filter(d => !d.paid && !d.paid_this_month); }
 function utilData(){
   const cards = debts.filter(d => !d.paid && num(d.credit_limit) > 0);
@@ -346,13 +356,14 @@ function addSavings(amount){
 }
 function flashPaid(uiId){ flashDebtIds.add(uiId); renderDebts(); setTimeout(()=>{ flashDebtIds.delete(uiId); renderDebts(); }, 950); }
 function addDebt(){
-  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"", is_recurring:false };
+  const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"", is_recurring:false, position:0 };
   debts.unshift(debt);
+  reindexDebts();
   expandedDebtIds.add(debt.ui_id);
   render();
   queueSave();
 }
-function removeDebt(i){ debts.splice(i,1); render(); queueSave(); }
+function removeDebt(i){ debts.splice(i,1); reindexDebts(); render(); queueSave(); }
 function updateDebt(i,key,value){
   if(key==="name" || key==="account_type" || key==="report_source" || key==="report_date") debts[i][key]=value;
   else if(key==="due_day") debts[i][key]=value===""?null:clampDay(value);
@@ -535,7 +546,7 @@ function renderDebts(){
           <div class="due-badge"><div class="stat-label">Due Date</div><div class="stat-value">${esc(dueText)}</div></div>
           <div class="due-badge"><div class="stat-label">Amount Due</div><div class="stat-value">${money(d.payment)}</div></div>
           <label class="paid-check ${isMonthlyPaid ? 'is-paid' : ''}"><input type="checkbox" ${isMonthlyPaid ? "checked" : ""} onchange="toggleMonthlyPaid(${i}, this.checked)"><span>${paidLabel}</span></label>
-          <div class="header-actions"><button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Details'}</button></div>
+          <div class="header-actions"><button class="icon-btn" type="button" onclick="moveDebt(${i}, -1)" ${i === 0 ? 'disabled' : ''}>⬆️</button><button class="icon-btn" type="button" onclick="moveDebt(${i}, 1)" ${i === debts.length - 1 ? 'disabled' : ''}>⬇️</button><button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Details'}</button></div>
         </div>
         <div class="card-body">
           <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${typeChip}${reportChip}${lastPaymentChip}</div>
@@ -642,10 +653,11 @@ function importCreditReportAccounts(){
     const name = String(r.name || "").trim();
     if(!name) return;
     const existing = debts.find(d => String(d.name || "").trim().toLowerCase() === name.toLowerCase());
-    const next = {ui_id: existing?.ui_id || (crypto.randomUUID ? crypto.randomUUID() : `cr-${Date.now()}-${idx}`), name, balance:num(r.balance), rate:num(r.rate), payment:num(r.payment), due_day:existing?.due_day ?? null, paid:!!r.paid || num(r.balance) <= 0, paid_this_month:existing?.paid_this_month || false, credit_limit:num(r.credit_limit), paycheck_group:r.paycheck_group === "check2" ? "check2" : "check1", monthly_paid_amount:existing?.monthly_paid_amount || 0, last_payment_amount:existing?.last_payment_amount || 0, payment_history:existing?.payment_history || [], account_type:r.account_type || existing?.account_type || "", report_source:"Credit Report", report_date:(CREDIT_REPORT_SNAPSHOT && CREDIT_REPORT_SNAPSHOT.report_date) || "2026-04-24", is_recurring: existing?.is_recurring || false};
+    const next = {ui_id: existing?.ui_id || (crypto.randomUUID ? crypto.randomUUID() : `cr-${Date.now()}-${idx}`), name, balance:num(r.balance), rate:num(r.rate), payment:num(r.payment), due_day:existing?.due_day ?? null, paid:!!r.paid || num(r.balance) <= 0, paid_this_month:existing?.paid_this_month || false, credit_limit:num(r.credit_limit), paycheck_group:r.paycheck_group === "check2" ? "check2" : "check1", monthly_paid_amount:existing?.monthly_paid_amount || 0, last_payment_amount:existing?.last_payment_amount || 0, payment_history:existing?.payment_history || [], account_type:r.account_type || existing?.account_type || "", report_source:"Credit Report", report_date:(CREDIT_REPORT_SNAPSHOT && CREDIT_REPORT_SNAPSHOT.report_date) || "2026-04-24", is_recurring: existing?.is_recurring || false, position: existing?.position ?? debts.length + idx};
     if(existing){ Object.assign(existing, next); updated++; } else { debts.push(next); added++; }
   });
-  debts.sort((a,b) => (num(b.credit_limit)>0)-(num(a.credit_limit)>0) || num(b.balance)-num(a.balance));
+  debts.sort((a,b) => (num(a.position) - num(b.position)) || (num(b.credit_limit)>0)-(num(a.credit_limit)>0) || num(b.balance)-num(a.balance));
+  reindexDebts();
   setSaveStatus(`Imported ${added} / updated ${updated}`);
   render(); queueSave();
 }
@@ -775,8 +787,9 @@ function normalizeRows(rows){
     account_type:x.account_type||"",
     report_source:x.report_source||"",
     report_date:x.report_date||"",
-    is_recurring:!!x.is_recurring
-  })).map(d => ({...d, paid: d.is_recurring ? false : d.paid, balance: d.is_recurring ? 0 : d.balance, rate: d.is_recurring ? 0 : d.rate, credit_limit: d.is_recurring ? 0 : d.credit_limit, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
+    is_recurring:!!x.is_recurring,
+    position:Number.isFinite(num(x.position)) ? num(x.position) : idx
+  })).sort((a,b)=>(num(a.position)-num(b.position))).map(d => ({...d, paid: d.is_recurring ? false : d.paid, balance: d.is_recurring ? 0 : d.balance, rate: d.is_recurring ? 0 : d.rate, credit_limit: d.is_recurring ? 0 : d.credit_limit, paid_this_month: d.monthly_paid_amount > 0 || d.paid_this_month}));
 }
 
 function load(){

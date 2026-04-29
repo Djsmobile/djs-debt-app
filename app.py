@@ -92,7 +92,8 @@ def init_db():
             account_type TEXT DEFAULT '',
             report_source TEXT DEFAULT '',
             report_date TEXT DEFAULT '',
-            is_recurring INTEGER DEFAULT 0
+            is_recurring INTEGER DEFAULT 0,
+            position INTEGER DEFAULT 0
         )
     """)
     conn.commit()
@@ -102,7 +103,7 @@ def init_db():
         ("monthly_paid_amount", "REAL DEFAULT 0"), ("last_payment_amount", "REAL DEFAULT 0"),
         ("payment_history", "TEXT DEFAULT '[]'"), ("account_type", "TEXT DEFAULT ''"),
         ("report_source", "TEXT DEFAULT ''"), ("report_date", "TEXT DEFAULT ''"),
-        ("is_recurring", "INTEGER DEFAULT 0"),
+        ("is_recurring", "INTEGER DEFAULT 0"), ("position", "INTEGER DEFAULT 0"),
     ]:
         ensure_column(conn, "debts", name, sql)
     conn.execute("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)")
@@ -117,7 +118,7 @@ init_db()
 
 def fetch_all_debts():
     conn = get_db()
-    rows = conn.execute("SELECT * FROM debts ORDER BY id ASC").fetchall()
+    rows = conn.execute("SELECT * FROM debts ORDER BY position ASC, id ASC").fetchall()
     conn.close()
     cleaned = []
     for r in rows:
@@ -132,6 +133,7 @@ def fetch_all_debts():
         item["report_source"] = str(item.get("report_source") or "")
         item["report_date"] = str(item.get("report_date") or "")
         item["is_recurring"] = 1 if item.get("is_recurring") else 0
+        item["position"] = int(item.get("position") or 0)
         if item["is_recurring"]:
             item["balance"] = 0
             item["credit_limit"] = 0
@@ -237,7 +239,7 @@ def save_debts():
         return jsonify({"error": "Invalid payload"}), 400
     conn = get_db()
     conn.execute("DELETE FROM debts")
-    for d in data:
+    for position, d in enumerate(data):
         if not isinstance(d, dict):
             continue
         try:
@@ -269,15 +271,19 @@ def save_debts():
         account_type = str(d.get("account_type", "") or "")[:80]
         report_source = str(d.get("report_source", "") or "")[:80]
         report_date = str(d.get("report_date", "") or "")[:20]
+        try:
+            position = int(d.get("position", position))
+        except Exception:
+            pass
         conn.execute("""
             INSERT INTO debts (
                 name, balance, rate, payment, due_day, paid, credit_limit,
                 paid_this_month, paycheck_group, monthly_paid_amount, last_payment_amount,
-                payment_history, account_type, report_source, report_date, is_recurring
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                payment_history, account_type, report_source, report_date, is_recurring, position
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (name, balance, rate, payment, due_day, paid, credit_limit, paid_this_month,
               paycheck_group, monthly_paid_amount, last_payment_amount, payment_history,
-              account_type, report_source, report_date, is_recurring))
+              account_type, report_source, report_date, is_recurring, position))
     conn.commit()
     conn.close()
     return jsonify({"ok": True})
