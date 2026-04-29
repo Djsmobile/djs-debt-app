@@ -97,6 +97,15 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .savings-actions button{border:none;border-radius:12px;padding:10px 12px;background:rgba(39,196,106,.12);color:#b9ffd4;font-weight:900;cursor:pointer}
 @media (max-width:1080px){.savings-panel{grid-template-columns:1fr 1fr}}@media (max-width:760px){.savings-panel{grid-template-columns:1fr}}
 
+.next-hit-list{display:grid;gap:9px;margin-top:12px}
+.next-hit-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 13px;border-radius:15px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.next-hit-row.bad{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.20)}
+.next-hit-row.warn{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.20)}
+.next-hit-row.good{background:rgba(39,196,106,.06);border-color:rgba(39,196,106,.16)}
+.seed-panel{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;padding:14px;border-radius:18px;border:1px solid rgba(39,196,106,.20);background:rgba(39,196,106,.07)}
+.seed-panel .seed-title{font-weight:950;letter-spacing:-.02em}.seed-panel .seed-copy{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}.seed-panel button{white-space:nowrap}
+@media (max-width:760px){.seed-panel{flex-direction:column;align-items:stretch}}
+
 </style>
 </head>
 <body>
@@ -246,6 +255,14 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
         <button class="btn btn-add" type="button" onclick="addDebt()">+ Add Bill</button>
       </div>
 
+      <div id="seedPanel" class="seed-panel">
+        <div>
+          <div class="seed-title">David’s recurring bill setup</div>
+          <div class="seed-copy">Grouped from your bank statements: core bills, grouped subscriptions, Alldata at $299, and debt target buckets.</div>
+        </div>
+        <button class="btn btn-add" type="button" onclick="mergeDefaultRecurringBills()">Add / Update My Bill List</button>
+      </div>
+
       <div class="toolbar">
         <input id="searchInput" class="search span-all" type="text" placeholder="Search bill name..." oninput="handleSearch(this.value)">
         <select id="statusFilter" onchange="handleStatusFilter(this.value)">
@@ -302,6 +319,12 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
       </div>
 
       <div class="side">
+        <div class="section-title">What’s Coming Up</div>
+        <div class="section-copy">Next-hit timeline based on due day and whether the bill is already paid this month.</div>
+        <div id="nextHitTimeline" class="next-hit-list"></div>
+      </div>
+
+      <div class="side">
         <div class="section-title">Due Day Order</div>
         <div class="section-copy">Unpaid monthly bills sorted by due day.</div>
         <div id="dueDays" class="list-group"></div>
@@ -315,6 +338,7 @@ const INITIAL_DEBTS = {{ initial_debts|safe if initial_debts else '[]' }};
 const INITIAL_SETTINGS = {{ initial_settings|safe if initial_settings else '{}' }};
 const CREDIT_REPORT_SNAPSHOT = {{ credit_report_snapshot|safe if credit_report_snapshot else '{}' }};
 const CREDIT_REPORT_ACCOUNTS = {{ credit_report_accounts|safe if credit_report_accounts else '[]' }};
+const DEFAULT_RECURRING_BILLS = {{ recurring_bill_defaults|safe if recurring_bill_defaults else '[]' }};
 let debts = [];
 let settings = { current_balance: 0, check1_income: 0, check2_income: 0, safety_buffer: 300, savings_goal: 1000, savings_balance: 0 };
 let settingsTimer = null;
@@ -668,6 +692,72 @@ function renderDebts(){
   }).join("");
 }
 
+function defaultBillUiId(name){
+  return 'default-' + String(name || '').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+function normalizedDefaultBill(x, idx){
+  return {
+    ui_id: defaultBillUiId(x.name || `bill-${idx}`), id:null, name:x.name || '', balance:0, rate:0, payment:Math.max(0, num(x.payment)), due_day:x.due_day ?? null,
+    paid:false, paid_this_month:false, monthly_paid_amount:0, last_payment_amount:0, credit_limit:0, paycheck_group:x.paycheck_group === 'check2' ? 'check2' : 'check1',
+    payment_history:[], account_type:x.account_type || 'Monthly Bill', report_source:'Bank statement setup', report_date:'2026', is_recurring:true, position:idx
+  };
+}
+function mergeDefaultRecurringBills(){
+  if(!Array.isArray(DEFAULT_RECURRING_BILLS) || !DEFAULT_RECURRING_BILLS.length){ alert('No default bill list found.'); return; }
+  let added = 0, updated = 0;
+  DEFAULT_RECURRING_BILLS.forEach((bill, idx) => {
+    const key = String(bill.name || '').trim().toLowerCase();
+    if(!key) return;
+    const existing = debts.find(d => String(d.name || '').trim().toLowerCase() === key);
+    if(existing){
+      existing.payment = Math.max(0, num(bill.payment));
+      existing.due_day = bill.due_day ?? existing.due_day;
+      existing.paycheck_group = bill.paycheck_group === 'check2' ? 'check2' : 'check1';
+      existing.account_type = bill.account_type || existing.account_type || 'Monthly Bill';
+      existing.is_recurring = true;
+      existing.balance = 0; existing.rate = 0; existing.credit_limit = 0; existing.paid = false;
+      updated++;
+    } else {
+      debts.unshift(normalizedDefaultBill(bill, idx));
+      added++;
+    }
+  });
+  reindexDebts();
+  render();
+  queueSave();
+  alert(`Recurring bill list updated. Added ${added}, updated ${updated}.`);
+}
+function daysUntilDueDay(dueDay){
+  if(!dueDay) return null;
+  const now = new Date();
+  const todayDay = now.getDate();
+  let diff = dueDay - todayDay;
+  if(diff < 0) diff += 31;
+  return diff;
+}
+function renderNextHitTimeline(){
+  const wrap = document.getElementById('nextHitTimeline');
+  if(!wrap) return;
+  const items = currentMonthDueDebts()
+    .filter(d => d.due_day)
+    .map(d => ({...d, days: daysUntilDueDay(d.due_day), status: dueStatus(d.due_day)}))
+    .sort((a,b) => num(a.days) - num(b.days))
+    .slice(0, 10);
+  if(!items.length){ wrap.innerHTML = '<div class="empty">Nothing unpaid with a due day right now.</div>'; return; }
+  wrap.innerHTML = items.map(d => {
+    const cls = d.status.level === 'bad' ? 'bad' : d.days <= 7 ? 'warn' : 'good';
+    const when = d.status.away !== null && d.status.away < 0 ? d.status.label : (d.days === 0 ? 'Today' : `In ${d.days} day${d.days === 1 ? '' : 's'}`);
+    return `<div class="next-hit-row ${cls}"><div><div class="meta-title">${esc(d.name)}</div><div class="meta-sub">${esc(when)} • Day ${esc(d.due_day)} • ${d.paycheck_group === 'check2' ? 'Check 2' : 'Check 1'}</div></div><strong>${money(d.payment)}</strong></div>`;
+  }).join('');
+}
+function updateSeedPanel(){
+  const panel = document.getElementById('seedPanel');
+  if(!panel) return;
+  const defaultNames = new Set((DEFAULT_RECURRING_BILLS || []).map(x => String(x.name || '').trim().toLowerCase()).filter(Boolean));
+  const matched = debts.filter(d => defaultNames.has(String(d.name || '').trim().toLowerCase())).length;
+  panel.style.display = matched >= defaultNames.size && defaultNames.size > 0 ? 'none' : 'flex';
+}
+
 function renderAlerts(){
   const wrap=document.getElementById("alerts");
   const activeMonthly=currentMonthDueDebts();
@@ -828,6 +918,8 @@ function calcPanels(){
   renderAlerts();
   renderDueDays();
   renderPaycheckLists();
+  renderNextHitTimeline();
+  updateSeedPanel();
 }
 
 function render(){ renderDebts(); calcPanels(); }
@@ -894,6 +986,14 @@ function load(){
 
   if (debts.length) {
     render();
+    return;
+  }
+
+  if (Array.isArray(DEFAULT_RECURRING_BILLS) && DEFAULT_RECURRING_BILLS.length) {
+    debts = normalizeRows(DEFAULT_RECURRING_BILLS.map(normalizedDefaultBill));
+    reindexDebts();
+    render();
+    queueSave();
     return;
   }
 

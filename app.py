@@ -38,6 +38,24 @@ CREDIT_REPORT_ACCOUNTS = [
     {"name":"AFFIRM INC - 2WEK4**","balance":399,"credit_limit":0,"payment":0,"account_type":"Buy Now Pay Later","paycheck_group":"check1"},
 ]
 
+DEFAULT_RECURRING_BILLS = [
+    {"name": "YouTube TV", "payment": 94, "due_day": 6, "paycheck_group": "check1", "account_type": "Core bill", "is_recurring": 1},
+    {"name": "Netflix", "payment": 18, "due_day": 10, "paycheck_group": "check1", "account_type": "Core bill", "is_recurring": 1},
+    {"name": "Phone - AT&T Prepaid", "payment": 36, "due_day": 29, "paycheck_group": "check2", "account_type": "Core bill", "is_recurring": 1},
+    {"name": "Progressive Insurance", "payment": 143, "due_day": 19, "paycheck_group": "check2", "account_type": "Core bill", "is_recurring": 1},
+    {"name": "Alldata", "payment": 299, "due_day": 23, "paycheck_group": "check2", "account_type": "Business tool", "is_recurring": 1},
+    {"name": "Apple Subscriptions", "payment": 30, "due_day": 18, "paycheck_group": "check2", "account_type": "Grouped subscription", "is_recurring": 1},
+    {"name": "Amazon / Prime / Video", "payment": 30, "due_day": 5, "paycheck_group": "check1", "account_type": "Grouped subscription", "is_recurring": 1},
+    {"name": "Google / YouTube Premium", "payment": 15, "due_day": 15, "paycheck_group": "check1", "account_type": "Grouped subscription", "is_recurring": 1},
+    {"name": "Canva", "payment": 39, "due_day": 9, "paycheck_group": "check1", "account_type": "Grouped subscription", "is_recurring": 1},
+    {"name": "Adobe", "payment": 30, "due_day": 28, "paycheck_group": "check2", "account_type": "Grouped subscription", "is_recurring": 1},
+    {"name": "Acorns", "payment": 12, "due_day": 9, "paycheck_group": "check1", "account_type": "Subscription", "is_recurring": 1},
+    {"name": "Ring Plan", "payment": 5, "due_day": 4, "paycheck_group": "check1", "account_type": "Subscription", "is_recurring": 1},
+    {"name": "Home Depot", "payment": 29, "due_day": 8, "paycheck_group": "check1", "account_type": "Debt payment", "is_recurring": 1},
+    {"name": "Credit Cards Target", "payment": 350, "due_day": 22, "paycheck_group": "check2", "account_type": "Debt target", "is_recurring": 1},
+    {"name": "Loans / Affirm Target", "payment": 250, "due_day": 16, "paycheck_group": "check2", "account_type": "Debt target", "is_recurring": 1},
+]
+
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -194,7 +212,7 @@ def login():
 def dashboard():
     if not session.get("logged_in"):
         return redirect("/")
-    return render_template("index.html", initial_debts=json.dumps(fetch_all_debts()), initial_settings=json.dumps(fetch_settings()), credit_report_snapshot=json.dumps(CREDIT_REPORT_SNAPSHOT), credit_report_accounts=json.dumps(CREDIT_REPORT_ACCOUNTS))
+    return render_template("index.html", initial_debts=json.dumps(fetch_all_debts()), initial_settings=json.dumps(fetch_settings()), credit_report_snapshot=json.dumps(CREDIT_REPORT_SNAPSHOT), credit_report_accounts=json.dumps(CREDIT_REPORT_ACCOUNTS), recurring_bill_defaults=json.dumps(DEFAULT_RECURRING_BILLS))
 
 
 @app.route("/logout")
@@ -215,6 +233,13 @@ def credit_report_import():
     if not session.get("logged_in"):
         return jsonify({"error": "Unauthorized"}), 401
     return jsonify({"snapshot": CREDIT_REPORT_SNAPSHOT, "accounts": CREDIT_REPORT_ACCOUNTS})
+
+
+@app.route("/recurring_bill_defaults")
+def recurring_bill_defaults():
+    if not session.get("logged_in"):
+        return jsonify({"error": "Unauthorized"}), 401
+    return jsonify(DEFAULT_RECURRING_BILLS)
 
 
 @app.route("/settings", methods=["GET", "POST"])
