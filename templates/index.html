@@ -428,13 +428,23 @@ function addSavings(amount){
 }
 function flashPaid(uiId){ flashDebtIds.add(uiId); renderDebts(); setTimeout(()=>{ flashDebtIds.delete(uiId); renderDebts(); }, 950); }
 function addDebt(){
+  sortMode = "manual";
+  searchTerm = "";
+  statusFilter = "all";
+  checkFilter = "all";
+  const sortEl = document.getElementById("sortMode"); if(sortEl) sortEl.value = "manual";
+  const searchEl = document.getElementById("searchInput"); if(searchEl) searchEl.value = "";
+  const statusEl = document.getElementById("statusFilter"); if(statusEl) statusEl.value = "all";
+  const checkEl = document.getElementById("checkFilter"); if(checkEl) checkEl.value = "all";
   const debt = { ui_id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+Math.random()), name:"", balance:0, rate:0, payment:0, due_day:null, paid:false, paid_this_month:false, credit_limit:0, paycheck_group:"check1", monthly_paid_amount:0, last_payment_amount:0, payment_history:[], account_type:"", report_source:"", report_date:"", is_recurring:false, position:0 };
   debts.unshift(debt);
   reindexDebts();
   expandedDebtIds.add(debt.ui_id);
   render();
   queueSave();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
 function removeDebt(i){ debts.splice(i,1); reindexDebts(); render(); queueSave(); }
 function updateDebt(i,key,value){
   if(key==="name" || key==="account_type" || key==="report_source" || key==="report_date") debts[i][key]=value;
