@@ -82,6 +82,14 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 @media (max-width:1080px){.debt-header.streamlined{grid-template-columns:1fr 1fr}.detail-grid{grid-template-columns:1fr 1fr}.paid-check,.header-actions{justify-content:stretch}}
 @media (max-width:760px){.debt-header.streamlined,.detail-grid{grid-template-columns:1fr}.paid-check{justify-content:flex-start}.due-badge{padding:10px 12px}}
 
+
+.scratchpad-panel{padding:14px;margin-bottom:14px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.scratchpad-grid{display:grid;grid-template-columns:1fr 1fr 1.25fr auto auto auto;gap:10px;align-items:end}
+.scratch-total{font-size:25px;font-weight:950;letter-spacing:-.03em}.scratch-total.good{color:#b9ffd4}.scratch-total.warn{color:#fde68a}.scratch-total.bad{color:#fecaca}
+.scratch-actions{display:flex;gap:8px;flex-wrap:wrap}.scratch-actions .payment-btn{padding:11px 13px}
+.scratch-list{display:grid;gap:7px;margin-top:12px}.scratch-row{display:flex;justify-content:space-between;gap:12px;padding:9px 11px;border-radius:13px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);font-size:12px}.scratch-row strong.add{color:#b9ffd4}.scratch-row strong.sub{color:#fecaca}
+@media (max-width:1080px){.scratchpad-grid{grid-template-columns:1fr 1fr}}@media (max-width:760px){.scratchpad-grid{grid-template-columns:1fr}.scratch-actions .payment-btn{flex:1}}
+
 .savings-panel{display:grid;grid-template-columns:1.1fr 1.1fr 1fr 1fr;gap:10px;align-items:end;padding:14px;margin-bottom:14px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
 .savings-progress{height:14px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);overflow:hidden;margin-top:9px}
 .savings-progress-fill{height:100%;width:0%;background:linear-gradient(135deg,var(--green),var(--green2));border-radius:999px;transition:width .2s ease}
@@ -138,6 +146,30 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
       <div class="money-total" id="trueAvailableMetric">$0</div>
       <div class="money-note">Current bank balance - unpaid bills - buffer - protected savings.</div>
     </div>
+  </div>
+
+  <div class="scratchpad-panel">
+    <div class="section-head" style="margin-bottom:12px;">
+      <div>
+        <div class="section-title">Money Scratchpad</div>
+        <div class="section-copy">Enter what is in checking, then add or subtract real-life items without changing your bills.</div>
+      </div>
+    </div>
+    <div class="scratchpad-grid">
+      <div class="cash-input"><label>Checking Starting Point</label><input id="scratchStarting" type="number" step="0.01" value="0" oninput="updateScratchStarting(this.value)"></div>
+      <div class="cash-input"><label>Amount</label><input id="scratchAmount" type="number" step="0.01" placeholder="0.00"></div>
+      <div class="cash-input"><label>Note</label><input id="scratchNote" type="text" placeholder="Gas, groceries, parts, deposit..."></div>
+      <div>
+        <div class="mini-label" style="font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase;">Current Scratch Total</div>
+        <div class="scratch-total" id="scratchTotal">$0</div>
+      </div>
+      <div class="scratch-actions">
+        <button class="payment-btn custom" type="button" onclick="addScratchEntry(1)">+ Add</button>
+        <button class="payment-btn undo" type="button" onclick="addScratchEntry(-1)">− Subtract</button>
+        <button class="payment-btn min" type="button" onclick="clearScratchpad()">Clear</button>
+      </div>
+    </div>
+    <div id="scratchList" class="scratch-list"></div>
   </div>
 
   <div class="savings-panel">
@@ -228,6 +260,10 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
           <option value="check1">Check 1</option>
           <option value="check2">Check 2</option>
         </select>
+        <select id="sortMode" onchange="handleSortMode(this.value)">
+          <option value="manual">Manual order</option>
+          <option value="due">Due date</option>
+        </select>
         <button class="chip-btn" type="button" onclick="expandAll()">Expand all</button>
         <button class="chip-btn" type="button" onclick="collapseAll()">Collapse all</button>
         <button class="chip-btn" type="button" onclick="resetMonth()">Reset month</button>
@@ -287,6 +323,8 @@ let saveTextTimer = null;
 let searchTerm = "";
 let statusFilter = "all";
 let checkFilter = "all";
+let sortMode = "manual";
+let scratchpad = { starting: 0, entries: [] };
 let expandedDebtIds = new Set();
 let expandAllMode = false;
 let flashDebtIds = new Set();
@@ -297,6 +335,40 @@ const esc = s => String(s ?? "").replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt
 const today = () => new Date().getDate();
 const clampDay = v => { const n = parseInt(v,10); return isNaN(n) ? null : Math.min(31, Math.max(1, n)); };
 const getExtra = ()=>num(localStorage.getItem("debt_extra_payment")||0);
+function loadScratchpad(){
+  try { scratchpad = JSON.parse(localStorage.getItem("debt_money_scratchpad_v1") || "{}"); } catch(e) { scratchpad = {}; }
+  scratchpad.starting = num(scratchpad.starting);
+  scratchpad.entries = Array.isArray(scratchpad.entries) ? scratchpad.entries.slice(0, 25) : [];
+}
+function saveScratchpad(){ localStorage.setItem("debt_money_scratchpad_v1", JSON.stringify(scratchpad)); }
+function scratchTotal(){ return num(scratchpad.starting) + scratchpad.entries.reduce((s,e)=>s + num(e.amount), 0); }
+function renderScratchpad(){
+  const start=document.getElementById("scratchStarting"); if(start) start.value = num(scratchpad.starting);
+  const total=scratchTotal();
+  const totalEl=document.getElementById("scratchTotal");
+  if(totalEl){ totalEl.textContent=money(total); totalEl.classList.remove("good","warn","bad"); totalEl.classList.add(moneyStateClass(total)); }
+  const list=document.getElementById("scratchList"); if(!list) return;
+  if(!scratchpad.entries.length){ list.innerHTML='<div class="empty">No scratchpad items yet.</div>'; return; }
+  list.innerHTML=scratchpad.entries.map((e,idx)=>`<div class="scratch-row"><span>${esc(e.note || 'Scratch item')}</span><strong class="${num(e.amount)>=0?'add':'sub'}">${num(e.amount)>=0?'+':'−'} ${money(Math.abs(num(e.amount)))}</strong></div>`).join("");
+}
+function updateScratchStarting(value){ scratchpad.starting = num(value); saveScratchpad(); renderScratchpad(); }
+function addScratchEntry(sign){
+  const amountEl=document.getElementById("scratchAmount");
+  const noteEl=document.getElementById("scratchNote");
+  const amount=Math.abs(num(amountEl ? amountEl.value : 0));
+  if(amount <= 0){ alert("Enter an amount first."); return; }
+  scratchpad.entries.unshift({ amount: +(amount * sign).toFixed(2), note: (noteEl ? noteEl.value : "") || (sign > 0 ? "Added money" : "Subtracted money") });
+  scratchpad.entries = scratchpad.entries.slice(0, 25);
+  if(amountEl) amountEl.value="";
+  if(noteEl) noteEl.value="";
+  saveScratchpad(); renderScratchpad();
+}
+function clearScratchpad(){ if(!confirm("Clear scratchpad items and starting point?")) return; scratchpad={starting:0,entries:[]}; saveScratchpad(); renderScratchpad(); }
+function visibleDebts(){
+  const rows = debts.filter(shouldShowDebt);
+  if(sortMode === "due") return rows.slice().sort((a,b)=>(a.due_day || 99) - (b.due_day || 99));
+  return rows;
+}
 function setSaveStatus(t){ document.getElementById("saveStatus").textContent = t; }
 function monthsToWords(m){ if(!isFinite(m)||m<=0) return "—"; const whole=Math.ceil(m); if(whole<12) return whole+" mo"; const y=Math.floor(whole/12), mo=whole%12; return mo?`${y} yr ${mo} mo`:`${y} yr`; }
 function dueStatus(d){
@@ -427,6 +499,7 @@ function handleExtraInput(){ localStorage.setItem("debt_extra_payment", document
 function handleSearch(v){ searchTerm = String(v || "").trim().toLowerCase(); renderDebts(); }
 function handleStatusFilter(v){ statusFilter = v; renderDebts(); }
 function handleCheckFilter(v){ checkFilter = v; renderDebts(); }
+function handleSortMode(v){ sortMode = v === "due" ? "due" : "manual"; renderDebts(); }
 function toggleExpand(uiId){ if(expandedDebtIds.has(uiId)) expandedDebtIds.delete(uiId); else expandedDebtIds.add(uiId); renderDebts(); }
 function expandAll(){ expandAllMode = true; debts.forEach(d => expandedDebtIds.add(d.ui_id)); renderDebts(); }
 function collapseAll(){ expandAllMode = false; expandedDebtIds.clear(); renderDebts(); }
@@ -501,7 +574,7 @@ function undoLastPayment(i){
 
 function renderDebts(){
   const wrap = document.getElementById("debts");
-  const filtered = debts.filter(shouldShowDebt);
+  const filtered = visibleDebts();
   if(!debts.length){ wrap.innerHTML='<div class="empty">No bills yet. Add one to start building your payoff plan.</div>'; return; }
   if(!filtered.length){ wrap.innerHTML='<div class="empty">No bills match your current search or filters.</div>'; return; }
 
@@ -546,7 +619,7 @@ function renderDebts(){
           <div class="due-badge"><div class="stat-label">Due Date</div><div class="stat-value">${esc(dueText)}</div></div>
           <div class="due-badge"><div class="stat-label">Amount Due</div><div class="stat-value">${money(d.payment)}</div></div>
           <label class="paid-check ${isMonthlyPaid ? 'is-paid' : ''}"><input type="checkbox" ${isMonthlyPaid ? "checked" : ""} onchange="toggleMonthlyPaid(${i}, this.checked)"><span>${paidLabel}</span></label>
-          <div class="header-actions"><button class="icon-btn" type="button" onclick="moveDebt(${i}, -1)" ${i === 0 ? 'disabled' : ''}>⬆️</button><button class="icon-btn" type="button" onclick="moveDebt(${i}, 1)" ${i === debts.length - 1 ? 'disabled' : ''}>⬇️</button><button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Details'}</button></div>
+          <div class="header-actions"><button class="icon-btn" type="button" onclick="moveDebt(${i}, -1)" ${sortMode !== 'manual' || i === 0 ? 'disabled' : ''}>⬆️</button><button class="icon-btn" type="button" onclick="moveDebt(${i}, 1)" ${sortMode !== 'manual' || i === debts.length - 1 ? 'disabled' : ''}>⬇️</button><button class="icon-btn" type="button" onclick="toggleExpand('${d.ui_id}')">${isExpanded ? 'Hide' : 'Details'}</button></div>
         </div>
         <div class="card-body">
           <div class="chips">${checkChip}${paidOffChip}${progressChip}${dueChip}${utilChip}${typeChip}${reportChip}${lastPaymentChip}</div>
@@ -793,6 +866,7 @@ function normalizeRows(rows){
 }
 
 function load(){
+  loadScratchpad();
   settings = { ...settings, ...(INITIAL_SETTINGS || {}) };
   document.getElementById("currentBalance").value = num(settings.current_balance);
   document.getElementById("check1Income").value = num(settings.check1_income);
@@ -802,6 +876,7 @@ function load(){
   document.getElementById("savingsBalance").value = num(settings.savings_balance);
   document.getElementById("savingsGoal").value = num(settings.savings_goal || 1000);
   renderCreditSnapshot();
+  renderScratchpad();
   const savedExtra = localStorage.getItem("debt_extra_payment");
   if(savedExtra!==null) document.getElementById("extraPayment").value=savedExtra;
 
