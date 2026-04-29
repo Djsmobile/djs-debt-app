@@ -105,6 +105,11 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
 .seed-panel{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;padding:14px;border-radius:18px;border:1px solid rgba(39,196,106,.20);background:rgba(39,196,106,.07)}
 .seed-panel .seed-title{font-weight:950;letter-spacing:-.02em}.seed-panel .seed-copy{margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}.seed-panel button{white-space:nowrap}
 @media (max-width:760px){.seed-panel{flex-direction:column;align-items:stretch}}
+.bank-mode-panel{margin:0 0 14px;padding:16px;background:linear-gradient(180deg,rgba(17,28,46,.96),rgba(12,21,37,.98));border:1px solid rgba(59,130,246,.22);border-radius:22px;box-shadow:var(--shadow)}
+.bank-mode-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.bank-mode-title{font-size:20px;font-weight:950;letter-spacing:-.02em}.bank-mode-copy{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.4}.bank-mode-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.bank-mode-actions button{border:none;border-radius:12px;padding:10px 12px;font-weight:900;cursor:pointer;color:white}.bank-mode-actions .primary{background:linear-gradient(135deg,var(--green),var(--green2))}.bank-mode-actions .blue{background:linear-gradient(135deg,var(--blue),#1d4ed8)}.bank-mode-actions .warn{background:linear-gradient(135deg,var(--yellow),#d97706)}
+.bank-checklist{display:grid;gap:8px}.bank-row{display:grid;grid-template-columns:auto minmax(0,1.3fr) .55fr .55fr .55fr auto;gap:10px;align-items:center;padding:11px 12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.bank-row.paid{background:rgba(39,196,106,.08);border-color:rgba(39,196,106,.20)}.bank-row.urgent{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.22)}.bank-row.soon{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.20)}.bank-row input[type="checkbox"]{width:20px;height:20px;accent-color:var(--green)}.bank-paid-btn{border:none;border-radius:12px;padding:10px 12px;background:linear-gradient(135deg,var(--green),var(--green2));color:white;font-weight:900;cursor:pointer}.bank-paid-btn:disabled{opacity:.45;cursor:not-allowed}.bank-small{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.07em;text-transform:uppercase}.bank-strong{font-weight:950}.bank-summary{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
+@media (max-width:900px){.bank-row{grid-template-columns:auto 1fr auto}.bank-row .hide-bank-sm{display:none}.bank-mode-head{flex-direction:column}.bank-mode-actions{justify-content:flex-start}}
+
 
 </style>
 </head>
@@ -263,6 +268,23 @@ body{margin:0;min-height:100vh;font-family:Inter,Segoe UI,Arial,sans-serif;color
         <button class="btn btn-add" type="button" onclick="mergeDefaultRecurringBills()">Add / Update My Bill List</button>
       </div>
 
+      <div class="bank-mode-panel">
+        <div class="bank-mode-head">
+          <div>
+            <div class="bank-mode-title">Bank Statement Pay-Off Mode</div>
+            <div class="bank-mode-copy">Use this when you see recurring bills clear your bank. Check the matches, then mark them paid for this month in one shot.</div>
+          </div>
+          <div class="bank-mode-actions">
+            <button class="primary" type="button" onclick="markSelectedBankPaid()">✔ Mark Selected Paid</button>
+            <button class="blue" type="button" onclick="markBankRowsPaid('due')">Pay Due / Past Due</button>
+            <button class="warn" type="button" onclick="markBankRowsPaid('check1')">Pay Check 1</button>
+            <button class="warn" type="button" onclick="markBankRowsPaid('check2')">Pay Check 2</button>
+          </div>
+        </div>
+        <div id="bankModeChecklist" class="bank-checklist"></div>
+        <div id="bankModeSummary" class="bank-summary"></div>
+      </div>
+
       <div class="toolbar">
         <input id="searchInput" class="search span-all" type="text" placeholder="Search bill name..." oninput="handleSearch(this.value)">
         <select id="statusFilter" onchange="handleStatusFilter(this.value)">
@@ -352,6 +374,7 @@ let scratchpad = { starting: 0, entries: [] };
 let expandedDebtIds = new Set();
 let expandAllMode = false;
 let flashDebtIds = new Set();
+let selectedBankBillIds = new Set();
 
 const num = v => Number(v || 0);
 const money = v => (isFinite(num(v)) ? num(v) : 0).toLocaleString(undefined,{style:"currency",currency:"USD"});
@@ -727,6 +750,86 @@ function mergeDefaultRecurringBills(){
   queueSave();
   alert(`Recurring bill list updated. Added ${added}, updated ${updated}.`);
 }
+
+function markBillPaidThisMonth(i, label){
+  const d = debts[i];
+  if(!d || d.paid) return false;
+  const applied = Math.max(0, num(d.payment));
+  if(applied <= 0) return false;
+  d.last_payment_amount = +applied.toFixed(2);
+  d.monthly_paid_amount = +Math.max(num(d.monthly_paid_amount), applied).toFixed(2);
+  d.payment_history = Array.isArray(d.payment_history) ? d.payment_history : [];
+  d.payment_history.unshift({ amount: applied, type: 'statement', label: label || 'Bank statement paid' });
+  d.payment_history = d.payment_history.slice(0, 5);
+  d.paid_this_month = true;
+  flashDebtIds.add(d.ui_id);
+  return true;
+}
+function toggleBankSelection(uiId, checked){
+  if(checked) selectedBankBillIds.add(uiId);
+  else selectedBankBillIds.delete(uiId);
+}
+function unpaidBankRows(){
+  return debts
+    .filter(d => isRecurringBill(d) && !d.paid_this_month && !d.paid)
+    .map(d => ({ d, i: debts.indexOf(d), days: daysUntilDueDay(d.due_day), status: dueStatus(d.due_day) }))
+    .sort((a,b) => (a.days ?? 99) - (b.days ?? 99));
+}
+function markSelectedBankPaid(){
+  const selected = Array.from(selectedBankBillIds);
+  if(!selected.length){ alert('Check the bank statement matches first.'); return; }
+  let count = 0;
+  selected.forEach(uiId => {
+    const i = debts.findIndex(d => d.ui_id === uiId);
+    if(i >= 0 && markBillPaidThisMonth(i, 'Bank statement match')) count++;
+  });
+  selectedBankBillIds.clear();
+  render();
+  queueSave();
+  if(count) setSaveStatus(`${count} statement bill(s) marked paid`);
+}
+function markBankRowsPaid(mode){
+  const rows = unpaidBankRows();
+  let targets = [];
+  if(mode === 'due') targets = rows.filter(r => r.status.level === 'bad' || r.status.level === 'warn' || r.days === 0 || (r.days !== null && r.days <= 3));
+  else if(mode === 'check1') targets = rows.filter(r => (r.d.paycheck_group || 'check1') !== 'check2');
+  else if(mode === 'check2') targets = rows.filter(r => r.d.paycheck_group === 'check2');
+  if(!targets.length){ alert('Nothing unpaid matched that button.'); return; }
+  targets.forEach(r => markBillPaidThisMonth(r.i, mode === 'due' ? 'Bank statement due/past due' : 'Bank statement bulk paid'));
+  selectedBankBillIds.clear();
+  render();
+  queueSave();
+  setSaveStatus(`${targets.length} statement bill(s) marked paid`);
+}
+function renderBankModeChecklist(){
+  const wrap = document.getElementById('bankModeChecklist');
+  const summary = document.getElementById('bankModeSummary');
+  if(!wrap) return;
+  const rows = debts
+    .filter(d => isRecurringBill(d))
+    .map(d => ({ d, i: debts.indexOf(d), days: daysUntilDueDay(d.due_day), status: dueStatus(d.due_day) }))
+    .sort((a,b) => (a.days ?? 99) - (b.days ?? 99));
+  if(!rows.length){ wrap.innerHTML = '<div class="empty">No recurring bank-statement bills yet. Click Add / Update My Bill List first.</div>'; if(summary) summary.textContent=''; return; }
+  const unpaidCount = rows.filter(r => !r.d.paid_this_month).length;
+  const unpaidTotal = rows.filter(r => !r.d.paid_this_month).reduce((s,r)=>s+num(r.d.payment),0);
+  wrap.innerHTML = rows.map(r => {
+    const d = r.d;
+    const paid = !!d.paid_this_month || num(d.monthly_paid_amount) > 0;
+    const checked = selectedBankBillIds.has(d.ui_id) && !paid;
+    const rowCls = paid ? 'paid' : (r.status.level === 'bad' ? 'urgent' : (r.status.level === 'warn' || (r.days !== null && r.days <= 7) ? 'soon' : ''));
+    const when = d.due_day ? (paid ? 'Paid this month' : (r.days === 0 ? 'Due today' : `In ${r.days} day${r.days === 1 ? '' : 's'}`)) : 'No due day';
+    return `<div class="bank-row ${rowCls}">
+      <input type="checkbox" ${checked ? 'checked' : ''} ${paid ? 'disabled' : ''} onchange="toggleBankSelection('${esc(d.ui_id)}', this.checked)">
+      <div><div class="bank-strong">${esc(d.name)}</div><div class="meta-sub">${esc(d.account_type || 'Recurring bill')} • ${d.paycheck_group === 'check2' ? 'Check 2' : 'Check 1'}</div></div>
+      <div class="hide-bank-sm"><div class="bank-small">Due</div><div class="bank-strong">${d.due_day ? 'Day '+esc(d.due_day) : '—'}</div></div>
+      <div class="hide-bank-sm"><div class="bank-small">Status</div><div class="bank-strong">${esc(when)}</div></div>
+      <div><div class="bank-small">Amount</div><div class="bank-strong">${money(d.payment)}</div></div>
+      <button class="bank-paid-btn" type="button" ${paid ? 'disabled' : ''} onclick="markBillPaidThisMonth(${r.i}, 'Bank statement quick paid'); selectedBankBillIds.delete('${esc(d.ui_id)}'); render(); queueSave();">${paid ? 'Paid' : 'Paid'}</button>
+    </div>`;
+  }).join('');
+  if(summary) summary.textContent = `${unpaidCount} unpaid recurring bill(s) left • ${money(unpaidTotal)} still reserved in Safe Spend.`;
+}
+
 function daysUntilDueDay(dueDay){
   if(!dueDay) return null;
   const now = new Date();
@@ -918,6 +1021,7 @@ function calcPanels(){
   renderAlerts();
   renderDueDays();
   renderPaycheckLists();
+  renderBankModeChecklist();
   renderNextHitTimeline();
   updateSeedPanel();
 }
